@@ -206,10 +206,10 @@ module BlackStack
           fragment.strip!
           next if fragment.empty?
           next if fragment.start_with?('#')          
-          l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue}... "
           params.each_with_index { |param, i|
             fragment.gsub!("$#{i+1}", param)
           }
+          l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
           res = node.exec(fragment)
           l.done#(details: res)
         }
