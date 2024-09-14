@@ -4,18 +4,6 @@
 # - $1: Password for both the 'blackstack' Linux user and PostgreSQL user.
 # - $2: Hostname for the server.
 
-# Exit immediately if a command exits with a non-zero status.
-RUN set -e
-
-# Check if both parameters are provided
-RUN if [ $# -ne 2 ]; then
-    echo "Usage: $0 <password> <hostname>"
-    exit 1
-fi
-
-#PASSWORD=$1
-#HOSTNAME=$2
-
 # Set timezone to America/Argentina/Buenos_Aires
 RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 
@@ -50,7 +38,7 @@ RUN mkdir -p ~/.postgresql
 
 # Ensure the locale is correctly set
 RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
+RUN update-locale LANG=en_US.UTF-8 LANGUAGE=en_US: LC_ALL=en_US.UTF-8
 
 # Install PostgreSQL and development libraries
 RUN apt-get install -y libpq-dev postgresql postgresql-contrib
@@ -101,7 +89,7 @@ RUN sed -i '$ a export rvmsudo_secure_path=1' /etc/profile.d/rvm.sh
 
 # Source RVM scripts
 # Install Ruby 3.1.2 and set it as default
-RUN source /etc/profile.d/rvm.sh && rvm install 3.1.2 && rvm --default use 3.1.2
+RUN source /etc/profile.d/rvm.sh && rvm use 3.1.2 --default --install
 
 # Verify Ruby installation
 RUN ruby -v
@@ -119,7 +107,7 @@ fi
 # Install AdsPower
 RUN cd /tmp
 RUN wget -q https://version.adspower.net/software/linux-x64-global/AdsPower-Global-5.9.14-x64.deb
-RUN dpkg -i AdsPower-Global-5.9.14-x64.deb || apt-get install -y -f
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ./AdsPower-Global-5.9.14-x64.deb
 RUN rm -f AdsPower-Global-5.9.14-x64.deb
 
 # Install ChromeDriver
