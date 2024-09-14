@@ -25,8 +25,8 @@ sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/ssh
 service ssh restart 
 
 # update packages
-sudo apt -y update 
-sudo apt -y upgrade 
+sudo apt-get -y update 
+sudo apt-get -y upgrade 
 
 # backup old .postgresql folder
 sudo mv -p ~/.postgresql ~/.postgresql.$(date +%s)
@@ -34,7 +34,7 @@ sudo mkdir -p ~/.postgresql
 
 # install PostgreSQL dev package with header of PostgreSQL
 sudo apt-get install -y libpq-dev
-sudo apt install -y postgresql-12 postgresql-contrib
+sudo apt-get install -y postgresql-12 postgresql-contrib
 sudo systemctl start postgresql.service
 #sudo systemctl status postgresql
 
@@ -149,10 +149,6 @@ sudo rm -rf ./chromedriver-linux64
 # AdsPower will try to use GTK, a graphical toolkit, which in turn needs an active display connection that is not present in a headless setup.
 sudo apt-get update
 sudo apt-get install -y xvfb
-
-# allow adspower browsers and any other process to execute `downloadImage` javascript function.
-sudo chmod 777 /home/blackstack/Downloads
-sudo chmod 777 /home/blackstack/.config/adspower_global/cwd_global
 
 # write a flag in the file /home/blackstack/.blackstack
 touch /home/blackstack/.blackstack
