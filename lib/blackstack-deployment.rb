@@ -157,26 +157,26 @@ module BlackStack
       end # def self.get_node(node_name)
   
       # 
-      def self.install(
+      def self.source(
         node_name,
         bash_script_filename: ,
         logger: nil,
         bash_script_url: 'https://raw.githubusercontent.com/leandrosardi/environment/main/sh/install.ubuntu.20_04.simplified.sh'
       )
         l = logger || BlackStack::DummyLogger.new(nil)
-  
+      
         l.logs "Getting node #{node_name.blue}... "
         n = get_node(node_name)
         raise ArgumentError, "Node not found: #{node_name}" if n.nil?
         n = n.clone # clone the hash descriptor, because I will modify it below.
         l.done
-  
+      
         # download the file from the URL
         l.logs "Getting bash script from #{bash_script_filename.blue}... "
         #bash_script = Net::HTTP.get(URI(bash_script_url))
         bash_script = File.read(bash_script_filename)
         l.done(details: "#{bash_script.length} bytes downloaded")
-  
+      
         # switch user to root and create the node object
         l.logs "Creating node object... "
         new_ssh_username = n[:ssh_username]
@@ -185,18 +185,18 @@ module BlackStack
         n[:ssh_password] = n[:ssh_root_password]
         node = BlackStack::Infrastructure::Node.new(n)
         l.done
-  
+      
         l.logs("Connect to node #{node_name.to_s.blue}... ")
         node.connect
         l.done
         # => n.ssh
-  
+      
         # execute the script fragment by fragment
-        bash_script.split(/RUN /).each { |fragment|
+        bash_script.split(/(?<!#)RUN /).each { |fragment|
           fragment.strip!
           next if fragment.empty?
           next if fragment.start_with?('#')          
-          l.logs "#{fragment.split(/\n/).first.to_s.strip.blue}... "        
+          l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue}... "        
           #begin
             fragment.gsub!('$1', new_hostname)
             fragment.gsub!('$2', new_ssh_username)
@@ -206,13 +206,13 @@ module BlackStack
           #  l.error(e)
           #end
         }
-  
+      
         l.logs 'Disconnect from node master... '
         node.disconnect
         l.done
-  
-      end # def self.install(node_name, logger: nil)
-  
+      
+      end # def self.source(node_name, logger: nil)
+        
   
     end # Deployment
   end # BlackStack
