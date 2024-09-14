@@ -1,6 +1,7 @@
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 require 'blackstack-nodes'
+require 'pry'
 
 module BlackStack
     module Deployment
@@ -153,18 +154,22 @@ module BlackStack
   
       # 
       def self.get_node(node_name)
-        @@nodes.find { |n| n[:name] == node_name }
+        @@nodes.find { |n| n[:name].to_s == node_name.to_s }
       end # def self.get_node(node_name)
   
       # 
       def self.source(
         node_name,
-        bash_script_filename: ,
-        logger: nil,
-        bash_script_url: 'https://raw.githubusercontent.com/leandrosardi/environment/main/sh/install.ubuntu.20_04.simplified.sh'
+        bash_script_filename: nil,
+        bash_script_url: nil,
+        params: [], 
+        logger: nil
       )
         l = logger || BlackStack::DummyLogger.new(nil)
-      
+        node_name = node_name.dup.to_s
+        raise 'Either `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename.nil? && bash_script_url.nil?
+        raise 'Only one `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename && bash_script_url
+
         l.logs "Getting node #{node_name.blue}... "
         n = get_node(node_name)
         raise ArgumentError, "Node not found: #{node_name}" if n.nil?
@@ -173,8 +178,8 @@ module BlackStack
       
         # download the file from the URL
         l.logs "Getting bash script from #{bash_script_filename.blue}... "
-        #bash_script = Net::HTTP.get(URI(bash_script_url))
-        bash_script = File.read(bash_script_filename)
+        bash_script = Net::HTTP.get(URI(bash_script_url)) if bash_script_url
+        bash_script = File.read(bash_script_filename) if bash_script_filename
         l.done(details: "#{bash_script.length} bytes downloaded")
       
         # switch user to root and create the node object
@@ -196,24 +201,51 @@ module BlackStack
           fragment.strip!
           next if fragment.empty?
           next if fragment.start_with?('#')          
-          l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue}... "        
-          #begin
-            fragment.gsub!('$1', new_hostname)
-            fragment.gsub!('$2', new_ssh_username)
-            res = node.exec(fragment)
-            l.done#(details: res)
-          #rescue => e
-          #  l.error(e)
-          #end
+          l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue}... "
+          params.each_with_index { |param, i|
+            fragment.gsub!("$#{i+1}", param)
+          }
+          res = node.exec(fragment)
+          l.done#(details: res)
         }
       
-        l.logs 'Disconnect from node master... '
+        l.logs "Disconnect from node #{node_name.blue}... "
         node.disconnect
         l.done
-      
+        
       end # def self.source(node_name, logger: nil)
         
-  
+      # 
+      def self.install(
+        node_name,
+        bash_script_filename: nil,
+        bash_script_url: nil,
+        params: [], 
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        n = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        l.done
+
+        params = [
+          'root',
+          n[:ssh_root_password],
+        ]
+
+        self.source(
+          node_name,
+          bash_script_filename: bash_script_filename,
+          bash_script_url: bash_script_url,
+          params: params,
+          logger: l
+        )
+      end # def self.install(node_name, logger: nil)
+      
+
     end # Deployment
   end # BlackStack
     
