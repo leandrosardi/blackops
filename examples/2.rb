@@ -5,7 +5,8 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
     BlackStack::Deployment.install(
-        'master',
+        'slave',
+        bash_script_filename: './environment.ubuntu-20-04.blackstack',
         logger: l
     )
 rescue => e
