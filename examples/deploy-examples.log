@@ -1,0 +1,34 @@
+2024-09-13 21:50:45: Get node master... [0;32;49mdone[0m
+2024-09-13 21:50:45: Creating node object... [0;31;49merror: uninitialized constant BlackStack::Infrastructure
+
+    node = BlackStack::Infrastructure::Node.new(n)
+                     ^^^^^^^^^^^^^^^^
+1.rb:17:in `<main>'.[0m
+2024-09-13 21:51:03: Get node master... [0;32;49mdone[0m
+2024-09-13 21:51:03: Creating node object... [0;32;49mdone[0m
+2024-09-13 21:51:03: Connect to node master... [0;32;49mdone[0m
+2024-09-13 21:51:05: Valid command: `hostname`... [0;31;49merror: wrong number of arguments (given 0, expected 2)
+/home/leandro/.rvm/gems/ruby-3.1.2/gems/net-ssh-6.1.0/lib/net/ssh/connection/session.rb:350:in `initialize'
+/home/leandro/.rvm/gems/ruby-3.1.2/gems/colorize-0.8.1/lib/colorize/instance_methods.rb:22:in `new'
+/home/leandro/.rvm/gems/ruby-3.1.2/gems/colorize-0.8.1/lib/colorize/instance_methods.rb:22:in `colorize'
+/home/leandro/.rvm/gems/ruby-3.1.2/gems/colorize-0.8.1/lib/colorize/class_methods.rb:98:in `block (2 levels) in color_methods'
+1.rb:26:in `<main>'.[0m
+2024-09-13 21:57:59: Get node master... [0;32;49mdone[0m
+2024-09-13 21:57:59: Creating node object... [0;32;49mdone[0m
+2024-09-13 21:57:59: Connect to node master... [0;32;49mdone[0m
+2024-09-13 21:58:01: Valid command: `hostname`... [0;34;49mvmi2140791.contaboserver.net[0m
+2024-09-13 21:58:03: Invalid command: `rm`... [0;31;49merror: Command failed with the following error:
+rm: missing operand
+Try 'rm --help' for more information.
+/home/leandro/.rvm/gems/ruby-3.1.2/gems/blackstack-nodes-1.2.14/lib/blackstack-nodes.rb:137:in `exec'
+1.rb:30:in `<main>'.[0m
+2024-09-13 22:01:16: Get node master... [0;32;49mdone[0m
+2024-09-13 22:01:16: Creating node object... [0;32;49mdone[0m
+2024-09-13 22:01:16: Connect to node master... [0;32;49mdone[0m
+2024-09-13 22:01:18: Valid command: `hostname`... [0;34;49mvmi2140791.contaboserver.net[0m
+2024-09-13 22:01:20: Invalid command: `rm`... [0;31;49merror: Command failed with the following error:
+rm: missing operand
+Try 'rm --help' for more information.
+/home/leandro/.rvm/gems/ruby-3.1.2/gems/blackstack-nodes-1.2.14/lib/blackstack-nodes.rb:137:in `exec'
+1.rb:30:in `<main>'.[0m
+
