@@ -38,7 +38,10 @@ RUN mkdir -p ~/.postgresql
 
 # Ensure the locale is correctly set
 RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8 LANGUAGE=en_US: LC_ALL=en_US.UTF-8
+RUN update-locale LANG=en_US.UTF-8 LANGUAGE=en_US: LC_ALL=en_US.UTF-8 \
+    LC_TIME=en_US.UTF-8 LC_MONETARY=en_US.UTF-8 LC_ADDRESS=en_US.UTF-8 \
+    LC_TELEPHONE=en_US.UTF-8 LC_NAME=en_US.UTF-8 LC_MEASUREMENT=en_US.UTF-8 \
+    LC_IDENTIFICATION=en_US.UTF-8 LC_NUMERIC=en_US.UTF-8 LC_PAPER=en_US.UTF-8
 
 # Install PostgreSQL and development libraries
 RUN apt-get install -y libpq-dev postgresql postgresql-contrib
