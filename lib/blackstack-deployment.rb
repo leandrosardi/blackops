@@ -177,11 +177,16 @@ module BlackStack
         l.done
       
         # download the file from the URL
-        l.logs "Getting bash script from #{bash_script_filename.blue}... "
-        bash_script = Net::HTTP.get(URI(bash_script_url)) if bash_script_url
-        bash_script = File.read(bash_script_filename) if bash_script_filename
-        l.done(details: "#{bash_script.length} bytes downloaded")
-      
+        if bash_script_url
+          l.logs "Downloading bash script from #{bash_script_filename.blue}... "
+          bash_script = Net::HTTP.get(URI(bash_script_url)) 
+          l.done(details: "#{bash_script.length} bytes downloaded")
+        else
+          l.logs "Getting bash script from #{bash_script_filename.blue}... "
+          bash_script = File.read(bash_script_filename) if bash_script_filename
+          l.done(details: "#{bash_script.length} bytes in file")
+        end
+
         # switch user to root and create the node object
         l.logs "Creating node object... "
         new_ssh_username = n[:ssh_username]
@@ -231,9 +236,25 @@ module BlackStack
         raise ArgumentError, "Node not found: #{node_name}" if n.nil?
         l.done
 
+        # download the file from the URL
+        if bash_script_url
+          l.logs "Downloading bash script from #{bash_script_filename.blue}... "
+          bash_script = Net::HTTP.get(URI(bash_script_url)) 
+          l.done(details: "#{bash_script.length} bytes downloaded")
+        else
+          l.logs "Getting bash script from #{bash_script_filename.blue}... "
+          bash_script = File.read(bash_script_filename) if bash_script_filename
+          l.done(details: "#{bash_script.length} bytes in file")
+        end
+
+        # validate bash_script has $1 and $2 parameters
+        if bash_script.scan(/\$1/).empty? || bash_script.scan(/\$2/).empty?
+          raise ArgumentError, "The .blackstack files for environment installation must have $1 (hostname) and $2 (blackstack password) parameters."
+        end
+
         params = [
-          'root',
-          n[:ssh_root_password],
+          n[:name],
+          n[:ssh_password],
         ]
 
         self.source(
