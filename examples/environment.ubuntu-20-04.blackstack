@@ -1,8 +1,9 @@
 # Description:
 # - This script is used to install the required packages for the BlackStack project.
 # Parameters:
-# - $1: Password for both the 'blackstack' Linux user and PostgreSQL user.
-# - $2: Hostname for the server.
+# - $1: Hostname for the server.
+# - $2: Password for both the 'blackstack' Linux user and PostgreSQL user.
+# 
 
 # Map the parameters.
 RUN export HOSTNAME="$1"
