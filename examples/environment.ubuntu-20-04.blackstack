@@ -5,10 +5,6 @@
 # - $2: Password for both the 'blackstack' Linux user and PostgreSQL user.
 # 
 
-# Map the parameters.
-RUN export HOSTNAME="$1"
-RUN export PASSWORD="$2"
-
 # Set timezone to America/Argentina/Buenos_Aires
 RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 
@@ -16,13 +12,13 @@ RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 RUN useradd -m -s /bin/bash blackstack
 
 # Set password for 'blackstack' user
-RUN echo "blackstack:$PASSWORD" | chpasswd
+RUN echo "blackstack:$2" | chpasswd
 
 # Add 'blackstack' to sudoers
 RUN usermod -aG sudo blackstack
 
 # Change hostname
-RUN hostnamectl set-hostname "$HOSTNAME"
+RUN hostnamectl set-hostname "$1"
 
 # Enable PasswordAuthentication in SSH config
 RUN sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
@@ -67,7 +63,7 @@ RUN systemctl restart postgresql
 RUN sudo -u postgres createuser -s blackstack
 
 # Set password for PostgreSQL user 'blackstack'
-RUN sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$PASSWORD';"
+RUN sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$2';"
 
 # Create new database 'blackstack' owned by user 'blackstack'
 RUN sudo -u postgres createdb -O blackstack blackstack
