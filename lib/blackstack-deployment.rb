@@ -1,6 +1,9 @@
+require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
-require 'blackstack-nodes'
+#require 'blackstack-nodes'
+require_relative '../../blackstack-nodes/lib/blackstack-nodes.rb'
+
 require 'pry'
 
 module BlackStack
@@ -83,7 +86,7 @@ module BlackStack
             err << "Invalid value for #{key}. Must be a non-empty string."
           end
         end
-  
+=begin
         required_git_keys = [:git_repository, :git_branch, :git_username, :git_password]
         required_git_keys.each do |key|
           if h[key].nil?
@@ -96,7 +99,7 @@ module BlackStack
             err << "Invalid value for #{key}. Must be a non-empty string."
           end
         end
-  
+=end  
         if h[:code_folder].nil? || !h[:code_folder].is_a?(String) || !h[:code_folder].start_with?('/')
           err << "Invalid value for :code_folder. Must be an absolute Linux path."
         end
@@ -152,14 +155,15 @@ module BlackStack
         @@nodes << h
       end # def self.add_node(h)
   
-      # 
+      # Return a duplication of the hash descriptor of the node with the given name
       def self.get_node(node_name)
-        @@nodes.find { |n| n[:name].to_s == node_name.to_s }
+        @@nodes.find { |n| n[:name].to_s == node_name.to_s }.dup
       end # def self.get_node(node_name)
   
       # 
       def self.source(
         node_name,
+        connect_as_root: false,
         bash_script_filename: nil,
         bash_script_url: nil,
         params: [], 
@@ -189,11 +193,15 @@ module BlackStack
 
         # switch user to root and create the node object
         l.logs "Creating node object... "
-        new_ssh_username = n[:ssh_username]
-        new_hostname = n[:name]
-        n[:ssh_username] = 'root'
-        n[:ssh_password] = n[:ssh_root_password]
-        node = BlackStack::Infrastructure::Node.new(n)
+        if connect_as_root
+          new_ssh_username = n[:ssh_username]
+          new_hostname = n[:name]
+          n[:ssh_username] = 'root'
+          n[:ssh_password] = n[:ssh_root_password]
+          node = BlackStack::Infrastructure::Node.new(n)
+        else
+          node = BlackStack::Infrastructure::Node.new(n)
+        end
         l.done
       
         l.logs("Connect to node #{node_name.to_s.blue}... ")
@@ -259,14 +267,59 @@ module BlackStack
 
         self.source(
           node_name,
+          connect_as_root: true, # need to install environment from the root user.
           bash_script_filename: bash_script_filename,
           bash_script_url: bash_script_url,
           params: params,
           logger: l
         )
-      end # def self.install(node_name, logger: nil)
-      
+      end # def self.install(node_name, logger: nil)  
 
+      # 
+      def self.ssh(
+        node_name,
+        connect_as_root: false,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        n = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        l.done
+
+        # switch user to root and create the node object
+        l.logs "Creating node object... "
+        if connect_as_root
+          new_ssh_username = n[:ssh_username]
+          new_hostname = n[:name]
+          n[:ssh_username] = 'root'
+          n[:ssh_password] = n[:ssh_root_password]
+          node = BlackStack::Infrastructure::Node.new(n)
+        else
+          node = BlackStack::Infrastructure::Node.new(n)
+        end
+        l.done
+
+        # TODO: move this to the node class
+        # if the node has a key, use it
+        s = nil
+        if node.ssh_private_key_file
+            s = "ssh -o StrictHostKeyChecking=no -i \"#{Shellwords.escape(node.ssh_private_key_file)}\" #{node.ssh_username}@#{node.net_remote_ip} -p #{node.ssh_port}"
+        else
+            # DEPRECATED: This is not working, because it is escaping the #
+            #escaped_password = Shellwords.escape(node.ssh_private_key_file)
+            escaped_password = node.ssh_password.gsub(/\$/, "\\$")
+            s = "sshpass -p \"#{escaped_password}\" ssh -o StrictHostKeyChecking=no #{node.ssh_username}@#{node.net_remote_ip} -p #{node.ssh_port}"
+        end
+
+        l.log "Command: #{s.blue}"
+
+        system(s)
+      end # def self.ssh(node_name, logger: nil)  
+
+      
     end # Deployment
   end # BlackStack
     

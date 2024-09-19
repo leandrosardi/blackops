@@ -1,0 +1,12 @@
+# Description:
+# - This script is used to install the required source code for running massprospecting master nodes.
+# Parameters:
+# - $1: github_username
+# - $2: github_password
+# 
+
+RUN mkdir -p ~/code1
+
+RUN if [ ! -d ~/code1/master ]; then
+    git clone https://$1:$2@github.com/leandrosardi/my.saas1 ~/code1/master
+fi

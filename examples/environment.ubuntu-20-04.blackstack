@@ -99,8 +99,8 @@ RUN source /etc/profile.d/rvm.sh && rvm use 3.1.2 --default --install
 RUN ruby -v
 
 # Create code directory for 'blackstack' user
-RUN mkdir -p /home/blackstack/code
-RUN chown -R blackstack:blackstack /home/blackstack/code
+#RUN mkdir -p /home/blackstack/code
+#RUN chown -R blackstack:blackstack /home/blackstack/code
 
 # Add Ubuntu focal-updates repository if not present
 RUN if ! grep -q "focal-updates main" /etc/apt/sources.list; then
