@@ -111,7 +111,7 @@ fi
 # Install AdsPower
 RUN cd /tmp
 RUN wget -q https://version.adspower.net/software/linux-x64-global/AdsPower-Global-5.9.14-x64.deb
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ./AdsPower-Global-5.9.14-x64.deb
+RUN DEBIAN_FRONTEND=noninteractive LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 apt-get install -y ./AdsPower-Global-5.9.14-x64.deb
 RUN rm -f AdsPower-Global-5.9.14-x64.deb
 
 # Install ChromeDriver
