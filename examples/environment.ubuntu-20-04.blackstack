@@ -1,8 +1,5 @@
 # Description:
 # - This script is used to install the required packages for the BlackStack project.
-# Parameters:
-# - $1: Hostname for the server.
-# - $2: Password for both the 'blackstack' Linux user and PostgreSQL user.
 # 
 
 # Set timezone to America/Argentina/Buenos_Aires
@@ -12,13 +9,13 @@ RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 RUN useradd -m -s /bin/bash blackstack
 
 # Set password for 'blackstack' user
-RUN echo "blackstack:$2" | chpasswd
+RUN echo "blackstack:$ssh_password" | chpasswd
 
 # Add 'blackstack' to sudoers
 RUN usermod -aG sudo blackstack
 
 # Change hostname
-RUN hostnamectl set-hostname "$1"
+RUN hostnamectl set-hostname "$name"
 
 # Enable PasswordAuthentication in SSH config
 RUN sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
@@ -63,7 +60,7 @@ RUN systemctl restart postgresql
 RUN sudo -u postgres createuser -s blackstack
 
 # Set password for PostgreSQL user 'blackstack'
-RUN sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$2';"
+RUN sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$ssh_password';"
 
 # Create new database 'blackstack' owned by user 'blackstack'
 RUN sudo -u postgres createdb -O blackstack blackstack
@@ -98,9 +95,12 @@ RUN source /etc/profile.d/rvm.sh && rvm use 3.1.2 --default --install
 # Verify Ruby installation
 RUN ruby -v
 
+# Install bundler
+RUN gem install bundler
+
 # Create code directory for 'blackstack' user
-RUN mkdir -p /home/blackstack/code
-RUN chown -R blackstack:blackstack /home/blackstack/code
+#RUN mkdir -p /home/blackstack/code
+#RUN chown -R blackstack:blackstack /home/blackstack/code
 
 # Add Ubuntu focal-updates repository if not present
 RUN if ! grep -q "focal-updates main" /etc/apt/sources.list; then

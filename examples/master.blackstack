@@ -1,14 +1,43 @@
 # Description:
 # - This script is used to install the required source code for running massprospecting master nodes.
-# Parameters:
-# - $1: github_username
-# - $2: github_password
 # 
 
-RUN if [ ! -d $5 ]; then
-    git clone https://$3:$4@github.com/$1 $5
+# Dedicated code folder for MassProspecting code.
+#
+RUN mkdir -p ~/code1
+
+# Cloning and updating code of my.saas in the ~/code/master folder.
+#
+RUN if [ ! -d $code_folder ]; then
+    git clone https://$git_username:$git_password@github.com/$git_repository $code_folder
 fi
 
-RUN git -C $5 fetch --all
+RUN git -C $code_folder fetch --all
 
-RUN git -C $5 reset --hard origin/$3
+RUN git -C $code_folder reset --hard origin/$git_branch
+
+# Cloning and updating code of mass.commons extension.
+#
+RUN if [ ! -d $code_folder/extensions/mass.commons ]; then
+    git clone https://$git_username:$git_password@github.com/massprospecting/mass.commons $code_folder/extensions/mass.commons
+fi
+
+RUN git -C $code_folder/extensions/mass.commons fetch --all
+
+RUN git -C $code_folder/extensions/mass.commons reset --hard origin/$git_branch
+
+# Cloning and updating code of mass.account extension.
+#
+RUN if [ ! -d $code_folder/extensions/mass.account ]; then
+    git clone https://$git_username:$git_password@github.com/massprospecting/mass.account $code_folder/extensions/mass.account
+fi
+
+RUN git -C $code_folder/extensions/mass.account fetch --all
+
+RUN git -C $code_folder/extensions/mass.account reset --hard origin/$git_branch
+
+# Bundler
+# GLITCH: "bundler: command not found"
+RUN cd $code_folder && bundler update
+
+

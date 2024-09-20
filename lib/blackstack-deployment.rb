@@ -166,163 +166,96 @@ module BlackStack
         connect_as_root: false,
         bash_script_filename: nil,
         bash_script_url: nil,
-        params: [], 
         logger: nil
       )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
-        raise 'Either `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename.nil? && bash_script_url.nil?
-        raise 'Only one `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename && bash_script_url
+        node = nil
+        begin
+          # params is an array of strings that will be replaced in the bash script
+          params = [
+            :name,
+            :dev,
+            :net_remote_ip,
+            :db_host,
+            :ssh_username,
+            :ssh_port,
+            :ssh_password,
+            :ssh_root_password,
+            :git_repository,
+            :git_branch,
+            :git_username,
+            :git_password,
+            :code_folder,
+          ]
+        
+          l = logger || BlackStack::DummyLogger.new(nil)
+          node_name = node_name.dup.to_s
+          raise 'Either `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename.nil? && bash_script_url.nil?
+          raise 'Only one `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename && bash_script_url
 
-        l.logs "Getting node #{node_name.blue}... "
-        n = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
-        n = n.clone # clone the hash descriptor, because I will modify it below.
-        l.done
-      
-        # download the file from the URL
-        if bash_script_url
-          l.logs "Downloading bash script from #{bash_script_filename.blue}... "
-          bash_script = Net::HTTP.get(URI(bash_script_url)) 
-          l.done(details: "#{bash_script.length} bytes downloaded")
-        else
-          l.logs "Getting bash script from #{bash_script_filename.blue}... "
-          bash_script = File.read(bash_script_filename) if bash_script_filename
-          l.done(details: "#{bash_script.length} bytes in file")
-        end
+          l.logs "Getting node #{node_name.blue}... "
+          n = get_node(node_name)
+          raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+          n = n.clone # clone the hash descriptor, because I will modify it below.
+          l.done
+        
+          # download the file from the URL
+          if bash_script_url
+            l.logs "Downloading bash script from #{bash_script_filename.blue}... "
+            bash_script = Net::HTTP.get(URI(bash_script_url)) 
+            l.done(details: "#{bash_script.length} bytes downloaded")
+          else
+            l.logs "Getting bash script from #{bash_script_filename.blue}... "
+            bash_script = File.read(bash_script_filename) if bash_script_filename
+            l.done(details: "#{bash_script.length} bytes in file")
+          end
 
-        # switch user to root and create the node object
-        l.logs "Creating node object... "
-        if connect_as_root
-          new_ssh_username = n[:ssh_username]
-          new_hostname = n[:name]
-          n[:ssh_username] = 'root'
-          n[:ssh_password] = n[:ssh_root_password]
-          node = BlackStack::Infrastructure::Node.new(n)
-        else
-          node = BlackStack::Infrastructure::Node.new(n)
-        end
-        l.done
-      
-        l.logs("Connect to node #{node_name.to_s.blue}... ")
-        node.connect
-        l.done
-        # => n.ssh
-      
-        # execute the script fragment by fragment
-        bash_script.split(/(?<!#)RUN /).each { |fragment|
-          fragment.strip!
-          next if fragment.empty?
-          next if fragment.start_with?('#')          
-          params.each_with_index { |param, i|
-            fragment.gsub!("$#{i+1}", param)
+          # switch user to root and create the node object
+          l.logs "Creating node object... "
+          if connect_as_root
+            new_ssh_username = n[:ssh_username]
+            new_hostname = n[:name]
+            n[:ssh_username] = 'root'
+            n[:ssh_password] = n[:ssh_root_password]
+            node = BlackStack::Infrastructure::Node.new(n)
+          else
+            node = BlackStack::Infrastructure::Node.new(n)
+          end
+          l.done
+        
+          l.logs("Connect to node #{node_name.to_s.blue}... ")
+          node.connect
+          l.done
+          # => n.ssh
+        
+          # execute the script fragment by fragment
+          bash_script.split(/(?<!#)RUN /).each { |fragment|
+            fragment.strip!
+            next if fragment.empty?
+            next if fragment.start_with?('#')  
+            
+            # replace params in the fragment. Example: $name is replaced by n[:name]
+            params.each { |key|
+              fragment.gsub!("$#{key.to_s}", n[key].to_s)
+            }
+            
+            l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
+            res = node.exec(fragment)
+            l.done#(details: res)
           }
-          l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
-          res = node.exec(fragment)
-          l.done#(details: res)
-        }
-      
-        l.logs "Disconnect from node #{node_name.blue}... "
-        node.disconnect
-        l.done
-        
+        rescue => e
+          raise e
+        ensure
+          l.logs "Disconnect from node #{node_name.blue}... "
+          if node
+            node.disconnect
+            l.done
+          else
+            l.skip(details: "Node not connected")
+          end
+        end
+
       end # def self.source(node_name, logger: nil)
-        
-      # 
-      def self.install(
-        node_name,
-        bash_script_filename: nil,
-        bash_script_url: nil,
-        params: [], 
-        logger: nil
-      )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
-
-        l.logs "Building params for #{node_name.blue}... "
-        n = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
-        params = [
-          n[:name],
-          n[:ssh_password],
-        ]
-        l.done
-
-        l.logs "Validating script... "
-        # download the file from the URL
-        if bash_script_url
-          # Downloading bash script from #{bash_script_filename.blue}... "
-          bash_script = Net::HTTP.get(URI(bash_script_url)) 
-        else
-          # Getting bash script from #{bash_script_filename.blue}... "
-          bash_script = File.read(bash_script_filename) if bash_script_filename
-        end
-
-        # validate bash_script has $1 and $2 parameters
-        if bash_script.scan(/\$1/).empty? || bash_script.scan(/\$2/).empty?
-          raise ArgumentError, "The .blackstack files for environment installation must have $1 (hostname) and $2 (blackstack password) parameters."
-        end
-        l.done
-
-        self.source(
-          node_name,
-          connect_as_root: true, # need to install environment from the root user.
-          bash_script_filename: bash_script_filename,
-          bash_script_url: bash_script_url,
-          params: params,
-          logger: l
-        )
-      end # def self.install(node_name, logger: nil)  
-
-      # 
-      def self.deploy(
-        node_name,
-        bash_script_filename: nil,
-        bash_script_url: nil,
-        params: [], 
-        logger: nil
-      )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
-
-        l.logs "Building params for #{node_name.blue}... "
-        n = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
-        params = [
-          n[:git_repository],
-          n[:git_branch],
-          n[:git_username],
-          n[:git_password],
-          n[:code_folder],
-        ]
-        l.done
-
-        l.logs "Validating script... "
-        # download the file from the URL
-        if bash_script_url
-          # Downloading bash script from #{bash_script_filename.blue}... 
-          bash_script = Net::HTTP.get(URI(bash_script_url)) 
-        else
-          # Getting bash script from #{bash_script_filename.blue}... 
-          bash_script = File.read(bash_script_filename) if bash_script_filename
-        end
-
-        # validate bash_script has $1 and $2 parameters
-        if bash_script.scan(/\$1/).empty? || bash_script.scan(/\$2/).empty? || bash_script.scan(/\$3/).empty? || bash_script.scan(/\$4/).empty? || bash_script.scan(/\$5/).empty?
-          raise ArgumentError, "The .blackstack files for deployment must have $1 (git_repository), $2 (git_branch), $3 (git_username), $4 (git_password), $5 (code_folder) parameters."
-        end
-        l.done
-
-        self.source(
-          node_name,
-          connect_as_root: true, # need to install environment from the root user.
-          bash_script_filename: bash_script_filename,
-          bash_script_url: bash_script_url,
-          params: params,
-          logger: l
-        )
-      end # def self.deploy(node_name, logger: nil)  
-
+      
       # 
       def self.ssh(
         node_name,
