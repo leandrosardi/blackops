@@ -359,7 +359,6 @@ module BlackStack
       # 
       def self.migrations(
         node_name,
-        migrations_folder: ,
         logger: nil
       )
         l = logger || BlackStack::DummyLogger.new(nil)
@@ -374,9 +373,12 @@ module BlackStack
         raise "Node #{node_name} is hosting its DB into another node." if n[:db_host].to_s != n[:name].to_s
 
         # list all files in the folder
-        l.logs "Listing files in #{migrations_folder.blue}... "
-        files = Dir.glob("#{migrations_folder}/*.sql")
-        l.done(details: "#{files.size} files found")
+        files = []
+        n[:migration_folders].each { |migrations_folder|
+          l.logs "Listing files in #{migrations_folder.blue}... "
+          files += Dir.glob("#{migrations_folder}/*.sql")
+          l.done(details: "#{files.size} files found")
+        }
 
         # connect to the database
         # DB ACCESS - KEEP IT SECRET

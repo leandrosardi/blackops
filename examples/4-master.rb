@@ -4,6 +4,7 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
+=begin
     # pull source code
     l.logs "Pulling source code... "
     BlackStack::Deployment.source( :master,
@@ -11,11 +12,10 @@ begin
         logger: l
     )
     l.done
-
+=end
     # run migrations
     l.logs "Running migrations... "
     BlackStack::Deployment.migrations( :master,
-        migrations_folder: '/home/leandro/code1/master/sql',
         logger: l
     )
     l.done
