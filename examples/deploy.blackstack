@@ -81,17 +81,22 @@ RUN git -C $code_folder/extensions/mass.account reset --hard origin/$git_branch
 #
 RUN source /etc/profile.d/rvm.sh && cd $code_folder && bundler update
 
+# Cloning and updating code of selectrowsjs extension.
+#
+RUN if [ ! -d $code_folder/extensions/selectrowsjs ]; then
+    git clone https://$git_username:$git_password@github.com/leandrosardi/selectrowsjs $code_folder/extensions/selectrowsjs
+fi
+
+RUN git -C $code_folder/extensions/selectrowsjs fetch --all
+
+RUN git -C $code_folder/extensions/selectrowsjs reset --hard origin/$git_branch
+
 # Configuration file
 # 
 # 1. Delete existing file $code_folder/conf.rb
 # 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/blackstack/code1/secret  (requires $git_username and $git_password).
 # 3. Copy the file /home/blackstack/code1/secret/config-master.rb into folder $code_folder/config.rb
 # 
-
-RUN rm -f $code_folder/conf.rb
-RUN git clone https://$git_username:$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
-RUN cp /home/blackstack/code1/secret/config-master.rb $code_folder/config.rb
-
-# Optional: Set permissions for config.rb
-RUN chown blackstack:blackstack $code_folder/config.rb
-RUN chmod 644 $code_folder/config.rb
+#RUN rm -f $code_folder/conf.rb
+#RUN git clone https://$git_username:$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
+#RUN cp /home/blackstack/code1/secret/config-master.rb $code_folder/config.rb

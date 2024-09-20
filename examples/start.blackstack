@@ -3,13 +3,7 @@
 # 
 
 # start webserver
-RUN export RUBYLIB=$HOME/code1/master
-RUN cd $HOME/code1/master
-RUN ruby $HOME/code1/master/app.rb port=3000 config=./config.rb
-
-#ruby $HOME/code/code/my.saas/p/notifier.rb > /dev/null 2>&1 &
-#ruby $HOME/code/code/my.saas/p/dispatcher.rb > /dev/null 2>&1 &
-#ruby $HOME/code/code/my.saas/p/worker.rb > /dev/null 2>&1 &
-#ruby $HOME/code/code/my.saas/extensions/i2p/p/ipn.rb > /dev/null 2>&1 &
-#ruby $HOME/code/code/my.saas/extensions/i2p/p/baddebt.rb > /dev/null 2>&1 & # ==> Test this process before put it on production.
-#ruby $HOME/code/code/my.saas/extensions/i2p/p/expire.rb > /dev/null 2>&1 & # ==> Test this process before put it on production.
+RUN source /etc/profile.d/rvm.sh && \ 
+    export RUBYLIB=$HOME/code1/master && \
+    cd $HOME/code1/master && \
+    ruby $HOME/code1/master/app.rb port=3000 config=./config.rb
