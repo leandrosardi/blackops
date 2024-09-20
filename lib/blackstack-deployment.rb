@@ -409,7 +409,7 @@ module BlackStack
         @@db.disconnect
         l.done
       end # def self.migrations(node_name, logger: nil)
-
+=begin
       # 
       def self.start(
         node_name,
@@ -463,9 +463,8 @@ module BlackStack
             l.skip(details: "Node not connected")
           end
         end
-
-      end # def self.migrations(node_name, logger: nil)
-
+      end # def self.start(node_name, logger: nil)
+=end
 
     end # Deployment
   end # BlackStack

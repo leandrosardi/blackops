@@ -159,18 +159,3 @@ RUN mv /home/blackstack/ssl/privkey.pem /home/blackstack/ssl/dev.key
 RUN rm -f /etc/nginx/nginx.conf
 RUN curl -sSL https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf -o /etc/nginx/nginx.conf
 RUN service nginx start
-
-# Configuration file
-# 
-# 1. Delete existing file $code_folder/conf.rb
-# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/blackstack/code1/secret  (requires $git_username and $git_password).
-# 3. Copy the file /home/blackstack/code1/secret/config-master.rb into folder $code_folder/config.rb
-# 
-
-RUN rm -f $code_folder/conf.rb
-RUN git clone https://$git_username:$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
-RUN cp /home/blackstack/code1/secret/config-master.rb $code_folder/config.rb
-
-# Optional: Set permissions for config.rb
-RUN chown blackstack:blackstack $code_folder/config.rb
-RUN chmod 644 $code_folder/config.rb

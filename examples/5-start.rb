@@ -4,8 +4,9 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
-    # run migrations
-    BlackStack::Deployment.start( :master,
+    # start server
+    BlackStack::Deployment.source( :master,
+        bash_script_filename: './start.blackstack',
         logger: l
     )
 rescue => e

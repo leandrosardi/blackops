@@ -7,7 +7,7 @@ begin
     # pull source code
     l.logs "Pulling source code... "
     BlackStack::Deployment.source( :master,
-        bash_script_filename: './master.blackstack',
+        bash_script_filename: './deploy.blackstack',
         logger: l
     )
     l.done
