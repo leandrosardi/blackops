@@ -4,12 +4,8 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
-    BlackStack::Deployment.source( :slave,
+    BlackStack::Deployment.deploy( :slave,
         bash_script_filename: './master.blackstack',
-        params: [
-            GIT_USERNAME,
-            GIT_PASSWORD,
-        ], 
         logger: l
     )
 rescue => e

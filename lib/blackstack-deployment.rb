@@ -86,7 +86,7 @@ module BlackStack
             err << "Invalid value for #{key}. Must be a non-empty string."
           end
         end
-=begin
+
         required_git_keys = [:git_repository, :git_branch, :git_username, :git_password]
         required_git_keys.each do |key|
           if h[key].nil?
@@ -99,7 +99,7 @@ module BlackStack
             err << "Invalid value for #{key}. Must be a non-empty string."
           end
         end
-=end  
+
         if h[:code_folder].nil? || !h[:code_folder].is_a?(String) || !h[:code_folder].start_with?('/')
           err << "Invalid value for :code_folder. Must be an absolute Linux path."
         end
@@ -239,31 +239,30 @@ module BlackStack
         l = logger || BlackStack::DummyLogger.new(nil)
         node_name = node_name.dup.to_s
 
-        l.logs "Getting node #{node_name.blue}... "
+        l.logs "Building params for #{node_name.blue}... "
         n = get_node(node_name)
         raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        params = [
+          n[:name],
+          n[:ssh_password],
+        ]
         l.done
 
+        l.logs "Validating script... "
         # download the file from the URL
         if bash_script_url
-          l.logs "Downloading bash script from #{bash_script_filename.blue}... "
+          # Downloading bash script from #{bash_script_filename.blue}... "
           bash_script = Net::HTTP.get(URI(bash_script_url)) 
-          l.done(details: "#{bash_script.length} bytes downloaded")
         else
-          l.logs "Getting bash script from #{bash_script_filename.blue}... "
+          # Getting bash script from #{bash_script_filename.blue}... "
           bash_script = File.read(bash_script_filename) if bash_script_filename
-          l.done(details: "#{bash_script.length} bytes in file")
         end
 
         # validate bash_script has $1 and $2 parameters
         if bash_script.scan(/\$1/).empty? || bash_script.scan(/\$2/).empty?
           raise ArgumentError, "The .blackstack files for environment installation must have $1 (hostname) and $2 (blackstack password) parameters."
         end
-
-        params = [
-          n[:name],
-          n[:ssh_password],
-        ]
+        l.done
 
         self.source(
           node_name,
@@ -274,6 +273,55 @@ module BlackStack
           logger: l
         )
       end # def self.install(node_name, logger: nil)  
+
+      # 
+      def self.deploy(
+        node_name,
+        bash_script_filename: nil,
+        bash_script_url: nil,
+        params: [], 
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Building params for #{node_name.blue}... "
+        n = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        params = [
+          n[:git_repository],
+          n[:git_branch],
+          n[:git_username],
+          n[:git_password],
+          n[:code_folder],
+        ]
+        l.done
+
+        l.logs "Validating script... "
+        # download the file from the URL
+        if bash_script_url
+          # Downloading bash script from #{bash_script_filename.blue}... 
+          bash_script = Net::HTTP.get(URI(bash_script_url)) 
+        else
+          # Getting bash script from #{bash_script_filename.blue}... 
+          bash_script = File.read(bash_script_filename) if bash_script_filename
+        end
+
+        # validate bash_script has $1 and $2 parameters
+        if bash_script.scan(/\$1/).empty? || bash_script.scan(/\$2/).empty? || bash_script.scan(/\$3/).empty? || bash_script.scan(/\$4/).empty? || bash_script.scan(/\$5/).empty?
+          raise ArgumentError, "The .blackstack files for deployment must have $1 (git_repository), $2 (git_branch), $3 (git_username), $4 (git_password), $5 (code_folder) parameters."
+        end
+        l.done
+
+        self.source(
+          node_name,
+          connect_as_root: true, # need to install environment from the root user.
+          bash_script_filename: bash_script_filename,
+          bash_script_url: bash_script_url,
+          params: params,
+          logger: l
+        )
+      end # def self.deploy(node_name, logger: nil)  
 
       # 
       def self.ssh(
