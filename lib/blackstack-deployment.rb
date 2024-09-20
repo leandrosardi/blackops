@@ -408,9 +408,65 @@ module BlackStack
         l.logs "Disconnecting from the database... "
         @@db.disconnect
         l.done
+      end # def self.migrations(node_name, logger: nil)
 
-      end
-      
+      # 
+      def self.start(
+        node_name,
+        connect_as_root: false,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        begin
+
+          l.logs "Getting node #{node_name.blue}... "
+          n = get_node(node_name)
+          raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+          l.done
+
+          # switch user to root and create the node object
+          l.logs "Creating node object... "
+          if connect_as_root
+            new_ssh_username = n[:ssh_username]
+            new_hostname = n[:name]
+            n[:ssh_username] = 'root'
+            n[:ssh_password] = n[:ssh_root_password]
+            node = BlackStack::Infrastructure::Node.new(n)
+          else
+            node = BlackStack::Infrastructure::Node.new(n)
+          end
+          l.done
+
+          l.logs("Connect to node #{node_name.to_s.blue}... ")
+          node.connect
+          l.done
+
+          n[:procs][:start].each { |proc|
+            command = "source /etc/profile.d/rvm.sh && export RUBYLIB=#{proc[:rubylib]} && cd #{proc[:folder]} && #{proc[:command]}"
+            l.logs "Starting process #{command.blue}... "
+            res = node.exec( command,
+              output_file: proc[:stdout], 
+              error_file: proc[:stderr],
+            )
+            l.done
+          }
+        rescue => e
+          raise e
+        ensure
+          l.logs "Disconnect from node #{node_name.blue}... "
+          if node && node.ssh
+            node.disconnect
+            l.done
+          else
+            l.skip(details: "Node not connected")
+          end
+        end
+
+      end # def self.migrations(node_name, logger: nil)
+
+
     end # Deployment
   end # BlackStack
     
