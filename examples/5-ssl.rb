@@ -4,7 +4,7 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
-    BlackStack::Deployment.source( :test,
+    BlackStack::Deployment.source( :master,
         bash_script_filename: './ssl.blackstack',
         connect_as_root: true,
         logger: l

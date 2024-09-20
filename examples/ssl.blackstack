@@ -6,7 +6,7 @@
 # Reference: https://github.com/leandrosardi/my.saas/discussions/40
 #
 RUN service nginx stop
-RUN sudo certbot certonly -d $domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
+RUN certbot certonly -d $domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
 RUN mkdir -p /home/blackstack/ssl
 RUN rm -f /home/blackstack/ssl/dev.crt
 RUN rm -f /home/blackstack/ssl/dev.key 

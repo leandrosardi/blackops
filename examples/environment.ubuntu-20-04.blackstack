@@ -68,6 +68,16 @@ RUN sudo -u postgres createdb -O blackstack blackstack
 # Install required packages
 RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
 
+# Grant 'blackstack' user passwordless sudo access for managing Nginx and nginx.conf
+# Grant 'blackstack' user passwordless sudo access for managing Nginx and nginx.conf
+#RUN echo "blackstack ALL=(ALL) NOPASSWD: /bin/systemctl start nginx, /bin/systemctl stop nginx, /bin/systemctl restart nginx, /bin/rm /etc/nginx/nginx.conf, /bin/cp /home/blackstack/code1/master/nginx.conf /etc/nginx/nginx.conf" | tee /etc/sudoers.d/blackstack-nginx && \
+#    chmod 0440 /etc/sudoers.d/blackstack-nginx && \
+#    visudo -cf /etc/sudoers.d/blackstack-nginx
+
+# Set Correct Permissions for the Sudoers File:
+#RUN chown root:root /etc/nginx/nginx.conf
+#RUN chmod 644 /etc/nginx/nginx.conf
+
 # Install CockroachDB CLI
 RUN cd /tmp
 RUN curl -sSL https://binaries.cockroachdb.com/cockroach-v21.2.10.linux-amd64.tgz | tar -xz

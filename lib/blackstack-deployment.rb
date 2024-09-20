@@ -155,7 +155,7 @@ module BlackStack
   
       # Return a duplication of the hash descriptor of the node with the given name
       def self.get_node(node_name)
-        @@nodes.find { |n| n[:name].to_s == node_name.to_s }.dup
+        @@nodes.find { |n| n[:name].to_s == node_name.to_s }.clone
       end # def self.get_node(node_name)
   
       # 
