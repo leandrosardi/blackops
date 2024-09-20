@@ -4,7 +4,7 @@
 
 # Dedicated code folder for MassProspecting code.
 #
-RUN mkdir -p ~/code1
+RUN mkdir -p /home/blackstack/code1
 
 # Cloning and updating code of my.saas in the ~/code/master folder.
 #
@@ -37,7 +37,6 @@ RUN git -C $code_folder/extensions/mass.account fetch --all
 RUN git -C $code_folder/extensions/mass.account reset --hard origin/$git_branch
 
 # Bundler
-# GLITCH: "bundler: command not found"
-RUN cd $code_folder && bundler update
-
-
+# Glitch: https://github.com/MassProspecting/deployment/issues/38
+#
+RUN source /etc/profile.d/rvm.sh && cd $code_folder && bundler update

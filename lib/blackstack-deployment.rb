@@ -1,9 +1,7 @@
 require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
-#require 'blackstack-nodes'
-require_relative '../../blackstack-nodes/lib/blackstack-nodes.rb'
-
+require 'blackstack-nodes'
 require 'pry'
 
 module BlackStack
@@ -185,6 +183,7 @@ module BlackStack
             :git_username,
             :git_password,
             :code_folder,
+            :domain,
           ]
         
           l = logger || BlackStack::DummyLogger.new(nil)
@@ -246,7 +245,7 @@ module BlackStack
           raise e
         ensure
           l.logs "Disconnect from node #{node_name.blue}... "
-          if node
+          if node && node.ssh
             node.disconnect
             l.done
           else
@@ -292,11 +291,15 @@ module BlackStack
             # DEPRECATED: This is not working, because it is escaping the #
             #escaped_password = Shellwords.escape(node.ssh_private_key_file)
             escaped_password = node.ssh_password.gsub(/\$/, "\\$")
+            #s = "sshpass -p \"#{escaped_password}\" ssh -o KbdInteractiveAuthentication=no -o PasswordAuthentication=yes -o PreferredAuthentications=password -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -o BatchMode=yes -o UserKnownHostsFile=/dev/null #{node.ssh_username}@#{node.net_remote_ip} -p #{node.ssh_port}"
             s = "sshpass -p \"#{escaped_password}\" ssh -o StrictHostKeyChecking=no #{node.ssh_username}@#{node.net_remote_ip} -p #{node.ssh_port}"
         end
 
-        l.log "Command: #{s.blue}"
+        #t = "ssh-keygen -f \"#{ENV['HOME']}/.ssh/known_hosts2\" -R \"#{n[:net_remote_ip].to_s}\""
+        #l.log "Command: #{t.blue}"
+        #system(t)
 
+        l.log "Command: #{s.blue}"
         system(s)
       end # def self.ssh(node_name, logger: nil)  
 

@@ -1,0 +1,30 @@
+# Description:
+# - This script is used to install the required source code for running massprospecting master nodes.
+# 
+
+# Install SSL Certificate
+# Reference: https://github.com/leandrosardi/my.saas/discussions/40
+#
+#RUN service nginx stop
+#RUN sudo certbot certonly -d $domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
+#RUN mkdir -p /home/blackstack/ssl
+#RUN rm /home/blackstack/ssl/dev.crt
+#RUN rm /home/blackstack/ssl/dev.key 
+#RUN chown blackstack /etc/letsencrypt/live/$domain
+#RUN cp /etc/letsencrypt/live/$domain/fullchain.pem /home/blackstack/ssl/
+#RUN cp /etc/letsencrypt/live/$domain/privkey.pem /home/blackstack/ssl/
+#RUN mv /home/blackstack/ssl/fullchain.pem /home/blackstack/ssl/dev.crt
+#RUN mv /home/blackstack/ssl/privkey.pem /home/blackstack/ssl/dev.key
+
+# Nginx configuration file
+#
+# 1. Delete existing file /etc/ngnix/nginx.conf
+# 2. Download nginx.conf from https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf into folder /etc/nginx/
+# 3. Start nginx again. 
+#
+
+# Configuration file
+# 
+# 1. Delete existing file $code_folder/conf.rb
+# 2. Download https://raw.githubusercontent.com/MassProspecting/secret/main/config-master.rb (require $git_username and $git_password ) into folder $code_folder/conf.rb
+# 
