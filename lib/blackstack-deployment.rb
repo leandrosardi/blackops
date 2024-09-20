@@ -2,12 +2,14 @@ require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 require 'blackstack-nodes'
+require 'blackstack-db'
 require 'pry'
 
 module BlackStack
     module Deployment
       @@nodes = []
-  
+      @@db = nil
+
       CONTABO_PRODUCT_IDS = [
         :V45, 
         :V47, 
@@ -303,6 +305,109 @@ module BlackStack
         system(s)
       end # def self.ssh(node_name, logger: nil)  
 
+
+      # Method to process an `.sql` file with one sql sentence by line.
+      # This method is called by `migrations`. 
+      # This method should not be called directly by user code.
+      def self.execute_sentences(sql, 
+        chunk_size: 200, 
+        logger: nil
+      )      
+        l = logger || BlackStack::DummyLogger.new(nil)
+        
+        # Fix issue: Ruby `split': invalid byte sequence in UTF-8 (ArgumentError)
+        # Reference: https://stackoverflow.com/questions/11065962/ruby-split-invalid-byte-sequence-in-utf-8-argumenterror
+        #
+        # Fix issue: `PG::SyntaxError: ERROR:  at or near "��truncate": syntax error`
+        #
+        l.logs "Fixing invalid byte sequences... "
+        sql.encode!('UTF-8', :invalid => :replace, :replace => '')
+        l.done
+
+        # Remove null bytes to avoid error: `String contains null byte`
+        # Reference: https://stackoverflow.com/questions/29320369/coping-with-string-contains-null-byte-sent-from-users
+        l.logs "Removing null bytes... "
+        sql.gsub!("\u0000", "")
+        l.done
+
+        # Get the array of sentences
+        l.logs "Splitting the sql sentences... "
+        sentences = sql.split(/;/i) 
+        l.done(details: "#{sentences.size} sentences")
+
+        # Chunk the array into parts of chunk_size elements
+        # Reference: https://stackoverflow.com/questions/2699584/how-to-split-chunk-a-ruby-array-into-parts-of-x-elements
+        l.logs "Bunlding the array of sentences into chunks of #{chunk_size} each... "
+        chunks = sentences.each_slice(chunk_size).to_a
+        l.done(details: "#{chunks.size} chunks")
+
+        chunk_number = -1
+        chunks.each { |chunk|
+          chunk_number += 1
+          statement = chunk.join(";\n").to_s.strip
+          l.logs "lines #{(chunk_size*chunk_number+1).to_s.blue} to #{(chunk_size*chunk_number+chunk.size).to_s.blue} of #{sentences.size.to_s.blue}... "
+          begin
+            @@db.execute(statement) #if statement.to_s.strip.size > 0
+            l.done
+          rescue => e
+            l.error(e)
+            raise "Error executing statement: #{statement}\n#{e.message}"
+          end
+        }
+      end # def db_execute_sql_sentences_file
+
+      # 
+      def self.migrations(
+        node_name,
+        migrations_folder: ,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        n = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        l.done
+
+        # validate the node is also a host
+        raise "Node #{node_name} is hosting its DB into another node." if n[:db_host].to_s != n[:name].to_s
+
+        # list all files in the folder
+        l.logs "Listing files in #{migrations_folder.blue}... "
+        files = Dir.glob("#{migrations_folder}/*.sql")
+        l.done(details: "#{files.size} files found")
+
+        # connect to the database
+        # DB ACCESS - KEEP IT SECRET
+        # Connection string to the demo database: export DATABASE_URL='postgresql://demo:<ENTER-SQL-USER-PASSWORD>@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/mysaas?sslmode=verify-full&options=--cluster%3Dmysaas-demo-6448'
+        l.logs "Connecting to the database... "
+        BlackStack::PostgreSQL::set_db_params({ 
+          :db_url => n[:net_remote_ip],
+          :db_port => '5432', # default postgres port
+          :db_name => 'blackstack', 
+          :db_user => 'blackstack', 
+          :db_password => n[:ssh_password],
+          :db_sslmode => 'disable',
+        })
+        @@db = BlackStack::PostgreSQL.connect
+        l.done
+
+        # execute the script sentence by sentence
+        files.each { |fullfilename|
+          l.logs "Running #{fullfilename.blue}... "
+          self.execute_sentences( 
+            File.open(fullfilename).read,
+            logger: l
+          )
+          l.done
+        }
+
+        l.logs "Disconnecting from the database... "
+        @@db.disconnect
+        l.done
+
+      end
       
     end # Deployment
   end # BlackStack

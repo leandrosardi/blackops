@@ -1,5 +1,5 @@
 # Description:
-# - This script is used to install the required packages for the BlackStack project.
+# - This script is used to install the required packages for the BlackStack project on Ubuntu 20-04.
 # 
 
 # Set timezone to America/Argentina/Buenos_Aires
@@ -135,3 +135,42 @@ RUN rm -rf chromedriver-linux64*
 # Create a flag file for 'blackstack' user
 RUN touch /home/blackstack/.blackstack
 RUN chown blackstack:blackstack /home/blackstack/.blackstack
+
+# Install SSL Certificate
+# Reference: https://github.com/leandrosardi/my.saas/discussions/40
+#
+RUN service nginx stop
+RUN certbot certonly -d $domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
+RUN mkdir -p /home/blackstack/ssl
+RUN rm -f /home/blackstack/ssl/dev.crt
+RUN rm -f /home/blackstack/ssl/dev.key 
+RUN chown -R blackstack:blackstack /etc/letsencrypt/live/$domain
+RUN cp /etc/letsencrypt/live/$domain/fullchain.pem /home/blackstack/ssl/
+RUN cp /etc/letsencrypt/live/$domain/privkey.pem /home/blackstack/ssl/
+RUN mv /home/blackstack/ssl/fullchain.pem /home/blackstack/ssl/dev.crt
+RUN mv /home/blackstack/ssl/privkey.pem /home/blackstack/ssl/dev.key
+
+# Nginx configuration file
+#
+# 1. Delete existing file /etc/nginx/nginx.conf
+# 2. Download nginx.conf from https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf into folder /etc/nginx/
+# 3. Start Nginx again. 
+#
+RUN rm -f /etc/nginx/nginx.conf
+RUN curl -sSL https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf -o /etc/nginx/nginx.conf
+RUN service nginx start
+
+# Configuration file
+# 
+# 1. Delete existing file $code_folder/conf.rb
+# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/blackstack/code1/secret  (requires $git_username and $git_password).
+# 3. Copy the file /home/blackstack/code1/secret/config-master.rb into folder $code_folder/config.rb
+# 
+
+RUN rm -f $code_folder/conf.rb
+RUN git clone https://$git_username:$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
+RUN cp /home/blackstack/code1/secret/config-master.rb $code_folder/config.rb
+
+# Optional: Set permissions for config.rb
+RUN chown blackstack:blackstack $code_folder/config.rb
+RUN chmod 644 $code_folder/config.rb
