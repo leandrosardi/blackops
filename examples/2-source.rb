@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
     BlackStack::Deployment.source( :master,
-        bash_script_filename: './environment.ubuntu-20-04.blackstack',
+        bash_script_filename: './environment.ubuntu-20-04.pampa',
         params: ['root', 'root-password-here'],
         logger: l
     )

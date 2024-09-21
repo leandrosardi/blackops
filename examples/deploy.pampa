@@ -16,6 +16,16 @@ RUN git -C $code_folder fetch --all
 
 RUN git -C $code_folder reset --hard origin/$git_branch
 
+# Configuration file
+# 
+# 1. Delete existing file $code_folder/conf.rb
+# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/blackstack/code1/secret  (requires $git_username and $git_password).
+# 3. Copy the file /home/blackstack/code1/secret/config-master.rb into folder $code_folder/config.rb
+# 
+#RUN rm -f $code_folder/conf.rb
+#RUN git clone https://$git_username:$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
+#RUN cp /home/blackstack/code1/secret/config-master.rb $code_folder/config.rb
+
 # Cloning and updating code of monitoring extension.
 #
 RUN if [ ! -d $code_folder/extensions/monitoring ]; then
@@ -91,12 +101,3 @@ RUN git -C $code_folder/extensions/selectrowsjs fetch --all
 
 RUN git -C $code_folder/extensions/selectrowsjs reset --hard origin/$git_branch
 
-# Configuration file
-# 
-# 1. Delete existing file $code_folder/conf.rb
-# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/blackstack/code1/secret  (requires $git_username and $git_password).
-# 3. Copy the file /home/blackstack/code1/secret/config-master.rb into folder $code_folder/config.rb
-# 
-#RUN rm -f $code_folder/conf.rb
-#RUN git clone https://$git_username:$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
-#RUN cp /home/blackstack/code1/secret/config-master.rb $code_folder/config.rb

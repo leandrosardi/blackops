@@ -133,8 +133,8 @@ RUN chmod +x /usr/bin/chromedriver
 RUN rm -rf chromedriver-linux64*
 
 # Create a flag file for 'blackstack' user
-RUN touch /home/blackstack/.blackstack
-RUN chown blackstack:blackstack /home/blackstack/.blackstack
+RUN touch /home/blackstack/.pampa
+RUN chown blackstack:blackstack /home/blackstack/.pampa
 
 # Install SSL Certificate
 # Reference: https://github.com/leandrosardi/my.saas/discussions/40

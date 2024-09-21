@@ -1,9 +1,0 @@
-# Description:
-# - This script is used to start the Sinatra webserver.
-# 
-
-# start webserver
-RUN source /etc/profile.d/rvm.sh && \ 
-    export RUBYLIB=$HOME/code1/master && \
-    cd $HOME/code1/master && \
-    ruby $HOME/code1/master/app.rb port=3000 config=./config.rb

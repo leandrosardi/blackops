@@ -1,0 +1,9 @@
+# Description:
+# - This script is used to stop the Sinatra webserver and other processes in the master node.
+# 
+
+#RUN ps ax | grep "sync.rb" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
+#RUN ps ax | grep "ipn.rb" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
+#RUN ps ax | grep "baddebt.rb" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
+#RUN ps ax | grep "expire.rb" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
+RUN ps ax | grep "puma" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
