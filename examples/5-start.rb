@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
     # start server
-    BlackStack::Deployment.source( :master,
+    BlackStack::Deployment.source( :slave,
         bash_script_filename: './start.pampa',
         logger: l
     )

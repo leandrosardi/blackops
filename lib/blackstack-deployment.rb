@@ -1,8 +1,10 @@
 require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
+
 #require 'blackstack-nodes'
 require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
+
 require 'blackstack-db'
 
 module BlackStack
@@ -169,34 +171,16 @@ module BlackStack
         logger: nil
       )
         node = nil
-        begin
-          # params is an array of strings that will be replaced in the bash script
-          params = [
-            :name,
-            :dev,
-            :net_remote_ip,
-            :db_host,
-            :ssh_username,
-            :ssh_port,
-            :ssh_password,
-            :ssh_root_password,
-            :git_repository,
-            :git_branch,
-            :git_username,
-            :git_password,
-            :code_folder,
-            :domain,
-          ]
-        
+        begin        
           l = logger || BlackStack::DummyLogger.new(nil)
           node_name = node_name.dup.to_s
-          raise 'Either `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename.nil? && bash_script_url.nil?
-          raise 'Only one `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename && bash_script_url
+          raise ArgumentError, 'Either `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename.nil? && bash_script_url.nil?
+          raise ArgumentError, 'Only one `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename && bash_script_url
 
           l.logs "Getting node #{node_name.blue}... "
-          n = get_node(node_name)
+          n0 = get_node(node_name)
+          n = n0.clone
           raise ArgumentError, "Node not found: #{node_name}" if n.nil?
-          n = n.clone # clone the hash descriptor, because I will modify it below.
           l.done
         
           # download the file from the URL
@@ -213,8 +197,6 @@ module BlackStack
           # switch user to root and create the node object
           l.logs "Creating node object... "
           if connect_as_root
-            new_ssh_username = n[:ssh_username]
-            new_hostname = n[:name]
             n[:ssh_username] = 'root'
             n[:ssh_password] = n[:ssh_root_password]
             node = BlackStack::Infrastructure::Node.new(n)
@@ -228,18 +210,30 @@ module BlackStack
           l.done
           # => n.ssh
         
+          # build a list of all the parameters like $foo present into the bash_script varaible
+          # scan for variables in the form $VAR
+          params = bash_script.scan(/\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
+
+          # verify that there is a key in the hash `n` that matches with each one of the strings present in the array of strings `param`
+          missed = params.reject { |key| n.key?(key.to_sym) }
+          raise ArgumentError, "Node #{node_name} is missing the following parameters required by the script: #{missed.join(', ')}." if !missed.empty?
+
           # execute the script fragment by fragment
           bash_script.split(/(?<!#)RUN /).each { |fragment|
             fragment.strip!
             next if fragment.empty?
             next if fragment.start_with?('#')  
             
+            l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
+
+            # remove all lines starting with `#`
+            fragment = fragment.lines.reject { |line| line.strip.start_with?('#') }.join
+
             # replace params in the fragment. Example: $name is replaced by n[:name]
             params.each { |key|
-              fragment.gsub!("$#{key.to_s}", n[key].to_s)
+              fragment.gsub!("$#{key.to_s}", n0[key.to_sym].to_s)
             }
             
-            l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
             res = node.exec(fragment)
             l.done#(details: res)
           }
@@ -274,8 +268,6 @@ module BlackStack
         # switch user to root and create the node object
         l.logs "Creating node object... "
         if connect_as_root
-          new_ssh_username = n[:ssh_username]
-          new_hostname = n[:name]
           n[:ssh_username] = 'root'
           n[:ssh_password] = n[:ssh_root_password]
           node = BlackStack::Infrastructure::Node.new(n)
@@ -409,62 +401,6 @@ module BlackStack
         @@db.disconnect
         l.done
       end # def self.migrations(node_name, logger: nil)
-=begin
-      # 
-      def self.start(
-        node_name,
-        connect_as_root: false,
-        logger: nil
-      )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
-
-        begin
-
-          l.logs "Getting node #{node_name.blue}... "
-          n = get_node(node_name)
-          raise ArgumentError, "Node not found: #{node_name}" if n.nil?
-          l.done
-
-          # switch user to root and create the node object
-          l.logs "Creating node object... "
-          if connect_as_root
-            new_ssh_username = n[:ssh_username]
-            new_hostname = n[:name]
-            n[:ssh_username] = 'root'
-            n[:ssh_password] = n[:ssh_root_password]
-            node = BlackStack::Infrastructure::Node.new(n)
-          else
-            node = BlackStack::Infrastructure::Node.new(n)
-          end
-          l.done
-
-          l.logs("Connect to node #{node_name.to_s.blue}... ")
-          node.connect
-          l.done
-
-          n[:procs][:start].each { |proc|
-            command = "source /etc/profile.d/rvm.sh && export RUBYLIB=#{proc[:rubylib]} && cd #{proc[:folder]} && #{proc[:command]}"
-            l.logs "Starting process #{command.blue}... "
-            res = node.exec( command,
-              output_file: proc[:stdout], 
-              error_file: proc[:stderr],
-            )
-            l.done
-          }
-        rescue => e
-          raise e
-        ensure
-          l.logs "Disconnect from node #{node_name.blue}... "
-          if node && node.ssh
-            node.disconnect
-            l.done
-          else
-            l.skip(details: "Node not connected")
-          end
-        end
-      end # def self.start(node_name, logger: nil)
-=end
 
     end # Deployment
   end # BlackStack
