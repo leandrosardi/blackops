@@ -6,7 +6,7 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 begin
     # pull source code
     l.logs "Pulling source code... "
-    BlackStack::Deployment.source( :slave,
+    BlackStack::Deployment.source( :worker,
         bash_script_filename: './deploy.pampa',
         logger: l
     )

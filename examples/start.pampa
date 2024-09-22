@@ -5,11 +5,19 @@
 #stop_command = 'ps ax | grep "puma" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9'
 #start_command = 'export RUBYLIB=$HOME/code1/master && cd $HOME/code1/master && source /etc/profile.d/rvm.sh && ruby $HOME/code1/master/launch.rb'
 
-# start webserver
+# start sinatra webserver
 RUN export RUBYLIB=$HOME/code1/master && \
     cd $HOME/code1/master && \
     source /etc/profile.d/rvm.sh && \
-    ruby $HOME/code1/master/launch.rb
+    ruby $HOME/code1/master/launch.rb 
+#\
+#        app.rb port=3000 config=$HOME/code1/master/config.rb
 
+# start i2p/ipn
+#RUN export RUBYLIB=$HOME/code1/master && \
+#    cd $HOME/code1/master && \
+#    source /etc/profile.d/rvm.sh && \
+#    ruby $HOME/code1/master/launch.rb \
+#        $HOME/code1/master/extensions/i2p/ipn.rb
 
 
