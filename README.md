@@ -152,7 +152,7 @@ BlackStack::Deployment.add_node({
     #
     # Allowed values: string with one of the following values ['CLOUD VPS 1', 'CLOUD VPS 3', 'CLOUD VPS 6'].
     # 
-    :service => 'CLOUD VPS 1',
+    :service => :V45, # CLOUD VPS 1
 
     # Reference to another node where is hosted the database to work with.
     #
