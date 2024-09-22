@@ -11,14 +11,13 @@ begin
         logger: l
     )
     l.done
-=begin
+    
     # run migrations
     l.logs "Running migrations... "
     BlackStack::Deployment.migrations( :master,
         logger: l
     )
     l.done
-=end
 rescue => e
     l.error(e)
 end

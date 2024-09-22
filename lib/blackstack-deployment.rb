@@ -108,7 +108,9 @@ module BlackStack
 
         # if exists, :procs must by an array of strings
         if h.key?(:procs)
-          # TODO
+          unless h[:procs].is_a?(Array) && h[:procs].all? { |proc| proc.is_a?(String) }
+            err << "Invalid value for :procs. Must be an array of strings."
+          end
         end # if h.key?(:procs)
 
 =begin
@@ -387,7 +389,7 @@ module BlackStack
           :db_port => '5432', # default postgres port
           :db_name => 'blackstack', 
           :db_user => 'blackstack', 
-          :db_password => n[:ssh_password],
+          :db_password => n[:ssh_root_password],
           :db_sslmode => 'disable',
         })
         @@db = BlackStack::PostgreSQL.connect
@@ -398,7 +400,7 @@ module BlackStack
           l.logs "Running #{fullfilename.blue}... "
           self.execute_sentences( 
             File.open(fullfilename).read,
-            logger: l
+            logger: nil #l
           )
           l.done
         }
