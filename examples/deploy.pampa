@@ -8,96 +8,96 @@ RUN mkdir -p /home/blackstack/code1
 
 # Cloning and updating code of my.saas in the ~/code/master folder.
 #
-RUN if [ ! -d $code_folder ]; then
-    git clone https://$git_username:$git_password@github.com/$git_repository $code_folder
+RUN if [ ! -d $$$$code_folder ]; then
+    git clone https://$$$$git_username:$$$$git_password@github.com/$$$$git_repository $$$$code_folder
 fi
 
-RUN git -C $code_folder fetch --all
+RUN git -C $$code_folder fetch --all
 
-RUN git -C $code_folder reset --hard origin/$git_branch
+RUN git -C $$code_folder reset --hard origin/$$git_branch
 
 # Configuration file
 # 
-# 1. Delete existing file $code_folder/conf.rb
-# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/blackstack/code1/secret  (requires $git_username and $git_password).
-# 3. Copy the file /home/blackstack/code1/secret/config-master.rb into folder $code_folder/config.rb
+# 1. Delete existing file $$code_folder/conf.rb
+# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/blackstack/code1/secret  (requires $$git_username and $$git_password).
+# 3. Copy the file /home/blackstack/code1/secret/config-master.rb into folder $$code_folder/config.rb
 # 
-#RUN rm -f $code_folder/conf.rb
-#RUN git clone https://$git_username:$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
-#RUN cp /home/blackstack/code1/secret/config-master.rb $code_folder/config.rb
+#RUN rm -f $$code_folder/conf.rb
+#RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/blackstack/code1/secret
+#RUN cp /home/blackstack/code1/secret/config-master.rb $$code_folder/config.rb
 
 # Cloning and updating code of monitoring extension.
 #
-RUN if [ ! -d $code_folder/extensions/monitoring ]; then
-    git clone https://$git_username:$git_password@github.com/leandrosardi/monitoring $code_folder/extensions/monitoring
+RUN if [ ! -d $$code_folder/extensions/monitoring ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/monitoring $$code_folder/extensions/monitoring
 fi
 
-RUN git -C $code_folder/extensions/monitoring fetch --all
+RUN git -C $$code_folder/extensions/monitoring fetch --all
 
-RUN git -C $code_folder/extensions/monitoring reset --hard origin/$git_branch
+RUN git -C $$code_folder/extensions/monitoring reset --hard origin/$$git_branch
 
 # Cloning and updating code of i2p extension.
 #
-RUN if [ ! -d $code_folder/extensions/i2p ]; then
-    git clone https://$git_username:$git_password@github.com/leandrosardi/i2p $code_folder/extensions/i2p
+RUN if [ ! -d $$code_folder/extensions/i2p ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/i2p $$code_folder/extensions/i2p
 fi
 
-RUN git -C $code_folder/extensions/i2p fetch --all
+RUN git -C $$code_folder/extensions/i2p fetch --all
 
-RUN git -C $code_folder/extensions/i2p reset --hard origin/master
+RUN git -C $$code_folder/extensions/i2p reset --hard origin/master
 
 # Cloning and updating code of dropbox-token-helper extension.
 #
-RUN if [ ! -d $code_folder/extensions/dropbox-token-helper ]; then
-    git clone https://$git_username:$git_password@github.com/leandrosardi/dropbox-token-helper $code_folder/extensions/dropbox-token-helper
+RUN if [ ! -d $$code_folder/extensions/dropbox-token-helper ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/dropbox-token-helper $$code_folder/extensions/dropbox-token-helper
 fi
 
-RUN git -C $code_folder/extensions/dropbox-token-helper fetch --all
+RUN git -C $$code_folder/extensions/dropbox-token-helper fetch --all
 
-RUN git -C $code_folder/extensions/dropbox-token-helper reset --hard origin/$git_branch
+RUN git -C $$code_folder/extensions/dropbox-token-helper reset --hard origin/$$git_branch
 
 # Cloning and updating code of content extension.
 #
-RUN if [ ! -d $code_folder/extensions/content ]; then
-    git clone https://$git_username:$git_password@github.com/leandrosardi/content $code_folder/extensions/content
+RUN if [ ! -d $$code_folder/extensions/content ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/content $$code_folder/extensions/content
 fi
 
-RUN git -C $code_folder/extensions/content fetch --all
+RUN git -C $$code_folder/extensions/content fetch --all
 
-RUN git -C $code_folder/extensions/content reset --hard origin/$git_branch
+RUN git -C $$code_folder/extensions/content reset --hard origin/$$git_branch
 
 # Cloning and updating code of mass.commons extension.
 #
-RUN if [ ! -d $code_folder/extensions/mass.commons ]; then
-    git clone https://$git_username:$git_password@github.com/massprospecting/mass.commons $code_folder/extensions/mass.commons
+RUN if [ ! -d $$code_folder/extensions/mass.commons ]; then
+    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.commons $$code_folder/extensions/mass.commons
 fi
 
-RUN git -C $code_folder/extensions/mass.commons fetch --all
+RUN git -C $$code_folder/extensions/mass.commons fetch --all
 
-RUN git -C $code_folder/extensions/mass.commons reset --hard origin/$git_branch
+RUN git -C $$code_folder/extensions/mass.commons reset --hard origin/$$git_branch
 
 # Cloning and updating code of mass.account extension.
 #
-RUN if [ ! -d $code_folder/extensions/mass.account ]; then
-    git clone https://$git_username:$git_password@github.com/massprospecting/mass.account $code_folder/extensions/mass.account
+RUN if [ ! -d $$code_folder/extensions/mass.account ]; then
+    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.account $$code_folder/extensions/mass.account
 fi
 
-RUN git -C $code_folder/extensions/mass.account fetch --all
+RUN git -C $$code_folder/extensions/mass.account fetch --all
 
-RUN git -C $code_folder/extensions/mass.account reset --hard origin/$git_branch
+RUN git -C $$code_folder/extensions/mass.account reset --hard origin/$$git_branch
 
 # Bundler
 # Glitch: https://github.com/MassProspecting/deployment/issues/38
 #
-RUN source /etc/profile.d/rvm.sh && cd $code_folder && bundler update
+RUN source /etc/profile.d/rvm.sh && cd $$code_folder && bundler update
 
 # Cloning and updating code of selectrowsjs extension.
 #
-RUN if [ ! -d $code_folder/extensions/selectrowsjs ]; then
-    git clone https://$git_username:$git_password@github.com/leandrosardi/selectrowsjs $code_folder/extensions/selectrowsjs
+RUN if [ ! -d $$code_folder/extensions/selectrowsjs ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/selectrowsjs $$code_folder/extensions/selectrowsjs
 fi
 
-RUN git -C $code_folder/extensions/selectrowsjs fetch --all
+RUN git -C $$code_folder/extensions/selectrowsjs fetch --all
 
-RUN git -C $code_folder/extensions/selectrowsjs reset --hard origin/$git_branch
+RUN git -C $$code_folder/extensions/selectrowsjs reset --hard origin/$$git_branch
 

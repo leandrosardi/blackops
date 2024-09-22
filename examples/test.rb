@@ -1,33 +1,32 @@
 require 'net/ssh'
-require 'pry'
-
 # Replace with your server's details
 HOST = 'm.massprospecting.com'      # Remote server address
 USER = 'blackstack'                 # SSH username
-PASSWORD = 'retert5564mbmb'         # SSH password (omit if using key authentication)
+PASSWORD = '***'                    # SSH password (omit if using key authentication)
 
 # The bash command to execute
 command = <<-CMD
-source /etc/profile.d/rvm.sh && \
 export RUBYLIB=$HOME/code1/master && \
 cd $HOME/code1/master && \
-ruby launch.rb
+source /etc/profile.d/rvm.sh && \
+ruby $HOME/code1/master/launch.rb port=3000 config=config.rb
 CMD
+success = false
 
-# The bash command to execute
-command = "source /etc/profile.d/rvm.sh && export RUBYLIB=$HOME/code1/master && cd /home/blackstack/code1/master && ruby launch.rb"
-ssh = Net::SSH.start(HOST, USER, password: PASSWORD)
-binding.pry
-output = ssh.exec!(command)
-
+# pass verbose: :debug to see the debug output in detail
 Net::SSH.start(HOST, USER, password: PASSWORD) do |ssh|
-binding.pry
-  output = ssh.exec!(command)
-  puts output
-
-  if ssh.last_exit_status == 0
+  ssh.exec!(command) do |channel, stream, data|
+    puts "serer-logs: #{data}"
+    # puts "stream: #{stream}"
+    # puts "channel: #{channel}"
+    if data.include?("Web server started successfully")
+      channel.close
+      success = true
+    end
+  end
+  if success
     puts "SUCCESS: Sinatra webserver started successfully."
   else
-    puts "FAILURE: Sinatra webserver failed to start."
+    puts "ERROR: Sinatra webserver failed to start."
   end
 end

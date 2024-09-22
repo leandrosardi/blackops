@@ -218,9 +218,9 @@ module BlackStack
           l.done
           # => n.ssh
         
-          # build a list of all the parameters like $foo present into the bash_script varaible
-          # scan for variables in the form $VAR
-          params = bash_script.scan(/\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
+          # build a list of all the parameters like $$foo present into the bash_script varaible
+          # scan for variables in the form $$VAR
+          params = bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
 
           # verify that there is a key in the hash `n` that matches with each one of the strings present in the array of strings `param`
           missed = params.reject { |key| n.key?(key.to_sym) }
@@ -237,9 +237,9 @@ module BlackStack
             # remove all lines starting with `#`
             fragment = fragment.lines.reject { |line| line.strip.start_with?('#') }.join
 
-            # replace params in the fragment. Example: $name is replaced by n[:name]
+            # replace params in the fragment. Example: $$name is replaced by n[:name]
             params.each { |key|
-              fragment.gsub!("$#{key.to_s}", n0[key.to_sym].to_s)
+              fragment.gsub!("$$#{key.to_s}", n0[key.to_sym].to_s)
             }
             
             res = node.exec(fragment)
