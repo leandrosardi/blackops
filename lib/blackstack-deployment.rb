@@ -13,6 +13,8 @@ module BlackStack
     module Deployment
       @@nodes = []
       @@db = nil
+      @@namecheap = nil
+      @@contabo = nil
 
       CONTABO_PRODUCT_IDS = [
         :V45, 
@@ -40,6 +42,19 @@ module BlackStack
         :V16
       ]
   
+      def self.set(namecheap: nil, contabo: nil)
+        @@namecheap = namecheap if namecheap
+        @@contabo = contabo if contabo
+      end # def self.set
+
+      def self.namecheap
+        @@namecheap
+      end
+
+      def self.contabo
+        @@contabo
+      end
+
       def self.add_node(h)
         err = []
   
@@ -142,32 +157,7 @@ module BlackStack
             err << "Invalid value for :stop_scripts. Must be an array of strings."
           end
         end # if h.key?(:stop_scripts)
-
-=begin
-        if h.key?(:procs)
-          unless h[:procs].is_a?(Hash)
-            err << "Invalid value for :procs. Must be a hash."
-          end
   
-          if h[:procs].key?(:start)
-            unless h[:procs][:start].is_a?(Array)
-              err << "Invalid value for :procs[:start]. Must be an array of commands."
-            end
-  
-            h[:procs][:start].each do |proc|
-              unless proc.is_a?(Hash) && proc.key?(:command) && proc[:command].is_a?(String)
-                err << "Invalid start process. Each must be a hash with a :command key."
-              end
-            end
-          end
-
-          if h[:procs].key?(:stop)
-            unless h[:procs][:stop].is_a?(Array) && h[:procs][:stop].all? { |cmd| cmd.is_a?(String) }
-              err << "Invalid value for :procs[:stop]. Must be an array of strings."
-            end
-          end
-        end
-=end    
         if h.key?(:logs)
           unless h[:logs].is_a?(Array) && h[:logs].all? { |log| log.is_a?(String) }
             err << "Invalid value for :logs. Must be an array of strings."
