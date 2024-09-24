@@ -60,7 +60,11 @@ RUN systemctl restart postgresql
 RUN sudo -u postgres createuser -s blackstack
 
 # Set password for PostgreSQL user 'blackstack'
-RUN sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$$postgres_password';"
+RUN cd /tmp && sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$$postgres_password';"
+
+# Allow connections with no SSL certificates from any location
+RUN sudo grep -Fxq "host    all             all             0.0.0.0/0               md5" /etc/postgresql/12/main/pg_hba.conf || echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
+RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/12/main/postgresql.conf
 
 # Create new database 'blackstack' owned by user 'blackstack'
 RUN sudo -u postgres createdb -O blackstack blackstack

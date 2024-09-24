@@ -1,7 +1,10 @@
 require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
-require 'blackstack-nodes' #require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
+
+#require 'blackstack-nodes'
+require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
+
 require 'blackstack-db'
 require 'contabo-client'
 require 'namecheap-client'
@@ -111,6 +114,34 @@ module BlackStack
             err << "Invalid value for :procs. Must be an array of strings."
           end
         end # if h.key?(:procs)
+
+        # if exists, :install_scripts must by an array of strings
+        if h.key?(:install_scripts)
+          unless h[:install_scripts].is_a?(Array) && h[:install_scripts].all? { |install_script| install_script.is_a?(String) }
+            err << "Invalid value for :install_scripts. Must be an array of strings."
+          end
+        end # if h.key?(:install_scripts)
+
+        # if exists, :deploy_scripts must by an array of strings
+        if h.key?(:deploy_scripts)
+          unless h[:deploy_scripts].is_a?(Array) && h[:deploy_scripts].all? { |deploy_script| deploy_script.is_a?(String) }
+            err << "Invalid value for :deploy_scripts. Must be an array of strings."
+          end
+        end # if h.key?(:deploy_scripts)
+
+        # if exists, :start_scripts must by an array of strings
+        if h.key?(:start_scripts)
+          unless h[:start_scripts].is_a?(Array) && h[:start_scripts].all? { |start_script| start_script.is_a?(String) }
+            err << "Invalid value for :start_scripts. Must be an array of strings."
+          end
+        end # if h.key?(:start_scripts)
+
+        # if exists, :stop_scripts must by an array of strings
+        if h.key?(:stop_scripts)
+          unless h[:stop_scripts].is_a?(Array) && h[:stop_scripts].all? { |stop_script| stop_script.is_a?(String) }
+            err << "Invalid value for :stop_scripts. Must be an array of strings."
+          end
+        end # if h.key?(:stop_scripts)
 
 =begin
         if h.key?(:procs)
@@ -240,7 +271,7 @@ module BlackStack
             params.each { |key|
               fragment.gsub!("$$#{key.to_s}", n0[key.to_sym].to_s)
             }
-            
+
             res = node.exec(fragment)
             l.done#(details: res)
           }
@@ -388,7 +419,7 @@ module BlackStack
           :db_port => '5432', # default postgres port
           :db_name => 'blackstack', 
           :db_user => 'blackstack', 
-          :db_password => n[:ssh_root_password],
+          :db_password => n[:postgres_password],
           :db_sslmode => 'disable',
         })
         @@db = BlackStack::PostgreSQL.connect

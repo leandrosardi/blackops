@@ -8,8 +8,8 @@ RUN mkdir -p /home/blackstack/code1
 
 # Cloning and updating code of my.saas in the ~/code/master folder.
 #
-RUN if [ ! -d $$$$code_folder ]; then
-    git clone https://$$$$git_username:$$$$git_password@github.com/$$$$git_repository $$$$code_folder
+RUN if [ ! -d $$code_folder ]; then
+    git clone https://$$git_username:$$git_password@github.com/$$git_repository $$code_folder
 fi
 
 RUN git -C $$code_folder fetch --all
