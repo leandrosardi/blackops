@@ -1,6 +1,7 @@
 require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
+require 'resolv'
 
 #require 'blackstack-nodes'
 require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
@@ -41,7 +42,38 @@ module BlackStack
         :V11, 
         :V16
       ]
-  
+
+
+      # Resolves the IP address of a given hostname.
+      #
+      # @param hostname [String] The subdomain or hostname to resolve (e.g., 'sub.example.com').
+      # @return [String, nil] Returns the resolved IP address as a string if successful, or `nil` if an error occurs.
+      #
+      # This function is for internal-use only.
+      #
+      def self.resolve_ip(hostname, logger: nil)
+        l = logger || BlackStack::DummyLogger.new(nil)
+        l.logs "Checking #{hostname.blue}... "
+        begin
+          # Attempt to resolve the hostname to an IP address
+          ip_address = Resolv.getaddress(hostname)
+          l.logf "Resolved #{hostname} to #{ip_address}."
+          return ip_address
+        rescue Resolv::ResolvError => e
+          # Handle DNS resolution errors (e.g., hostname not found)
+          l.logf "DNS resolution error for #{hostname}: #{e.message}"
+          return nil
+        rescue SocketError => e
+          # Handle other socket-related errors
+          l.logf "Socket error while resolving #{hostname}: #{e.message}"
+          return nil
+        rescue StandardError => e
+          # Handle any other unexpected errors
+          l.logf "Unexpected error while resolving #{hostname}: #{e.message}"
+          return nil
+        end
+      end
+
       def self.set(namecheap: nil, contabo: nil)
         @@namecheap = namecheap if namecheap
         @@contabo = contabo if contabo
