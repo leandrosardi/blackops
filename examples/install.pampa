@@ -30,7 +30,7 @@ RUN apt-get upgrade -y
 
 # Backup old .postgresql folder if it exists
 RUN if [ -d ~/.postgresql ]; then
-    mv ~/.postgresql ~/.postgresql.$$(date +%s)
+    mv ~/.postgresql ~/.postgresql.$(date +%s)
 fi
 RUN mkdir -p ~/.postgresql
 
@@ -50,12 +50,6 @@ RUN systemctl start postgresql
 # Configure PostgreSQL to listen on all addresses
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/12/main/postgresql.conf
 
-# Update pg_hba.conf to allow remote connections
-RUN sed -i '$$ a host    all             all             0.0.0.0/0               md5' /etc/postgresql/12/main/pg_hba.conf
-
-# Restart PostgreSQL service
-RUN systemctl restart postgresql
-
 # Create PostgreSQL user 'blackstack' with superuser privileges
 RUN sudo -u postgres createuser -s blackstack
 
@@ -65,6 +59,9 @@ RUN cd /tmp && sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$$
 # Allow connections with no SSL certificates from any location
 RUN sudo grep -Fxq "host    all             all             0.0.0.0/0               md5" /etc/postgresql/12/main/pg_hba.conf || echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
 RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/12/main/postgresql.conf
+
+# Restart PostgreSQL service
+RUN systemctl restart postgresql
 
 # Create new database 'blackstack' owned by user 'blackstack'
 RUN sudo -u postgres createdb -O blackstack blackstack
@@ -100,7 +97,7 @@ RUN curl -sSL https://get.rvm.io | bash -s stable
 RUN usermod -aG rvm blackstack
 
 # Suppress rvmsudo warnings
-RUN sed -i '$$ a export rvmsudo_secure_path=1' /etc/profile.d/rvm.sh
+RUN sed -i '$ a export rvmsudo_secure_path=1' /etc/profile.d/rvm.sh
 
 # Source RVM scripts
 # Install Ruby 3.1.2 and set it as default
@@ -118,7 +115,7 @@ RUN gem install bundler
 
 # Add Ubuntu focal-updates repository if not present
 RUN if ! grep -q "focal-updates main" /etc/apt/sources.list; then
-    sed -i '$$ a deb http://archive.ubuntu.com/ubuntu focal-updates main' /etc/apt/sources.list
+    sed -i '$ a deb http://archive.ubuntu.com/ubuntu focal-updates main' /etc/apt/sources.list
     apt-get update -y
 fi
 
