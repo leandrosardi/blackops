@@ -60,7 +60,7 @@ RUN systemctl restart postgresql
 RUN sudo -u postgres createuser -s blackstack
 
 # Set password for PostgreSQL user 'blackstack'
-RUN sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$$ssh_password';"
+RUN sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$$postgres_password';"
 
 # Create new database 'blackstack' owned by user 'blackstack'
 RUN sudo -u postgres createdb -O blackstack blackstack

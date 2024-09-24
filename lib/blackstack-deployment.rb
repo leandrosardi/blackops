@@ -1,11 +1,10 @@
 require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
-
-#require 'blackstack-nodes'
-require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
-
+require 'blackstack-nodes' #require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
 require 'blackstack-db'
+require 'contabo-client'
+require 'namecheap-client'
 
 module BlackStack
     module Deployment
