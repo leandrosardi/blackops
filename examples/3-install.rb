@@ -10,7 +10,7 @@ begin
     if node && node[:domain]
         nc = BlackStack::Deployment.namecheap
         domain = node[:domain]
-        subdomain = node[:subdomain] ? node[:subdomain] : "@"
+        subdomain = BlackStack::Deployment.get_subdomain(domain) || "@"
         ip = node[:net_remote_ip]
         nc.add_dns_record(domain, 'A', subdomain, ip)
         l.done

@@ -2,6 +2,7 @@ require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 require 'resolv'
+require 'public_suffix'
 
 #require 'blackstack-nodes'
 require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
@@ -44,6 +45,101 @@ module BlackStack
       ]
 
 
+      # Determines if the given domain has a subdomain.
+      #
+      # @param domain [String] The domain name to check (e.g., 'sub.example.com.ar', 'example.com', 'example.com.ar').
+      # @return [Boolean] Returns `true` if a subdomain exists, `false` otherwise.
+      #
+      # This function is for internal-use only.
+      #
+      def self.has_subdomain?(domain)
+        begin
+          # Parse the domain using PublicSuffix
+          parsed_domain = PublicSuffix.parse(domain)
+          
+          # Extract the registrable domain (e.g., 'example.com.ar' from 'sub.example.com.ar')
+          registrable_domain = parsed_domain.sld + "." + parsed_domain.tld
+
+          # Compare the registrable domain with the input domain
+          # If they are the same, there's no subdomain
+          # If the input domain has more labels, it includes subdomains
+          if domain.downcase == registrable_domain.downcase
+            return false
+          else
+            # Ensure that the input domain ends with the registrable domain
+            # This handles cases where the input domain might include additional labels
+            if domain.downcase.end_with?(registrable_domain.downcase)
+              # Count the number of labels in the input domain
+              input_labels = domain.split('.').size
+              registrable_labels = registrable_domain.split('.').size
+
+              # If input has more labels than registrable domain, subdomain exists
+              return input_labels > registrable_labels
+            else
+              # The domain does not match the expected registrable domain structure
+              # Treat it as invalid or as having a subdomain
+              return true
+            end
+          end
+        rescue PublicSuffix::DomainInvalid => e
+          puts "Invalid domain: #{e.message}"
+          return false
+        rescue PublicSuffix::DomainNotAllowed => e
+          puts "Domain not allowed: #{e.message}"
+          return false
+        rescue StandardError => e
+          puts "An error occurred: #{e.message}"
+          return false
+        end
+      end
+
+      # Extracts the subdomain from a given domain name.
+      #
+      # @param domain [String] The domain name to extract the subdomain from (e.g., 'blog.shop.example.com.ar').
+      # @return [String, nil] Returns the subdomain as a string if it exists, otherwise `nil`.
+      #
+      # This function is for internal-use only.
+      #
+      def self.get_subdomain(domain)
+        begin
+          # Normalize the domain by removing any trailing dot and converting to lowercase
+          normalized_domain = domain.strip.downcase.chomp('.')
+      
+          # Parse the domain using PublicSuffix
+          parsed_domain = PublicSuffix.parse(normalized_domain)
+      
+          # Construct the registrable domain (sld + tld)
+          registrable_domain = "#{parsed_domain.sld}.#{parsed_domain.tld}"
+      
+          # If the normalized domain is the same as the registrable domain, there's no subdomain
+          return nil if normalized_domain == registrable_domain
+      
+          # Ensure that the domain ends with the registrable domain
+          unless normalized_domain.end_with?(registrable_domain)
+            # The domain does not match the expected registrable domain structure
+            # It might be invalid or contain multiple subdomains; treat it as having a subdomain
+            # Extract everything before the registrable domain
+            subdomain_part = normalized_domain.split(registrable_domain).first.chomp('.')
+            return subdomain_part.empty? ? nil : subdomain_part
+          end
+      
+          # Extract the subdomain by removing the registrable domain from the full domain
+          subdomain_part = normalized_domain[0...-registrable_domain.length].chomp('.')
+      
+          # Return the subdomain if it exists
+          subdomain_part.empty? ? nil : subdomain_part
+        rescue PublicSuffix::DomainInvalid => e
+          puts "Invalid domain: #{e.message}"
+          return nil
+        rescue PublicSuffix::DomainNotAllowed => e
+          puts "Domain not allowed: #{e.message}"
+          return nil
+        rescue StandardError => e
+          puts "An error occurred: #{e.message}"
+          return nil
+        end
+      end
+      
       # Resolves the IP address of a given hostname.
       #
       # @param hostname [String] The subdomain or hostname to resolve (e.g., 'sub.example.com').
