@@ -4,18 +4,21 @@
 
 The **BlackOps** a library for easily manage CD operations of your software projects.
 
+The `ops` command provides the following features:
+
+- Managing **Infrastructure as a Code** (IaaS),
+- **Continious Deployment** (CD),
+- **Logs Monitoring**, 
+- **Processes Monitoring**; and
+- **Infrastructure Monitoring**.
+
+---
+
 BlackOps is a framework for building automated deployment scripts. Although BlackOps itself is written in Ruby, it can easily be used to deploy projects of any language or framework, be it Rails, Java, or PHP.
 
 Once installed, BlackOps gives you a `ops` tool to perform your deployments from the comfort of your command line.
 
 ---
-
-The CLI of `ops` provides the following features:
-
-- Infrastructure as a Code (IaaS),
-- Continious Deployment (CD),
-- Processes Monitoring; and
-- Infrastructure Monitoring.
 
 **Outline:**
 
