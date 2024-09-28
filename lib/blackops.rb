@@ -685,7 +685,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         ret
       end # def self.reinstall
 
-      # Setup the DNS, connect the node as `root` and run an op.
+      # Setup the DNS, connect the node as `root` and run the `install_ops`.
       def self.install(
         node_name,
         dns_propagation_timeout: 60,
@@ -759,7 +759,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         }
       end # def self.install
 
-      # Connect the node as non-root, run the op, and exeute migrations.
+      # Connect the node as non-root, run the `deploy_ops`, and exeute migrations.
       def self.deploy(
         node_name,
         logger: nil
@@ -790,6 +790,56 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         )
         l.done
       end # def self.deploy
+
+      # Connect the node as non-root, run the `start_ops`.
+      def self.start(
+        node_name,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        node = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
+        l.done
+
+        # run deployment
+        node[:start_ops].each { |op|
+          l.logs "op: #{op.to_s.blue}... "
+          BlackOps.source( node_name,
+              op: op,
+              connect_as_root: false,
+              logger: l
+          )
+          l.done
+        }        
+      end # def self.start
+
+      # Connect the node as non-root, run the `stop_ops`.
+      def self.stop(
+        node_name,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        node = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
+        l.done
+
+        # run deployment
+        node[:stop_ops].each { |op|
+          l.logs "op: #{op.to_s.blue}... "
+          BlackOps.source( node_name,
+              op: op,
+              connect_as_root: false,
+              logger: l
+          )
+          l.done
+        }        
+      end # def self.stop
 
     end # BlackOps
 #end # BlackStack

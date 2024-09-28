@@ -28,6 +28,7 @@ domains.each do |domain|
       l.logf 'No subdomain'.yellow
     end
   rescue => e
+    l.reset
     l.logf e.message.red
   end
 end

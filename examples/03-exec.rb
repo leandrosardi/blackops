@@ -34,5 +34,6 @@ begin
     # => nil
 
 rescue => e
+    l.reset
     l.log(e.to_console.red)
 end
