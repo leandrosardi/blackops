@@ -4,6 +4,11 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
+    BlackOps.install( :master,
+        op: :'install.ubuntu_20_04.op',
+        logger: l
+    )
+
     # setup domain
     l.logs 'Setting domain or subdomain... '
     node = BlackOps.get_node(:slave)
