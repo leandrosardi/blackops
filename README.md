@@ -4,13 +4,13 @@
 
 The **BlackOps** a library for easily manage CD operations of your software projects.
 
-The `ops` command provides the following features:
+The `ops` command is great for managing: 
 
-- Managing **Infrastructure as a Code** (IaaS),
-- **Continious Deployment** (CD),
-- **Logs Monitoring**, 
-- **Processes Monitoring**; and
-- **Infrastructure Monitoring**.
+1. **Infrastructure as a Code** (IaaS),
+2. **Continious Deployment** (CD),
+3. **Logs Monitoring**, 
+4. **Processes Monitoring**; and
+5. **Infrastructure Monitoring**.
 
 ---
 
