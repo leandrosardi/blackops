@@ -11,7 +11,7 @@ begin
         nc = BlackOps.namecheap
         domain = node[:domain]
         subdomain = BlackOps.get_subdomain(domain) || "@"
-        ip = node[:net_remote_ip]
+        ip = node[:ip]
         nc.add_dns_record(domain, 'A', subdomain, ip)
         l.done
 

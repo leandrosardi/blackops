@@ -4,8 +4,8 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
-    BlackOps.ssh( :slave,
-        connect_as_root: true,
+    BlackOps.ssh( :master,
+        #connect_as_root: true,
         logger: l
     )
 rescue => e
