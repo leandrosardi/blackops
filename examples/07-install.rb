@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
     BlackOps.install( :master,
-        op: :'install.ubuntu_20_04.op',
+        op: 'install.ubuntu_20_04',
         logger: l
     )    
 rescue => e

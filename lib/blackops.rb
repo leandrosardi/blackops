@@ -390,7 +390,7 @@ require 'namecheap-client'
 
           # verify that there is a key in the hash `n` that matches with each one of the strings present in the array of strings `param`
           missed = params.reject { |key| n.key?(key.to_sym) }
-          raise ArgumentError, "Node #{node_name} is missing the following parameters required by the script: #{missed.join(', ')}." if !missed.empty?
+          raise ArgumentError, "Node #{node_name} is missing the following parameters required by the op: #{missed.join(', ')}." if !missed.empty?
 
           # execute the script fragment by fragment
           bash_script.split(/(?<!#)RUN /).each { |fragment|
