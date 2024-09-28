@@ -12,7 +12,7 @@ Once installed, BlackOps gives you a `ops` tool to perform your deployments from
 
 The CLI of `ops` provides the following features:
 
-- Infrastructure as a Code (MySaaS),
+- Infrastructure as a Code (IaaS),
 - Continious Deployment (CD),
 - Processes Monitoring; and
 - Infrastructure Monitoring.
@@ -110,8 +110,6 @@ ops procs nodes=.* > /dev/null 2>&1 &
 Running a command in silent mode allows you to launch it into a server and monitor your infrastructure 24/7 and receive an email alert as soon as an alert is raised.
 
 ## 2. Define Nodes
-
-This is the MySaaS part.
 
 You can add a node to your infrastructure as follows:
 
