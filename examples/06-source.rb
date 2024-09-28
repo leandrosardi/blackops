@@ -4,7 +4,7 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
-    BlackOps.source( :slave,
+    BlackOps.source( :master,
         bash_script_filename: './environment.ubuntu-20-04.pampa',
         params: ['root', 'root-password-here'],
         logger: l
