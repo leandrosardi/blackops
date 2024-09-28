@@ -2,7 +2,7 @@
 
 # BlackOps
 
-The **BlackOps** a library for easily manage CD operations of your software projects.
+The **BlackOps** library makes it easy to manage CD operations of your software projects.
 
 The `ops` command is great for managing: 
 
