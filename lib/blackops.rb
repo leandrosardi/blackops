@@ -686,7 +686,6 @@ require 'namecheap-client'
         node_name,
         logger: nil
       )
-        ret = nil
         l = logger || BlackStack::DummyLogger.new(nil)
         node_name = node_name.dup.to_s
 
@@ -727,6 +726,38 @@ require 'namecheap-client'
           l.done
         }
       end # def self.install
+
+      # Connect the node as non-root, run the op, and exeute migrations.
+      def self.deploy(
+        node_name,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        node = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
+        l.done
+
+        # run deployment
+        node[:deployment_ops].each { |op|
+          l.logs "op: #{op.to_s.blue}... "
+          BlackOps.source( node_name,
+              op: op,
+              connect_as_root: false,
+              logger: l
+          )
+          l.done
+        }
+        
+        # run migrations
+        l.logs "Running migrations... "
+        BlackOps.migrations( node_name,
+            logger: l
+        )
+        l.done
+      end # def self.deploy
 
     end # BlackOps
 #end # BlackStack
