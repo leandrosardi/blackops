@@ -126,14 +126,11 @@ require 'namecheap-client'
           # Return the subdomain if it exists
           subdomain_part.empty? ? nil : subdomain_part
         rescue PublicSuffix::DomainInvalid => e
-          puts "Invalid domain: #{e.message}"
-          return nil
+          raise "Invalid domain: #{e.message}"
         rescue PublicSuffix::DomainNotAllowed => e
-          puts "Domain not allowed: #{e.message}"
-          return nil
+          raise "Domain not allowed: #{e.message}"
         rescue StandardError => e
-          puts "An error occurred: #{e.message}"
-          return nil
+          raise "An error occurred: #{e.message}"
         end
       end
       
@@ -597,10 +594,9 @@ require 'namecheap-client'
           p += 1
           l.done(details: ret ? 'found'.green : 'not found'.yellow)
         end # while json['_pagination']['totalPages']
-        
+
         ret
       end # def self.ssh(node_name, logger: nil)  
-
 
     end # Deployment
 #end # BlackStack
