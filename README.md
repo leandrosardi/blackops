@@ -114,7 +114,7 @@ Running a command in silent mode allows you to launch it into a server and monit
 You can add a node to your infrastructure as follows:
 
 ```ruby
-BlackStack::Deployment.add_node({
+BlackOps.add_node({
     # Unique name to identify a host (a.k.a.: node).
     # It is equal to the hostname of the node.
     #
@@ -278,7 +278,7 @@ BlackStack::Deployment.add_node({
 })
 ```
 
-When you call `BlackStack::Deployment.add_node` to add a node to your infrastructure, a new instance of the class `BlackStack::Infrastructure::Node` will be created and added to the arraw `@nodes` of the module `BlackStack::Deployment`.
+When you call `BlackOps.add_node` to add a node to your infrastructure, a new instance of the class `BlackStack::Infrastructure::Node` will be created and added to the arraw `@nodes` of the module `BlackOps`.
 
 For more information about the `BlackStack::Infrastructure::Node` class, refer to our [BlackStack Nodes](https://github.com/leandrosardi/blackstack-nodes) library.
 
@@ -292,7 +292,7 @@ You can create a new instance of a cloud server for any of the nodes you have de
 
 
 ```ruby
-BlackStack::Deployment.create :master
+BlackOps.create :master
 ```
 
 - Or you can do it with the CLI:
@@ -336,7 +336,7 @@ The `release` script simply assign `nil` value to the field `net_remote_ip`.
 
 
 ```ruby
-BlackStack::Deployment.release :master
+BlackOps.release :master
 ```
 
 - Or you can do it with the CLI:
@@ -353,7 +353,7 @@ Install the my.saas envoronment into one node, by running the script `install.20
 
 
 ```ruby
-BlackStack::Deployment.install :master
+BlackOps.install :master
 ```
 
 - Or you can do it with the CLI:
@@ -382,7 +382,7 @@ You can automatically perform all the operations above.
 
 
 ```ruby
-BlackStack::Deployment.deploy :master
+BlackOps.deploy :master
 ```
 
 - Or you can do it with the CLI:
@@ -418,7 +418,7 @@ First thing first, you have to define what are your secrets.
 E.g.:
 
 ```ruby
-BlackStack::Deployment.set_secrets({
+BlackOps.set_secrets({
     # define your secret repository.
     :git_repository => 'leandrosardi/my.secrets',
     :git_branch => 'main', 
@@ -454,7 +454,7 @@ Then,
 
 
 ```ruby
-BlackStack::Deployment.push :master
+BlackOps.push :master
 ```
 
 - Or you can do it with the CLI:
@@ -493,7 +493,7 @@ The **state** of a process indicates if such a process is running or not:
 
 
 ```ruby
-BlackStack::Deployment.procs :master
+BlackOps.procs :master
 # => [{ :proc => 'app.rb port=3000', running => true }]
 ```
 
@@ -544,7 +544,7 @@ Show list of proxies defined for each node, and show which ones are running and 
 For using this feature, you have to define the proxies configured on a node.
 
 ```ruby
-BlackStack::Deployment.add_node({
+BlackOps.add_node({
     # Unique name to identify a host (a.k.a.: node).
     # It is equal to the hostname of the node.
     # Mandatory.
@@ -599,7 +599,7 @@ When you define a node, you can setup the following alerts:
 - if a SSL is not working.
 
 ```ruby
-BlackStack::Deployment.add_node({
+BlackOps.add_node({
     # Unique name to identify a host (a.k.a.: node).
     # It is equal to the hostname of the node.
     # Mandatory.
@@ -676,7 +676,7 @@ By default, the `install` script execute our [standard environment installation]
 In some cases, you may want to run with other environment. E.g.: When we are running a proxies server.
 
 ```ruby
-BlackStack::Deployment.add_node({
+BlackOps.add_node({
     # Unique name to identify a host (a.k.a.: node).
     # It is equal to the hostname of the node.
     # Mandatory.
@@ -711,7 +711,7 @@ By default, the `deploy` script will:
 In some cases, you may want to run a custom deployment. E.g.: When you are running [worker nodes](/docu/00.reference-architectures.md#master-slave-worker-architecture); who don't need to install my.saas, but they need to run custom processing scripts instead.
 
 ```ruby
-BlackStack::Deployment.add_node({
+BlackOps.add_node({
     # Unique name to identify a host (a.k.a.: node).
     # It is equal to the hostname of the node.
     # Mandatory.
@@ -738,7 +738,7 @@ Use **custom alerts** to raise custom alerts that are specific to the business.
 E.g.: Failed payments processing.
 
 ```ruby
-BlackStack::Deployment.add_node({
+BlackOps.add_node({
     # Unique name to identify a host (a.k.a.: node).
     # It is equal to the hostname of the node.
     # Mandatory.
@@ -793,7 +793,7 @@ To distribute the monitoring of nodes altrough processes, and even altrough many
 1. define nodes that will be used for monitoring,
 
 ```ruby
-BlackStack::Deployment.add_nodes([{
+BlackOps.add_nodes([{
     # Unique name to identify a host (a.k.a.: node).
     # It is equal to the hostname of the node.
     # Mandatory.
@@ -819,7 +819,7 @@ BlackStack::Deployment.add_nodes([{
 2. define what are the nodes used for monitoring,
 
 ```ruby
-BlackStack::Deployment.set_monitoring({
+BlackOps.set_monitoring({
     # max number of processes allowed in a node.
     :default_max_procs => 150,
     # list of nodes used for monitoring.
