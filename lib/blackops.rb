@@ -684,6 +684,7 @@ require 'namecheap-client'
       # Setup the DNS, connect the node as `root` and run an op.
       def self.install(
         node_name,
+        dns_propagation_timeout: 60,
         logger: nil
       )
         l = logger || BlackStack::DummyLogger.new(nil)
@@ -705,11 +706,30 @@ require 'namecheap-client'
             l.done
 
             # wait until the ping to a subdomain is pointing to  a specific ip
+            l.logs "Check DNS... "
+            start_time = Time.now
+            end_time = Time.now
             hostname = node[:subdomain] ? "#{node[:subdomain]}.#{node[:domain]}" : node[:domain]
-            while BlackOps.resolve_ip(hostname, logger: l).nil?
-                l.logs 'Delay... '
+            ip = BlackOps.resolve_ip(hostname, 
+              logger: nil
+            )
+            l.skip(details: 'not propagated yet') if ip.nil?
+            l.skip(details: "not propagated yet (wrong IP: #{ip})") if ip && ip != node[:ip]
+            while (ip.nil? || ip != node[:ip]) && (end_time - start_time) < dns_propagation_timeout 
+                l.logs 'Waiting... '
                 sleep(5)
                 l.done
+
+                l.logs 'Check DNS... '
+                ip = BlackOps.resolve_ip(hostname, 
+                  logger: nil
+                )
+                l.skip(details: 'not propagated yet') if ip.nil?
+                l.skip(details: "not propagated yet (wrong IP: #{ip})") if ip && ip != node[:ip]
+                end_time = Time.now
+            end
+            if (ip.nil? || ip != node[:ip])
+              raise "DNS propagation not resolved after #{dns_propagation_timeout} seconds."
             end
         else
             l.skip

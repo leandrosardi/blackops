@@ -1,0 +1,27 @@
+# Description:
+# - This script is used to install the required packages for the BlackStack project on Ubuntu 20-04.
+# 
+
+# Install SSL Certificate
+# Reference: https://github.com/leandrosardi/my.saas/discussions/40
+#
+RUN service nginx stop
+RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
+RUN mkdir -p /home/blackstack/ssl
+RUN rm -f /home/blackstack/ssl/dev.crt
+RUN rm -f /home/blackstack/ssl/dev.key 
+RUN chown -R blackstack:blackstack /etc/letsencrypt/live/$$domain
+RUN cp /etc/letsencrypt/live/$$domain/fullchain.pem /home/blackstack/ssl/
+RUN cp /etc/letsencrypt/live/$$domain/privkey.pem /home/blackstack/ssl/
+RUN mv /home/blackstack/ssl/fullchain.pem /home/blackstack/ssl/dev.crt
+RUN mv /home/blackstack/ssl/privkey.pem /home/blackstack/ssl/dev.key
+
+# Nginx configuration file
+#
+# 1. Delete existing file /etc/nginx/nginx.conf
+# 2. Download nginx.conf from https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf into folder /etc/nginx/
+# 3. Start Nginx again. 
+#
+RUN rm -f /etc/nginx/nginx.conf
+RUN curl -sSL https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf -o /etc/nginx/nginx.conf
+RUN service nginx start
