@@ -13,5 +13,5 @@ begin
     l.log "Instance not Found.".yellow if !ret
 
 rescue => e
-    l.error(e)
+    l.log(e.to_console.red)
 end

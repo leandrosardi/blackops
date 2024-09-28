@@ -10,5 +10,5 @@ begin
         logger: l
     )
 rescue => e
-    l.error(e)
+    l.log(e.to_console.red)
 end

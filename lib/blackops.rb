@@ -383,7 +383,7 @@ require 'namecheap-client'
           node.connect
           l.done
           # => n.ssh
-          
+
           # build a list of all the parameters like $$foo present into the bash_script varaible
           # scan for variables in the form $$VAR
           params = bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
@@ -516,7 +516,7 @@ require 'namecheap-client'
             @@db.execute(statement) #if statement.to_s.strip.size > 0
             l.done
           rescue => e
-            l.error(e)
+            l.log(e.to_console.red)
             raise "Error executing statement: #{statement}\n#{e.message}"
           end
         }
@@ -680,6 +680,50 @@ require 'namecheap-client'
 
         ret
       end # def self.reinstall
+
+      # Setup the DNS, connect the node as `root` and run an op.
+      def self.install(
+        node_name,
+        op:,
+        logger: nil
+      )
+        ret = nil
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        node = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
+        l.done
+
+        # setup domain
+        l.logs 'Setting domain or subdomain... '
+        if node[:domain]
+            nc = BlackOps.namecheap
+            domain = node[:domain]
+            subdomain = BlackOps.get_subdomain(domain) || "@"
+            ip = node[:ip]
+            nc.add_dns_record(domain, 'A', subdomain, ip)
+            l.done
+
+            # wait until the ping to a subdomain is pointing to  a specific ip
+            hostname = node[:subdomain] ? "#{node[:subdomain]}.#{node[:domain]}" : node[:domain]
+            while BlackOps.resolve_ip(hostname, logger: l).nil?
+                l.logs 'Delay... '
+                sleep(5)
+                l.done
+            end
+        else
+            l.skip
+        end
+
+        # run installation
+        BlackOps.source( node_name,
+            op: op,
+            connect_as_root: true,
+            logger: l
+        )
+      end # def self.install
 
     end # BlackOps
 #end # BlackStack
