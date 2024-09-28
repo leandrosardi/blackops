@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
     # start server
-    BlackStack::Deployment.source( :master,
+    BlackOps.source( :master,
         bash_script_filename: './stop.pampa',
         logger: l
     )

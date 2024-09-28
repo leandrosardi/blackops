@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
     l.logs('Get node master... ')
-    n = BlackStack::Deployment.get_node('master')
+    n = BlackOps.get_node('master')
     l.done
 
     # switch user to root and create the node object

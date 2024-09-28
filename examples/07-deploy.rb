@@ -6,7 +6,7 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 begin
     # pull source code
     l.logs "Pulling source code... "
-    BlackStack::Deployment.source( :master,
+    BlackOps.source( :master,
         bash_script_filename: './deploy.pampa',
         logger: l
     )
@@ -14,7 +14,7 @@ begin
     
     # run migrations
     l.logs "Running migrations... "
-    BlackStack::Deployment.migrations( :master,
+    BlackOps.migrations( :master,
         logger: l
     )
     l.done
