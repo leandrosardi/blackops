@@ -3,11 +3,15 @@ require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 require 'resolv'
 require 'public_suffix'
+
 #require 'blackstack-nodes' 
 require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
+
 require 'blackstack-db'
 require 'contabo-client'
-require 'namecheap-client'
+
+#require 'namecheap-client'
+require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
 
 #module BlackStack
     module BlackOps
@@ -714,7 +718,7 @@ require 'namecheap-client'
               logger: nil
             )
             l.skip(details: 'not propagated yet') if ip.nil?
-            l.skip(details: "not propagated yet (wrong IP: #{ip})") if ip && ip != node[:ip]
+            l.skip(details: "not propagated yet (wrong IP: #{ip.blue})") if ip && ip != node[:ip]
             while (ip.nil? || ip != node[:ip]) && (end_time - start_time) < dns_propagation_timeout 
                 l.logs 'Waiting... '
                 sleep(5)
@@ -725,7 +729,7 @@ require 'namecheap-client'
                   logger: nil
                 )
                 l.skip(details: 'not propagated yet') if ip.nil?
-                l.skip(details: "not propagated yet (wrong IP: #{ip})") if ip && ip != node[:ip]
+                l.skip(details: "not propagated yet (wrong IP: #{ip.blue})") if ip && ip != node[:ip]
                 end_time = Time.now
             end
             if (ip.nil? || ip != node[:ip])
