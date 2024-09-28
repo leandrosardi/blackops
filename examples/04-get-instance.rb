@@ -5,9 +5,13 @@ l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
     # start server
-    BlackOps.get_instance( :master,
+    ret = BlackOps.get_instance( :master,
         logger: l
     )
+
+    l.log JSON.pretty_generate(ret) if ret
+    l.log "Instance not Found.".yellow if !ret
+
 rescue => e
     l.error(e)
 end
