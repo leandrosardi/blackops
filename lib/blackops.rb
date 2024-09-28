@@ -15,6 +15,9 @@ require 'namecheap-client'
       @@db = nil
       @@namecheap = nil
       @@contabo = nil
+      @@repositories = [
+        'https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops'
+      ]
 
       CONTABO_PRODUCT_IDS = [
         :V45, 
@@ -165,9 +168,20 @@ require 'namecheap-client'
         end
       end
 
-      def self.set(namecheap: nil, contabo: nil)
+      def self.set(namecheap: nil, contabo: nil, repositories: nil)
+        err = []
+        if repositories
+          unless repositories.is_a?(Array) && repositories.all? { |rep| rep.is_a?(String) }
+            err << "Invalid value for repositories. Must be an array of strings."
+          end
+        end # if repositories
+        # TODO: Validate each string inot the repositories array is a valid URL or a valid PATH with no slash (/) at the end
+        # TODO: Validate namecheap is an instance of NamecheapClient
+        # TODO: Validate contabo is an instance of ContaboClient
+        raise err.join("\n") if err.size > 0
         @@namecheap = namecheap if namecheap
         @@contabo = contabo if contabo
+        @@repositories = repositories if repositories
       end # def self.set
 
       def self.namecheap
@@ -320,17 +334,14 @@ require 'namecheap-client'
       # Parse and execute the sentences into an `.op` file.
       def self.source(
         node_name,
+        op:,
         connect_as_root: false,
-        bash_script_filename: nil,
-        bash_script_url: nil,
         logger: nil
       )
         node = nil
         begin        
           l = logger || BlackStack::DummyLogger.new(nil)
           node_name = node_name.dup.to_s
-          raise ArgumentError, 'Either `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename.nil? && bash_script_url.nil?
-          raise ArgumentError, 'Only one `bash_script_filename` or `bash_script_url` must be provided.' if bash_script_filename && bash_script_url
 
           l.logs "Getting node #{node_name.blue}... "
           n0 = get_node(node_name)
@@ -339,15 +350,21 @@ require 'namecheap-client'
           l.done
         
           # download the file from the URL
-          if bash_script_url
-            l.logs "Downloading bash script from #{bash_script_filename.blue}... "
-            bash_script = Net::HTTP.get(URI(bash_script_url)) 
-            l.done(details: "#{bash_script.length} bytes downloaded")
-          else
-            l.logs "Getting bash script from #{bash_script_filename.blue}... "
-            bash_script = File.read(bash_script_filename) if bash_script_filename
-            l.done(details: "#{bash_script.length} bytes in file")
-          end
+          @@repositories.each { |rep|
+            if rep =~ /^http/i
+              url = "#{rep}/#{op}.op"
+              l.logs "Downloading bash script from #{url.blue}... "
+              # TODO: Validate if the URL exists. And return if I got the script from there.
+              bash_script = Net::HTTP.get(URI(url)) 
+              l.done(details: "#{bash_script.length} bytes downloaded")
+            else
+              filename = "#{rep}/#{op}.op"
+              l.logs "Getting bash script from #{filename.blue}... "
+              # TODO: Validate if the PATH exists. And return if I got the script from there.
+              bash_script = File.read(filename) 
+              l.done(details: "#{bash_script.length} bytes in file")
+            end
+          }
 
           # switch user to root and create the node object
           l.logs "Creating node object... "
@@ -658,7 +675,7 @@ require 'namecheap-client'
           root_password: n[:ssh_root_password],
           user_data: user_data_script
         )
-        
+
         ret
       end # def self.reinstall
 

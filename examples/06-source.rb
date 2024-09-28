@@ -5,8 +5,7 @@ l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
     BlackOps.source( :master,
-        bash_script_filename: './environment.ubuntu-20-04.pampa',
-        params: ['root', 'root-password-here'],
+        bash_script_filename: 'hostname.op',
         logger: l
     )
 rescue => e
