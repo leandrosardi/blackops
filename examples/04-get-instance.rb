@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
     # start server
-    BlackOps.reinstall( :master,
+    BlackOps.get_instance( :master,
         logger: l
     )
 rescue => e

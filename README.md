@@ -143,7 +143,7 @@ BlackOps.add_node({
     #
     # Allowed values: string with a valid IP address.
     # 
-    :net_remote_ip => nil,
+    :ip => nil,
 
     # Who is providing this node.
     # Allowed values: [:contabo].
@@ -169,7 +169,7 @@ BlackOps.add_node({
     #
     # Allowed values: string with a valid PostgreSQL database name,
     # 
-    :db_host => 'dev2',
+    :db => 'dev2',
 
     # SSH credentials.
     # Root password is required to install the environment at the first time.
@@ -333,7 +333,7 @@ ops create nodes=master,slave.*
 
 If you have manually deleted the instance of a node from your hosting provider, you can update that your database.
 
-The `release` script simply assign `nil` value to the field `net_remote_ip`.
+The `release` script simply assign `nil` value to the field `ip`.
 
 - You can do that by Ruby code:
 

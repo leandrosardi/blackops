@@ -185,9 +185,13 @@ require 'namecheap-client'
   
         # Set default values for optional keys if they are missing
         h[:dev] ||= false
-        h[:net_remote_ip] ||= nil
+        h[:ip] ||= nil
         h[:provider] ||= :contabo
-        h[:procs] ||= {}
+        h[:procs] ||= []
+        h[:install_script] ||= []
+        h[:deploy_script] ||= []
+        h[:start_script] ||= []
+        h[:stop_script] ||= []
         h[:logs] ||= []
         h[:webs] ||= []
   
@@ -200,9 +204,9 @@ require 'namecheap-client'
           err << "Invalid value for :dev. Must be a boolean."
         end
   
-        if h.key?(:net_remote_ip) && !h[:net_remote_ip].nil?
-          unless h[:net_remote_ip] =~ /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/
-            err << "Invalid value for :net_remote_ip. Must be a valid IP address or nil."
+        if h.key?(:ip) && !h[:ip].nil?
+          unless h[:ip] =~ /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/
+            err << "Invalid value for :ip. Must be a valid IP address or nil."
           end
         end
   
@@ -214,8 +218,8 @@ require 'namecheap-client'
           err << "Invalid value for :service. Allowed values: [#{CONTABO_PRODUCT_IDS.join(', ')}]."
         end
   
-        if h[:db_host].nil? || !h[:db_host].is_a?(String) || h[:db_host].strip.empty?
-          err << "Invalid value for :db_host. Must be a non-empty string."
+        if h[:db].nil? || !h[:db].is_a?(String) || h[:db].strip.empty?
+          err << "Invalid value for :db. Must be a non-empty string."
         end
   
         required_ssh_keys = [:ssh_username, :ssh_port, :ssh_password, :ssh_root_password]
@@ -315,7 +319,7 @@ require 'namecheap-client'
         @@nodes.find { |n| n[:name].to_s == node_name.to_s }.clone
       end # def self.get_node(node_name)
   
-      # 
+      # Parse and execute the sentences into an `.op` file.
       def self.source(
         node_name,
         connect_as_root: false,
@@ -433,16 +437,16 @@ require 'namecheap-client'
         # if the node has a key, use it
         s = nil
         if node.ssh_private_key_file
-            s = "ssh -o StrictHostKeyChecking=no -i \"#{Shellwords.escape(node.ssh_private_key_file)}\" #{node.ssh_username}@#{node.net_remote_ip} -p #{node.ssh_port}"
+            s = "ssh -o StrictHostKeyChecking=no -i \"#{Shellwords.escape(node.ssh_private_key_file)}\" #{node.ssh_username}@#{node.ip} -p #{node.ssh_port}"
         else
             # DEPRECATED: This is not working, because it is escaping the #
             #escaped_password = Shellwords.escape(node.ssh_private_key_file)
             escaped_password = node.ssh_password.gsub(/\$/, "\\$")
-            #s = "sshpass -p \"#{escaped_password}\" ssh -o KbdInteractiveAuthentication=no -o PasswordAuthentication=yes -o PreferredAuthentications=password -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -o BatchMode=yes -o UserKnownHostsFile=/dev/null #{node.ssh_username}@#{node.net_remote_ip} -p #{node.ssh_port}"
-            s = "sshpass -p \"#{escaped_password}\" ssh -o StrictHostKeyChecking=no #{node.ssh_username}@#{node.net_remote_ip} -p #{node.ssh_port}"
+            #s = "sshpass -p \"#{escaped_password}\" ssh -o KbdInteractiveAuthentication=no -o PasswordAuthentication=yes -o PreferredAuthentications=password -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -o BatchMode=yes -o UserKnownHostsFile=/dev/null #{node.ssh_username}@#{node.ip} -p #{node.ssh_port}"
+            s = "sshpass -p \"#{escaped_password}\" ssh -o StrictHostKeyChecking=no #{node.ssh_username}@#{node.ip} -p #{node.ssh_port}"
         end
 
-        #t = "ssh-keygen -f \"#{ENV['HOME']}/.ssh/known_hosts2\" -R \"#{n[:net_remote_ip].to_s}\""
+        #t = "ssh-keygen -f \"#{ENV['HOME']}/.ssh/known_hosts2\" -R \"#{n[:ip].to_s}\""
         #l.log "Command: #{t.blue}"
         #system(t)
 
@@ -501,7 +505,8 @@ require 'namecheap-client'
         }
       end # def db_execute_sql_sentences_file
 
-      # 
+      # Process one by one the `.sql` files inside the migration folders, 
+      # running one by one the SQL sentences inside each file.
       def self.migrations(
         node_name,
         logger: nil
@@ -515,7 +520,7 @@ require 'namecheap-client'
         l.done
 
         # validate the node is also a host
-        raise "Node #{node_name} is hosting its DB into another node." if n[:db_host].to_s != n[:name].to_s
+        raise "Node #{node_name} is hosting its DB into another node." if n[:db].to_s != n[:name].to_s
 
         # list all files in the folder
         files = []
@@ -530,7 +535,7 @@ require 'namecheap-client'
         # Connection string to the demo database: export DATABASE_URL='postgresql://demo:<ENTER-SQL-USER-PASSWORD>@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/mysaas?sslmode=verify-full&options=--cluster%3Dmysaas-demo-6448'
         l.logs "Connecting to the database... "
         BlackStack::PostgreSQL::set_db_params({ 
-          :db_url => n[:net_remote_ip],
+          :db_url => n[:ip],
           :db_port => '5432', # default postgres port
           :db_name => 'blackstack', 
           :db_user => 'blackstack', 
@@ -554,6 +559,48 @@ require 'namecheap-client'
         @@db.disconnect
         l.done
       end # def self.migrations(node_name, logger: nil)
+
+      # Return the hash descriptor of a contabo instance from its IP address.
+      def self.get_instance(
+        node_name,
+        logger: nil
+      )
+        ret = nil
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        n = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        l.done
+
+        l.logs "Get the IP of the node #{node_name.blue}... "
+        ip = n[:ip]
+        l.done(details: ip.to_s.blue)
+
+        l.logs "Getting Contabo client... "
+        client = self.contabo
+        raise "Contabo client is not configured" if client.nil?
+        l.done
+
+        l.logs 'Getting pages... '
+        p = 1
+        z = 2 # 100
+        json = client.get_instances(page: p, size: z)
+        total_pages = json['_pagination']['totalPages']
+        l.done(details: total_pages.to_s.blue)
+
+        while !ret && total_pages >= p
+          l.logs "Fetching page #{p.to_s.blue}/#{total_pages.to_s.blue}... "  
+          json = client.get_instances(page: p, size: z)
+          ret = json['data'].find { |h| ip == h.dig('ipConfig', 'v4', 'ip') }
+          p += 1
+          l.done(details: ret ? 'found'.green : 'not found'.yellow)
+        end # while json['_pagination']['totalPages']
+        
+        ret
+      end # def self.ssh(node_name, logger: nil)  
+
 
     end # Deployment
 #end # BlackStack
