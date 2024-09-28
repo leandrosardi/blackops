@@ -271,33 +271,33 @@ require 'namecheap-client'
           end
         end # if h.key?(:procs)
 
-        # if exists, :install_scripts must by an array of strings
-        if h.key?(:install_scripts)
-          unless h[:install_scripts].is_a?(Array) && h[:install_scripts].all? { |install_script| install_script.is_a?(String) }
-            err << "Invalid value for :install_scripts. Must be an array of strings."
+        # if exists, :install_ops must by an array of strings
+        if h.key?(:install_ops)
+          unless h[:install_ops].is_a?(Array) && h[:install_ops].all? { |install_script| install_script.is_a?(String) }
+            err << "Invalid value for :install_ops. Must be an array of strings."
           end
-        end # if h.key?(:install_scripts)
+        end # if h.key?(:install_ops)
 
-        # if exists, :deploy_scripts must by an array of strings
-        if h.key?(:deploy_scripts)
-          unless h[:deploy_scripts].is_a?(Array) && h[:deploy_scripts].all? { |deploy_script| deploy_script.is_a?(String) }
-            err << "Invalid value for :deploy_scripts. Must be an array of strings."
+        # if exists, :deploy_ops must by an array of strings
+        if h.key?(:deploy_ops)
+          unless h[:deploy_ops].is_a?(Array) && h[:deploy_ops].all? { |deploy_script| deploy_script.is_a?(String) }
+            err << "Invalid value for :deploy_ops. Must be an array of strings."
           end
-        end # if h.key?(:deploy_scripts)
+        end # if h.key?(:deploy_ops)
 
-        # if exists, :start_scripts must by an array of strings
-        if h.key?(:start_scripts)
-          unless h[:start_scripts].is_a?(Array) && h[:start_scripts].all? { |start_script| start_script.is_a?(String) }
-            err << "Invalid value for :start_scripts. Must be an array of strings."
+        # if exists, :start_ops must by an array of strings
+        if h.key?(:start_ops)
+          unless h[:start_ops].is_a?(Array) && h[:start_ops].all? { |start_script| start_script.is_a?(String) }
+            err << "Invalid value for :start_ops. Must be an array of strings."
           end
-        end # if h.key?(:start_scripts)
+        end # if h.key?(:start_ops)
 
-        # if exists, :stop_scripts must by an array of strings
-        if h.key?(:stop_scripts)
-          unless h[:stop_scripts].is_a?(Array) && h[:stop_scripts].all? { |stop_script| stop_script.is_a?(String) }
-            err << "Invalid value for :stop_scripts. Must be an array of strings."
+        # if exists, :stop_ops must by an array of strings
+        if h.key?(:stop_ops)
+          unless h[:stop_ops].is_a?(Array) && h[:stop_ops].all? { |stop_script| stop_script.is_a?(String) }
+            err << "Invalid value for :stop_ops. Must be an array of strings."
           end
-        end # if h.key?(:stop_scripts)
+        end # if h.key?(:stop_ops)
   
         if h.key?(:logs)
           unless h[:logs].is_a?(Array) && h[:logs].all? { |log| log.is_a?(String) }
@@ -684,7 +684,6 @@ require 'namecheap-client'
       # Setup the DNS, connect the node as `root` and run an op.
       def self.install(
         node_name,
-        op:,
         logger: nil
       )
         ret = nil
@@ -718,11 +717,15 @@ require 'namecheap-client'
         end
 
         # run installation
-        BlackOps.source( node_name,
-            op: op,
-            connect_as_root: true,
-            logger: l
-        )
+        node[:install_ops].each { |op|
+          l.logs "op: #{op.to_s.blue}... "
+          BlackOps.source( node_name,
+              op: op,
+              connect_as_root: true,
+              logger: l
+          )
+          l.done
+        }
       end # def self.install
 
     end # BlackOps
