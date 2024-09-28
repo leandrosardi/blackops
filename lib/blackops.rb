@@ -703,13 +703,16 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         l.logs 'Setting domain or subdomain... '
         if node[:domain]
             nc = BlackOps.namecheap
-binding.pry
             domain = node[:domain]
             subdomain = BlackOps.get_subdomain(domain) 
-            host = subdomain || "@"
-            sld = subdomain.nil ? domain || domain.gsub(/#{Regexp.escape(subdomain)}\./, '')
+            # DNS records `host`
+            host = subdomain || "@" 
+            # SLD (secondary level domain)
+            sld = subdomain.nil? ? domain : domain.gsub(/#{Regexp.escape(subdomain)}\./, '')
             ip = node[:ip]
-            nc.add_dns_record(sld, 'A', host, ip)
+            # DNS record `value` 
+            value = ip
+            nc.add_dns_record(sld, 'A', host, value)
             l.done
 
             # wait until the ping to a subdomain is pointing to  a specific ip
@@ -722,6 +725,7 @@ binding.pry
             )
             l.skip(details: 'not propagated yet') if ip.nil?
             l.skip(details: "not propagated yet (wrong IP: #{ip.blue})") if ip && ip != node[:ip]
+            l.done if ip && ip == node[:ip]
             while (ip.nil? || ip != node[:ip]) && (end_time - start_time) < dns_propagation_timeout 
                 l.logs 'Waiting... '
                 sleep(5)
@@ -733,6 +737,7 @@ binding.pry
                 )
                 l.skip(details: 'not propagated yet') if ip.nil?
                 l.skip(details: "not propagated yet (wrong IP: #{ip.blue})") if ip && ip != node[:ip]
+                l.done if ip && ip == node[:ip]
                 end_time = Time.now
             end
             if (ip.nil? || ip != node[:ip])
