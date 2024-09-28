@@ -5,13 +5,11 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
     l.logs('Get node master... ')
-    n = BlackOps.get_node('master')
+    n = BlackOps.get_node(:master)
     l.done
 
     # switch user to root and create the node object
     l.logs "Creating node object... "
-    new_ssh_username = n[:ssh_username]
-    new_hostname = n[:name]
     n[:ssh_username] = 'root'
     n[:ssh_password] = n[:ssh_root_password]
     node = BlackStack::Infrastructure::Node.new(n)
