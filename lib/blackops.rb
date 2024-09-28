@@ -703,10 +703,13 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         l.logs 'Setting domain or subdomain... '
         if node[:domain]
             nc = BlackOps.namecheap
+binding.pry
             domain = node[:domain]
-            subdomain = BlackOps.get_subdomain(domain) || "@"
+            subdomain = BlackOps.get_subdomain(domain) 
+            host = subdomain || "@"
+            sld = subdomain.nil ? domain || domain.gsub(/#{Regexp.escape(subdomain)}\./, '')
             ip = node[:ip]
-            nc.add_dns_record(domain, 'A', subdomain, ip)
+            nc.add_dns_record(sld, 'A', host, ip)
             l.done
 
             # wait until the ping to a subdomain is pointing to  a specific ip
