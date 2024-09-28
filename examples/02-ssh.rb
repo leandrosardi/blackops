@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('deploy-examples.log')
 
 begin
     BlackOps.ssh( :master,
-        #connect_as_root: true,
+        connect_as_root: true,
         logger: l
     )
 rescue => e
