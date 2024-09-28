@@ -1,8 +1,16 @@
 **THIS PROJECT IS UNDER CONSTRUCTION**
 
-# BlackStack Deployment
+# BlackOps
 
-The CLI of my.saas provides the following features:
+The **BlackOps** a library for easily manage CD operations of your software projects.
+
+BlackOps is a framework for building automated deployment scripts. Although BlackOps itself is written in Ruby, it can easily be used to deploy projects of any language or framework, be it Rails, Java, or PHP.
+
+Once installed, BlackOps gives you a `ops` tool to perform your deployments from the comfort of your command line.
+
+---
+
+The CLI of `ops` provides the following features:
 
 - Infrastructure as a Code (MySaaS),
 - Continious Deployment (CD),
@@ -11,7 +19,7 @@ The CLI of my.saas provides the following features:
 
 **Outline:**
 
-1. [The `saas` Command](#1-the-saas-command)
+1. [The `ops` Command](#1-the-ops-command)
 2. [Define Nodes](#2-define-nodes)
 3. [Create Nodes](#3-create-nodes)
 4. [Release Node](#4-release-node)
@@ -36,50 +44,50 @@ The CLI of my.saas provides the following features:
 23. [Custom Alerts Snippets](#23-custom-alerts-snippets)
 24. [Distributed Monitoring](#24-distributed-monitoring)
 
-## 1. The `saas` Command
+## 1. The `ops` Command
 
-The `saas` command simply receives the name of a Ruby **script** that you want to execute.
+The `ops` command simply receives the name of a Ruby **script** that you want to execute.
 
 ```
-saas <ruby script filename>
+ops <ruby script filename>
 ```
 
-The `saas` command will look for such a script into the folder specified in the environment variable `$SAASLIB`. 
+The `ops` command will look for such a script into the folder specified in the environment variable `$SAASLIB`. 
 
 If the script your call receives parameters, then you can add them.
 
 ```
-saas <ruby script filename> <list of command line parameters>
+ops <ruby script filename> <list of command line parameters>
 ```
 
 E.g.: The command below with shown the installed version My.SaaS. 
 It requires that a script `version.rb` exists into the folder specified at `$SAASLIB`.
 
 ```
-saas version
+ops version
 ```
 
 Here is the list of scripts you can execute:
 
 | script  | example                                       | description                                                                                                                                          |
 |---------|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| create  | `saas create node=master`                     | Create a new instance of a cloud server into a hosting provider like Contabo.                                                                        |
-| release | `saas release node=master`                    | Release the nodes to be created again.                                                                                                               |
-| install | `saas install nodes=master,slave01`           | install standard environment into an Ubuntu 20.04 server.                                                                                            |
-| deploy  | `saas deploy nodes=master,slave01,worker01`   | Deploy the latest version of my.saas and the configured extensions, including source code, gems, sql migrations and updating SSL certifications too. |
-| stop    | `saas stop nodes=master,s01,w0101 procs=*`    | Stop a specific process or all processes running into one or more nodes.                                                                             |
-| start   | `saas start nodes=master,s01,w0101  procs=*`  | Start a specific list of processes into one or more nodes.                                                                                           |
-| restart | `saas restart nodes=master,s01,w0101 procs=*` | Restart a specific list of process into one or more nodes.                                                                                           |
-| push    | `saas push secrets=master`                    | Submit the secret files to your secret repository.                                                                                                   |
-| pull    | `saas pull secrets=master`                    | Download the secret files from your secret repository.                                                                                               |
-| clean   | `saas deploy clean=yes`                       | Clean the checkpoint of SQL migrations.                                                                                                              |
-| ssh     | `saas ssh node=s01`                           | Open a SSH connection to a specific node.                                                                                                            |
-| reboot  | `saas reboot nodes=master,slave01`            | Reboot a node.                                                                                                                                       |
-| procs   | `saas procs nodes=master,s01,w0101`           | Watch list of processes defined for each node, and show which ones are running and which ones are not.                                               |
-| log     | `saas log nodes=master,s01,w0101`             | Watch one log of the ones defined for those nodes, and watch it.                                                                                     |
-| stat    | `saas stat nodes=master,s01,w0101`            | Watch the usage of CPU, memory, and disk space of each node if your infrastructure.                                                                  |
-| proxies | `saas proxies nodes=p01`                      | Show list of proxies defined for each node, and show which ones are running and which ones are not.                                                  |
-| assign  | `saas assign`                             | Assign each nodes (including monitoring nodes) to one monitoring node        |
+| create  | `ops create node=master`                     | Create a new instance of a cloud server into a hosting provider like Contabo.                                                                        |
+| release | `ops release node=master`                    | Release the nodes to be created again.                                                                                                               |
+| install | `ops install nodes=master,slave01`           | install standard environment into an Ubuntu 20.04 server.                                                                                            |
+| deploy  | `ops deploy nodes=master,slave01,worker01`   | Deploy the latest version of my.saas and the configured extensions, including source code, gems, sql migrations and updating SSL certifications too. |
+| stop    | `ops stop nodes=master,s01,w0101 procs=*`    | Stop a specific process or all processes running into one or more nodes.                                                                             |
+| start   | `ops start nodes=master,s01,w0101  procs=*`  | Start a specific list of processes into one or more nodes.                                                                                           |
+| restart | `ops restart nodes=master,s01,w0101 procs=*` | Restart a specific list of process into one or more nodes.                                                                                           |
+| push    | `ops push secrets=master`                    | Submit the secret files to your secret repository.                                                                                                   |
+| pull    | `ops pull secrets=master`                    | Download the secret files from your secret repository.                                                                                               |
+| clean   | `ops deploy clean=yes`                       | Clean the checkpoint of SQL migrations.                                                                                                              |
+| ssh     | `ops ssh node=s01`                           | Open a SSH connection to a specific node.                                                                                                            |
+| reboot  | `ops reboot nodes=master,slave01`            | Reboot a node.                                                                                                                                       |
+| procs   | `ops procs nodes=master,s01,w0101`           | Watch list of processes defined for each node, and show which ones are running and which ones are not.                                               |
+| log     | `ops log nodes=master,s01,w0101`             | Watch one log of the ones defined for those nodes, and watch it.                                                                                     |
+| stat    | `ops stat nodes=master,s01,w0101`            | Watch the usage of CPU, memory, and disk space of each node if your infrastructure.                                                                  |
+| proxies | `ops proxies nodes=p01`                      | Show list of proxies defined for each node, and show which ones are running and which ones are not.                                                  |
+| assign  | `ops assign`                             | Assign each nodes (including monitoring nodes) to one monitoring node        |
 
 **Logging**
 
@@ -96,7 +104,7 @@ Any command you run, it can be ran in `silent` mode by simply redirecting `STDOU
 E.g.:
 
 ```
-saas procs nodes=.* > /dev/null 2>&1 &
+ops procs nodes=.* > /dev/null 2>&1 &
 ```
 
 Running a command in silent mode allows you to launch it into a server and monitor your infrastructure 24/7 and receive an email alert as soon as an alert is raised.
@@ -292,32 +300,32 @@ BlackStack::Deployment.create :master
 - Or you can do it with the CLI:
 
 ```
-saas create nodes=master
+ops create nodes=master
 ```
 
 - If the node has been already created, the command will raise an exception.
 
 ```
-saas create nodes=master
+ops create nodes=master
 Error: Command already created.
 ```
 
 - You can also request the creation all nodes using regular expressions.
 
 ```
-saas create nodes=*
+ops create nodes=*
 ```
 
 - You can also request the creation some nodes by listing them separated by commas.
 
 ```
-saas create nodes=master,slave01
+ops create nodes=master,slave01
 ```
 
 - You can do both: listing many nodes, and using regular expressions in some elements of the list.
 
 ```
-saas create nodes=master,slave.*
+ops create nodes=master,slave.*
 ```
 
 ## 4. Release Node
@@ -336,7 +344,7 @@ BlackStack::Deployment.release :master
 - Or you can do it with the CLI:
 
 ```
-saas create nodes=master,slave.*
+ops create nodes=master,slave.*
 ```
 
 ## 5. Install
@@ -353,7 +361,7 @@ BlackStack::Deployment.install :master
 - Or you can do it with the CLI:
 
 ```
-saas install nodes=master,slave.*
+ops install nodes=master,slave.*
 ```
 
 ## 6. Deploy
@@ -382,7 +390,7 @@ BlackStack::Deployment.deploy :master
 - Or you can do it with the CLI:
 
 ```
-saas deploy nodes=master,slave.*
+ops deploy nodes=master,slave.*
 ```
 
 ## 7. Stop
@@ -454,7 +462,7 @@ BlackStack::Deployment.push :master
 - Or you can do it with the CLI:
 
 ```
-saas push secrets=master,slave
+ops push secrets=master,slave
 ```
 
 Note that if the hash descriptor passed to the `set_secrets` method has not the right format, of if there are missed parameters, or if there are unknown parameters; then such a method will raise an exception `Secret hash descriptor mailformed.`
@@ -494,7 +502,7 @@ BlackStack::Deployment.procs :master
 - Or you can do it with the CLI, and watch a table that will update every 5 seconds by default:
 
 ```
-saas push nodes=master
+ops push nodes=master
 
 | proc             | running |
 |------------------|---------|
@@ -504,19 +512,19 @@ saas push nodes=master
 - You can specify the interval to update the table:
 
 ```
-saas procs secrets=master interval=10
+ops procs secrets=master interval=10
 ```
 
 - You can also specify the processes you want to watch using regular expression:
 
 ```
-saas procs secrets=master procs=app
+ops procs secrets=master procs=app
 ```
 
 - Obviously, you can specify a list of many nodes and many processes to watch:
 
 ```
-saas procs secrets=master,slave.* procs=app,import,timeline
+ops procs secrets=master,slave.* procs=app,import,timeline
 ```
 
 ## 15. Log
@@ -777,7 +785,7 @@ As long as your infrastructure grows, you cannot monitor all nodes with one stan
 E.g.: The command
 
 ```
-saas procs nodes=.* interval=30 > /dev/null 2>&1 &
+ops procs nodes=.* interval=30 > /dev/null 2>&1 &
 ```
 
 should run every 30 seconds. But if your list of nodes is too long, every run may take more than 30 seconds.
@@ -831,7 +839,7 @@ and
 3. run the `assign` script:
 
 ```ruby
-saas assign
+ops assign
 ```
 
 The `assign` script will 

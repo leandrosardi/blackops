@@ -4,8 +4,8 @@ require 'simple_command_line_parser'
 require 'resolv'
 require 'public_suffix'
 
-#require 'blackstack-nodes'
-require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
+require 'blackstack-nodes'
+#require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
 
 require 'blackstack-db'
 require 'contabo-client'
