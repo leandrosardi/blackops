@@ -5,7 +5,8 @@ l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
     BlackOps.source( :master,
-        bash_script_filename: 'hostname.op',
+        op: :hostname,
+        connect_as_root: true,
         logger: l
     )
 rescue => e

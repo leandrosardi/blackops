@@ -338,6 +338,7 @@ require 'namecheap-client'
         connect_as_root: false,
         logger: nil
       )
+        op = op.to_s
         node = nil
         begin        
           l = logger || BlackStack::DummyLogger.new(nil)
@@ -348,8 +349,9 @@ require 'namecheap-client'
           n = n0.clone
           raise ArgumentError, "Node not found: #{node_name}" if n.nil?
           l.done
-        
+
           # download the file from the URL
+          bash_script = nil
           @@repositories.each { |rep|
             if rep =~ /^http/i
               url = "#{rep}/#{op}.op"
@@ -381,7 +383,7 @@ require 'namecheap-client'
           node.connect
           l.done
           # => n.ssh
-        
+          
           # build a list of all the parameters like $$foo present into the bash_script varaible
           # scan for variables in the form $$VAR
           params = bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
