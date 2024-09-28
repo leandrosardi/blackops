@@ -773,7 +773,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         l.done
 
         # run deployment
-        node[:deployment_ops].each { |op|
+        node[:deploy_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
           BlackOps.source( node_name,
               op: op,
