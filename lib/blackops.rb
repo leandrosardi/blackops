@@ -583,22 +583,85 @@ require 'namecheap-client'
 
         l.logs 'Getting pages... '
         p = 1
-        z = 2 # 100
+        z = 100
         json = client.get_instances(page: p, size: z)
+        if json['data'].nil? || !json['data'].is_a?(Array)
+          raise "No instances returned or unexpected data format. Response: #{json.inspect}"
+        end
         total_pages = json['_pagination']['totalPages']
         l.done(details: total_pages.to_s.blue)
 
         while !ret && total_pages >= p
           l.logs "Fetching page #{p.to_s.blue}/#{total_pages.to_s.blue}... "  
           json = client.get_instances(page: p, size: z)
+          if json['data'].nil? || !json['data'].is_a?(Array)
+            raise "No instances returned or unexpected data format. Response: #{json.inspect}"
+          end
           ret = json['data'].find { |h| ip == h.dig('ipConfig', 'v4', 'ip') }
           p += 1
           l.done(details: ret ? 'found'.green : 'not found'.yellow)
         end # while json['_pagination']['totalPages']
 
         ret
-      end # def self.ssh(node_name, logger: nil)  
+      end # def self.get_instance(node_name, logger: nil)  
 
-    end # Deployment
+      # Request the reinstallation of a node to Contabo.
+      def self.reinstall(
+        node_name,
+        logger: nil
+      )
+        ret = nil
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        n = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        l.done
+
+        l.logs "Getting Contabo client... "
+        client = self.contabo
+        raise "Contabo client is not configured" if client.nil?
+        l.done
+
+        l.logs "Loading instance... "
+        inst = BlackOps.get_instance( node_name,
+              logger: nil #l
+        )
+        raise "Instance not found." if inst.nil?
+        l.done
+        
+        instance_id = inst['instanceId']
+
+        l.logs "Getting instance image... "
+        image_id = inst['imageId']
+        raise 'Image not found' if image_id.nil?
+        l.done 
+
+        l.logs "Getting instance id... "
+        instance_id = inst['instanceId']
+        l.done
+
+        user_data_script = <<~USER_DATA
+          #cloud-config
+          disable_cloud_init: true
+          runcmd:
+            - touch /etc/cloud/cloud-init.disabled
+            - systemctl stop cloud-init
+            - systemctl disable cloud-init
+        USER_DATA
+      
+        # Request reinstallation
+        ret = client.reinstall_instance(
+          instance_id: instance_id,
+          image_id: image_id,
+          root_password: n[:ssh_root_password],
+          user_data: user_data_script
+        )
+        
+        ret
+      end # def self.reinstall
+
+    end # BlackOps
 #end # BlackStack
     
