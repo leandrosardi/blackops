@@ -5,6 +5,9 @@ require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 require 'resolv'
 require 'public_suffix'
+require 'shellwords'
+require 'highline'
+require 'terminal-table'
 
 #require 'blackstack-nodes' 
 require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
@@ -198,11 +201,15 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         @@contabo
       end
 
+      def self.nodes
+        @@nodes
+      end
+
       def self.add_node(h)
         err = []
   
         # Set default values for optional keys if they are missing
-        h[:dev] ||= false
+        h[:tag] ||= nil
         h[:ip] ||= nil
         h[:provider] ||= :contabo
         h[:procs] ||= []
@@ -218,8 +225,9 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           err << "Invalid value for :name. Must be a non-empty string."
         end
   
-        if ![true, false].include?(h[:dev])
-          err << "Invalid value for :dev. Must be a boolean."
+        # Validate the presence and format of the mandatory keys
+        if h[:tag].nil? || !h[:tag].is_a?(String) || h[:tag].strip.empty?
+          err << "Invalid value for :tag. Must be a non-empty string."
         end
   
         if h.key?(:ip) && !h[:ip].nil?
