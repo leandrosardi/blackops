@@ -83,13 +83,11 @@ Here is the list of scripts you can execute:
 | restart | `ops restart nodes=master,s01,w0101 procs=*` | Restart a specific list of process into one or more nodes.                                                                                           |
 | push    | `ops push secrets=master`                    | Submit the secret files to your secret repository.                                                                                                   |
 | pull    | `ops pull secrets=master`                    | Download the secret files from your secret repository.                                                                                               |
-| clean   | `ops deploy clean=yes`                       | Clean the checkpoint of SQL migrations.                                                                                                              |
 | ssh     | `ops ssh node=s01`                           | Open a SSH connection to a specific node.                                                                                                            |
 | reboot  | `ops reboot nodes=master,slave01`            | Reboot a node.                                                                                                                                       |
 | procs   | `ops procs nodes=master,s01,w0101`           | Watch list of processes defined for each node, and show which ones are running and which ones are not.                                               |
 | log     | `ops log nodes=master,s01,w0101`             | Watch one log of the ones defined for those nodes, and watch it.                                                                                     |
 | stat    | `ops stat nodes=master,s01,w0101`            | Watch the usage of CPU, memory, and disk space of each node if your infrastructure.                                                                  |
-| proxies | `ops proxies nodes=p01`                      | Show list of proxies defined for each node, and show which ones are running and which ones are not.                                                  |
 | assign  | `ops assign`                             | Assign each nodes (including monitoring nodes) to one monitoring node        |
 
 **Logging**

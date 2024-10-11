@@ -1,3 +1,5 @@
+BLACKOPS_VERSION = '0.1'
+
 require 'pry'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
