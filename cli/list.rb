@@ -13,12 +13,36 @@ end
 x = ARGV.shift # Get pattern
 
 begin
-    puts "Pattern: #{x}" if x
-    puts "Pattern: (all)" if !x
+    l.logs "Pattern: " 
+    if x
+        l.logf x.blue
+    else
+        l.logf '(all)'.blue
+    end
+
+    l.logs 'Connecting to Contabo... '
+    contabo = BlackOps.contabo
+    if contabo.nil?
+        l.skip(details: 'connection not defined')
+    else
+        ret = contabo.get_instances
+        instances = ret['data']
+        if instances.nil? || !instances.is_a?(Array)
+            l.logf("error (code: #{ret['statusCode'].to_s.red} - description: #{ret['message'].to_s.red})")
+            exit(1)
+        else
+            l.done(details: 'total: ' + instances.size.to_s.blue)
+        end
+    end
+
+    # list of nodes defined in the configuration file
+    l.logs "Get nodes defined in configuration... "
+    nodes = BlackOps.nodes
+    l.done(details: 'total: ' + nodes.size.to_s.blue)
 
     # Define the table rows
     rows = []
-    rows << ['Name'.bold, 'IP'.bold]
+    rows << ['Name'.bold, 'IP'.bold, 'Contabo']
     
     BlackOps.nodes.each { |node|
         rows << [node[:name], node[:ip]]
