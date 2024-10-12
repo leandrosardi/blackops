@@ -26,7 +26,6 @@ begin
     if contabo.nil?
         l.skip(details: 'connection not defined')
     else
-#binding.pry
         ret = contabo.get_instances
         total_pages = ret['_pagination'] ? ret['_pagination']['totalPages'] : 0 
         instances = ret['data']
@@ -41,11 +40,9 @@ begin
                 page += 1
                 l.logs "Bring Contabo instances (page #{page})... "
                 ret = contabo.get_instances(page: page)
-                instances = ret['data']        
+                instances += ret['data']        
                 l.done(details: 'total: ' + instances.size.to_s.blue)
             end
-
-            l.done(details: 'total: ' + instances.size.to_s.blue)
         end
     end
 
@@ -149,11 +146,10 @@ begin
     instances.each { |instance|
         # Get the IPv4 address from the instance
         ip = instance.dig('ipConfig', 'v4', 'ip')
-#binding.pry if instance['vHostNumber'].to_s == '15496'
         # get the all record where there is a node with the same ip
         h = all.select { |h| h[:node] && h[:node][:ip] == ip }.first
         if h
-            h[:instance] += instance
+            h[:instance] = instance
         else
             all << { :instance => instance }
         end
