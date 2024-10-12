@@ -25,7 +25,15 @@ begin
         logger: l
     )
     
+    # ssh connections to each IP
+    sshs = {}
+    iteration = 0 
     while (true)
+        # don't try to connect anything at the first iteration
+        iteration += 1
+        # raise this flag on when one node has been connected
+        one_node_connected = false
+
         # clean the rows array
         rows = [] 
 
@@ -46,9 +54,28 @@ begin
         all.each { |j|
             ip = j[:node][:ip] if j[:node]
             ip = j[:instance].dig('ipConfig', 'v4', 'ip') if ip.nil? && j[:instance]
-            
+    
+            ssh = sshs[ip]
+            if j[:node] && !ssh && !one_node_connected && iteration>1
+                one_node_connected = true
+                n = j[:node]
+                node = BlackStack::Infrastructure::Node.new(n)          
+binding.pry
+                ssh = node.connect
+                sshs[ip] = ssh
+            end
+
             branch = j[:node] ? j[:node][:git_branch] : '-'
-            ram = j[:node] ? 'connecting...'.yellow : '-'
+            #ram = j[:node] ? 'connecting...'.yellow : '-'
+
+            status = 'unknown'.red
+            if j[:node]
+                if ssh
+                    status = 'online'.green
+                else
+                    status = 'connecting...'.yellow
+                end
+            end # if j[:node]
 
             rows << [
                 j[:node].nil? ? '-' : j[:node][:name], 
@@ -91,7 +118,7 @@ begin
         # Display the table in the terminal
         system('clear')
         puts table
-        sleep(10)
+        sleep(10) if !one_node_connected
     end # while (true)
 
 rescue => e
