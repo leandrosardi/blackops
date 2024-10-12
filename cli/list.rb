@@ -26,7 +26,7 @@ begin
     if contabo.nil?
         l.skip(details: 'connection not defined')
     else
-        ret = contabo.get_instances
+        ret = contabo.get_instances #(search: x)
         total_pages = ret['_pagination'] ? ret['_pagination']['totalPages'] : 0 
         instances = ret['data']
         if instances.nil? || !instances.is_a?(Array)
@@ -39,7 +39,7 @@ begin
             while page < total_pages
                 page += 1
                 l.logs "Bring Contabo instances (page #{page})... "
-                ret = contabo.get_instances(page: page)
+                ret = contabo.get_instances(page: page) #, search: x)
                 instances += ret['data']        
                 l.done(details: 'total: ' + instances.size.to_s.blue)
             end
@@ -49,6 +49,7 @@ begin
     # list of nodes defined in the configuration file
     l.logs "Get nodes defined in configuration... "
     nodes = BlackOps.nodes
+    nodes.select! { |n| n[:name] =~ /#{x}/ } if x
     l.done(details: 'total: ' + nodes.size.to_s.blue)
 
     # Example of an element into the `instances` array:
@@ -151,7 +152,7 @@ begin
         if h
             h[:instance] = instance
         else
-            all << { :instance => instance }
+            all << { :instance => instance } if x.nil?
         end
     }
 
