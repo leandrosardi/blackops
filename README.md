@@ -33,6 +33,12 @@ wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops
 ops source ./hostname.op --local --name=dev1
 ```
 
+3. If you are writing Ruby code, you can additionally install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code too.
+
+```
+gem install blackops
+```
+
 **Notes:**
 
 - The content of `hostname.op` looks like this:
@@ -76,7 +82,9 @@ ops source ./hostname.op --remote --ssh=username:password@ip:port --name=prod1
 
 You can define nodes into a **configuration file**.
 
-Such a configuration file is written with Ruby syntax (the `ops` command has a Ruby interpreted enbedded).
+Such a configuration file is written with Ruby syntax.
+
+The `ops` command has a Ruby interpreted enbedded, so you don't need to have Ruby installed in your computer.
 
 **config.rb**
 
