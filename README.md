@@ -60,6 +60,8 @@ E.g.:
 RUN export RUBYLIB=$$rubylib
 ```
 
+- All the variables defined into the `.ops` file must be present into the list of parameters of the `ops` command.
+
 ## 2. Remote Operations
 
 You can also run operations on a remote node through SSH.
@@ -115,7 +117,41 @@ export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
 ops source ./hostname.ops --remote --node=prod1 --name=prod1
 ```
 
+## 5. Remote `.op` Files
 
+You can refer to `.op` files stored in your local computer or hosted in the web.
 
+E.g.:
 
+```
+ops source https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --remote --node=prod1 --name=prod1
+```
+
+## 6. Repositories
+
+In your configuration file, you can define the locations where to find the `.op` files.
+
+Such locations must be either:
+
+1. folders in your local computer, or
+2. URLs in the web.
+
+**config.rb**
+
+```ruby
+...
+BlackOps.set(
+    repositories: [
+        '/home/leandro/code1/blackops/ops',
+        'https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops',
+    ],
+)
+...
+```
+
+Any call to the `ops` command gets simplified:
+
+```
+ops source hostname.op --remote --node=prod1 --name=prod1
+```
 
