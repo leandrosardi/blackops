@@ -76,7 +76,7 @@ ops source ./hostname.op --remote --ssh=username:password@ip:port --name=prod1
 
 You can define nodes into a **configuration file**.
 
-Such a configuration file is written with Ruby syntax.
+Such a configuration file is written with Ruby syntax (the `ops` command has a Ruby interpreted enbedded).
 
 **config.rb**
 
@@ -252,6 +252,21 @@ ops list --interval 15
 ops list --cpu-threshold 75 --ram-threshold 80 --disk-threshold 40 
 ```
 
+- You can define the thresholds of each node in your configuration file.
+
+```ruby
+...
+BlackOps.add_node({
+    :name => 'prod1',
+    :ip => '55.55.55.55',
+    :cpu_threshold => 75, # <=====
+    :ram_threshold => 80, # <=====
+    :disk_threshold => 40, # <=====
+    ...
+})
+...
+```
+
 - The number of alerts must be 0, or it will be shown in red. This treshold is always `0` and cannot be modified.
 
 ![blackops list of nodes](/assets/list05.png)
@@ -283,5 +298,51 @@ BlackOps.set(
 ...
 ```
 
-The `ops list` command will merge the nodes defined in your confiuration file with the list of instances in your Contabo account.
+The `ops list` command will **merge** the nodes defined in your confiuration file with the list of instances in your Contabo account.
 
+Such a merging is performed using the public IPv4 addess of **Contabo instances** and **nodes** defined in the configuration file.
+
+```
+ops list
+```
+
+![blackops infrastructure management](/assets/contabo01.png)
+
+The rows missing the Contabo ID (e.g.: `slave01`) are nodes defined into the configuration file, but not existing in the list of Contabo instances.
+
+The `unknown` are Contabo instances that are not defined in your configuration file.
+
+The `unknown` situation happens when you have a software that creates instances on Contabo dynamically, using [Contabo Client's `create` feature](https://github.com/leandrosardi/contabo-client?tab=readme-ov-file#creating-an-instance). 
+
+**E.g.:** You developed a scalable SAAS that create a dedicated instance on Contabo for each user signed up.
+
+To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too.
+
+## 11. Adding Nodes Dynamically
+
+Define the hash descriptor of a node into a `.json` file.
+
+Then run the `ops add` command.
+
+```
+ops add ./new_node.json
+```
+
+If you are coding on Ruby, you can use the BlackOps gem too, following the steps below:
+
+1. Install the `blackops` Ruby gem:
+
+```
+gem install blackops
+```
+
+2. Use the `blackops` gem in your Ruby code:
+
+```ruby
+require 'blackops'
+BlackOps.add_node({
+    :name => 'prod1',
+    :ip => '55.55.55.55',
+    ...
+})
+```
