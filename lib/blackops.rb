@@ -466,17 +466,19 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # :stop_script=>[]}
         #     
         all = nodes.map { |node| { :node => node } }
-        instances.each { |instance|
-            # Get the IPv4 address from the instance
-            ip = instance.dig('ipConfig', 'v4', 'ip')
-            # get the all record where there is a node with the same ip
-            h = all.select { |h| h[:node] && h[:node][:ip] == ip }.first
-            if h
-                h[:instance] = instance
-            else
-                all << { :instance => instance } if x.nil?
-            end
-        }
+        if instances
+          instances.each { |instance|
+              # Get the IPv4 address from the instance
+              ip = instance.dig('ipConfig', 'v4', 'ip')
+              # get the all record where there is a node with the same ip
+              h = all.select { |h| h[:node] && h[:node][:ip] == ip }.first
+              if h
+                  h[:instance] = instance
+              else
+                  all << { :instance => instance } if x.nil?
+              end
+          }
+        end # if
     
         all
       end

@@ -202,3 +202,41 @@ Any call to the `ops` command gets simplified even more:
 ops source set-rubylib.op --remote --node=prod1
 ```
 
+## 8. Monitoring
+
+Your can list your nodes and monitor them.
+
+```
+ops list
+```
+
+![blackops list of nodes](/assets/list01.png)
+
+The `ops list` command will:
+
+1. show all the nodes defined in your configuration file;
+
+2. connect the nodes one by one via SSH and bring **RAM usage**, **CPU usage**, **disk usage** and **custom alerts** that will be introduced further. 
+
+Once connected to a node, the values of its row will be aupdated every 5 seconds by default.
+
+If you press `CTRL+C`, the SSH connections will be closed one by one.
+
+## 9. Infrastructure Managing
+
+You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
+
+**config.rb**
+
+```ruby
+...
+BlackOps.set(
+    contabo: ContaboClient.new(
+        client_id: 'INT-11833581',
+        client_secret: 'SbJ6kKhRuCHIpiaw9Y3OzcGo9dNY95PL',
+        api_user: 'leandro@massprospecting.com',
+        api_password: 'SDF4545DFD$dffdfd'
+    ),
+)
+...
+```
