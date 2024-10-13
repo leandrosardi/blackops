@@ -287,7 +287,48 @@ ops list worker*
 
 - If you press `CTRL+C`, the SSH connections will be closed one by one.
 
-## 10. Infrastructure Managing
+## 10. Email Notifications
+
+You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
+
+```ruby
+...
+BlackOps.set({
+    :alerts => {
+        :smtp_ip => '...', 
+        :smtp_port => '...', 
+        :smtp_username => '...', 
+        :smtp_password => '...', 
+        :smtp_sending_name => 'BlackOps',
+        :smtp_sending_email => 'blackops@massprospecting.com',
+        :receivers => [
+            'leandro@massprospecting.com',
+            ...
+            'cto@massprospecting.com',
+        ]
+    }
+    ...
+})
+...
+```
+
+**Notes:**
+
+- You can run the `ops list` command in background, keep it monitoring 24/7, and get notified when an error happens.
+
+```
+ops list --background
+```
+
+- When CPU or RAM usage run over their threshold, no email will be delivered. This is because CPU and RAM usage may be very flutuating.
+
+- An email notification will be delivered when the disk usage raises over its threshold at a first time after has been under it.
+
+- An email notifications will be delivered when the number of alerts raises over `0` at a first time after has been `0`.
+
+- Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
+
+## 11. Infrastructure Managing
 
 You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
 
@@ -326,7 +367,7 @@ The `unknown` situation happens when you have a software that creates instances 
 
 To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add then add them to BlackOps dynamically too.
 
-## 11. Adding Nodes Dynamically
+## 12. Adding Nodes Dynamically
 
 Define the hash descriptor of a node into a `.json` file.
 
