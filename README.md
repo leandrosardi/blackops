@@ -202,7 +202,15 @@ Any call to the `ops` command gets simplified even more:
 ops source set-rubylib.op --remote --node=prod1
 ```
 
-## 8. Monitoring
+## 8. Connecting
+
+You manually access any node via SSH.
+
+```
+ops ssh --node=prod1
+```
+
+## 9. Monitoring
 
 Your can list your nodes and monitor them.
 
@@ -256,7 +264,7 @@ ops list worker*
 
 - If you press `CTRL+C`, the SSH connections will be closed one by one.
 
-## 9. Infrastructure Managing
+## 10. Infrastructure Managing
 
 You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
 
@@ -267,10 +275,13 @@ You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo 
 BlackOps.set(
     contabo: ContaboClient.new(
         client_id: 'INT-11833581',
-        client_secret: 'SbJ6kKhRuCHIpiaw9Y3OzcGo9dNY95PL',
+        client_secret: '******',
         api_user: 'leandro@massprospecting.com',
-        api_password: 'SDF4545DFD$dffdfd'
+        api_password: '********'
     ),
 )
 ...
 ```
+
+The `ops list` command will merge the nodes defined in your confiuration file with the list of instances in your Contabo account.
+

@@ -77,18 +77,18 @@ binding.pry
                 end
             end # if j[:node]
 
-            if ip != '38.242.215.157'
+            if j[:node]
                 ram = "#{rand(50)}%".green
                 cpu = "#{rand(50)}%".green
                 dsk = "#{rand(50)}%".green
                 alerts = '0'.green
                 status = 'online'.green
             else
-                ram = "#{rand(50)}%".green
-                cpu = "#{rand(50)}%".green
-                dsk = "#{rand(50)}%".green
-                alerts = '1'.red
-                status = 'online'.green
+                ram = "-"
+                cpu = "-"
+                dsk = "-"
+                alerts = "-"
+                status = 'unknown'.yellow
             end
 
             rows << [
