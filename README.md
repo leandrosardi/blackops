@@ -199,5 +199,6 @@ BlackOps.add_node({
 Any call to the `ops` command gets simplified even more:
 
 ```
-ops source rubylib.op --remote --node=prod1
+ops source set-rubylib.op --remote --node=prod1
 ```
+
