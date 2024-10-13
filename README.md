@@ -33,7 +33,7 @@ wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops
 ops source ./hostname.op --local --name=dev1
 ```
 
-3. If you are writing Ruby code, you can additionally install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code too.
+3. If you are writing Ruby code, you can additionally install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
 
 ```
 gem install blackops
@@ -324,7 +324,7 @@ The `unknown` situation happens when you have a software that creates instances 
 
 **E.g.:** You developed a scalable SAAS that create a dedicated instance on Contabo for each user signed up.
 
-To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too.
+To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add then add them to BlackOps dynamically too.
 
 ## 11. Adding Nodes Dynamically
 
@@ -336,21 +336,23 @@ Then run the `ops add` command.
 ops add ./new_node.json
 ```
 
-If you are coding on Ruby, you can use the BlackOps gem too, following the steps below:
+If you are coding on Ruby, you can use the `blackops` gem, and define your own list command.
 
-1. Install the `blackops` Ruby gem:
-
-```
-gem install blackops
-```
-
-2. Use the `blackops` gem in your Ruby code:
+**my-list.rb**
 
 ```ruby
 require 'blackops'
 BlackOps.add_node({
-    :name => 'prod1',
-    :ip => '55.55.55.55',
+    :name => 'worker06',
+    :ip => '195.179.229.21',
     ...
 })
+require 'blackops-list' # <=== This line invoques the `ops list` command, including the command line arguments processing.
 ```
+
+And then you call it.
+
+```
+ops my-list worker*
+```
+
