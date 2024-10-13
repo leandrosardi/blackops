@@ -218,9 +218,43 @@ The `ops list` command will:
 
 2. connect the nodes one by one via SSH and bring **RAM usage**, **CPU usage**, **disk usage** and **custom alerts** that will be introduced further. 
 
-Once connected to a node, the values of its row will be aupdated every 5 seconds by default.
+**Notes:**
 
-If you press `CTRL+C`, the SSH connections will be closed one by one.
+- Once connected to a node, the values of its row will be aupdated every 5 seconds by default.
+
+![blackops list of nodes](/assets/list02.png)
+
+- You an define a custom number of seconds to update each row:
+
+```
+ops list --interval 15
+```
+
+- The SSH connection to a node may fail.
+
+![blackops list of nodes](/assets/list03.png)
+
+- By default; the usage of RAM, CPU or disk must be under 50% or it will be shown in red.
+
+![blackops list of nodes](/assets/list04.png)
+
+- You can define custom thresholds for RAM, CPU and disk usage.
+
+```
+ops list --cpu-threshold 75 --ram-threshold 80 --disk-threshold 40 
+```
+
+- The number of alerts must be 0, or it will be shown in red. This treshold is always `0` and cannot be modified.
+
+![blackops list of nodes](/assets/list05.png)
+
+- You can use wildcard to choose the list of nodes you want to see.
+
+```
+ops list worker*
+```
+
+- If you press `CTRL+C`, the SSH connections will be closed one by one.
 
 ## 9. Infrastructure Managing
 
