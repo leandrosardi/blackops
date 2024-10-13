@@ -287,48 +287,7 @@ ops list worker*
 
 - If you press `CTRL+C`, the SSH connections will be closed one by one.
 
-## 10. Email Notifications
-
-You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
-
-```ruby
-...
-BlackOps.set({
-    :alerts => {
-        :smtp_ip => '...', 
-        :smtp_port => '...', 
-        :smtp_username => '...', 
-        :smtp_password => '...', 
-        :smtp_sending_name => 'BlackOps',
-        :smtp_sending_email => 'blackops@massprospecting.com',
-        :receivers => [
-            'leandro@massprospecting.com',
-            ...
-            'cto@massprospecting.com',
-        ]
-    }
-    ...
-})
-...
-```
-
-**Notes:**
-
-- You can run the `ops list` command in background, keep it monitoring 24/7, and get notified when an error happens.
-
-```
-ops list --background
-```
-
-- When CPU or RAM usage run over their threshold, no email will be delivered. This is because CPU and RAM usage may be very flutuating.
-
-- An email notification will be delivered when the disk usage raises over its threshold at a first time after has been under it.
-
-- An email notifications will be delivered when the number of alerts raises over `0` at a first time after has been `0`.
-
-- Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
-
-## 11. Infrastructure Managing
+## 10. Infrastructure Managing
 
 You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
 
@@ -367,7 +326,7 @@ The `unknown` situation happens when you have a software that creates instances 
 
 To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add then add them to BlackOps dynamically too.
 
-## 12. Adding Nodes Dynamically
+## 11. Adding Nodes Dynamically
 
 Define the hash descriptor of a node into a `.json` file.
 
@@ -398,3 +357,139 @@ ops my-list worker*
 ```
 
 The `my-list.rb` file most be located in one of the folders listed into the environment variable `$OPSLIB`.
+
+## 12. Processes Watching
+
+When you define a node, you can specify what are the processes that will be running there.
+
+**config.rb**
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    :procs => [
+        '/home/blackstack/code1/master/ipn.rb',
+        '/home/blackstack/code1/master/dispatch.rb',
+        '/home/blackstack/code1/master/allocate.rb',
+    ]
+})
+```
+
+## 13. Logs Watching
+
+When you define a node, you can specify what are the log files that you may want to watch.
+
+**config.rb**
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    :logfiles => [
+        '/home/blackstack/code1/master/ipn.log',
+        '/home/blackstack/code1/master/dispatch.log',
+        '/home/blackstack/code1/master/allocate.log',
+    ]
+})
+```
+
+You can also define a patterm of log files using wildcards.
+
+**config.rb**
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    :logfiles => [
+        '/home/blackstack/code1/master/*.log',
+    ]
+})
+```
+
+You can run a kinda `ls` of all the files into a node that matches with the list of files defined in its hash descriptor.
+
+```
+ops logfiles worker*
+```
+
+![BlackOps Logfiles Watching](/assets/logfiles01.png)
+
+You can define a list of keywords into log files that can be indicating that an error is happening.
+
+**config.rb**
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    :logfiles => [
+        '/home/blackstack/code1/master/*.log',
+    ],
+    :logkeywords => [
+        'error', 'failure', 'failed',
+    ] 
+})
+```
+
+![BlackOps Logfiles Watching](/assets/logfiles02.png)
+
+You can list the lines with **error keywords** into logfiles.
+
+```
+ops logkeywords worker06 --filename=*dispatch.log 
+```
+
+The `logkeywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
+
+## 99. Email Notifications
+
+You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
+
+```ruby
+...
+BlackOps.set({
+    :alerts => {
+        :smtp_ip => '...', 
+        :smtp_port => '...', 
+        :smtp_username => '...', 
+        :smtp_password => '...', 
+        :smtp_sending_name => 'BlackOps',
+        :smtp_sending_email => 'blackops@massprospecting.com',
+        :receivers => [
+            'leandro@massprospecting.com',
+            ...
+            'cto@massprospecting.com',
+        ]
+    }
+    ...
+})
+...
+```
+
+**Notes:**
+
+- You can run the `ops list` command in background, keep it monitoring 24/7, and get notified when an error happens.
+
+```
+ops list --background
+```
+
+- When CPU or RAM usage run over their threshold, no email will be delivered. This is because CPU and RAM usage may be very flutuating.
+
+- An email notification will be delivered when the disk usage raises over its threshold at a first time after has been under it.
+
+- An email notifications will be delivered when the number of alerts raises over `0` at a first time after has been `0`.
+
+- Log error keywords
+
+- Processes not running
+
+- Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
+
+
