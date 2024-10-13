@@ -336,7 +336,7 @@ Then run the `ops add` command.
 ops add ./new_node.json
 ```
 
-If you are coding on Ruby, you can use the `blackops` gem, and define your own list command.
+If you are coding on Ruby, you can use the `blackops` gem, and define your own `list` command.
 
 **my-list.rb**
 
@@ -356,3 +356,4 @@ And then you call it.
 ops my-list worker*
 ```
 
+The `my-list.rb` file most be located in one of the folders listed into the environment variable `$OPSLIB`.
