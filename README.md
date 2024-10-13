@@ -49,9 +49,9 @@ ops source ./hostname.op --local --name=dev1
 RUN hostnamectl set-hostname "$$name"
 ```
 
-- The parameter `--name` in the `ops` command is to replace the `$$name` variable into the `.ops` file.
+- The argument `--name` in the `ops` command is to replace the `$$name` variable into the `.ops` file.
 
-- You can define any variable into your `.ops` file, and you can set its value into a command parameter. 
+- You can define any variable into your `.ops` file, and you can set its value into a command argument. 
 E.g.: 
 
 **set-rubylib.op**
@@ -60,13 +60,13 @@ E.g.:
 RUN export RUBYLIB=$$rubylib
 ```
 
-- All the variables defined into the `.ops` file must be present into the list of parameters of the `ops` command.
+- All the variables defined into the `.ops` file must be present into the list of arguments of the `ops` command.
 
 ## 2. Remote Operations
 
 You can also run operations on a remote node through SSH.
 
-You have to use the `--remote` and `--ssh` parameters instead of `--local`.
+You have to use the `--remote` and `--ssh` arguments instead of `--local`.
 
 ```
 ops source ./hostname.op --remote --ssh=username:password@ip:port --name=prod1
@@ -155,3 +155,49 @@ Any call to the `ops` command gets simplified:
 ops source hostname.op --remote --node=prod1 --name=prod1
 ```
 
+## 7. Custom Parameters
+
+The argument `--name` is not really necessary in the command below, 
+
+```
+ops source hostname.op --remote --node=prod1 --name=prod1
+```
+
+becase it is already defined in the hash descriptior of the node (`:name`).
+
+**config.rb**
+
+```ruby
+...
+BlackOps.add_node({
+    :name => 'prod1', # <=====
+    :ip => '55.55.55.55',
+    :ssh_username => 'blackstack',
+    :ssh_port => 22,
+    :ssh_password => 'blackops-password',
+    :ssh_root_password => 'root-password',
+})
+...
+```
+
+You can define any custom parameter into the hash descriptor of your node. E.g.:
+
+```ruby
+...
+BlackOps.add_node({
+    :name => 'prod1', 
+    :rubylib => '/home/blackstack/code', # <=====
+    :ip => '55.55.55.55',
+    :ssh_username => 'blackstack',
+    :ssh_port => 22,
+    :ssh_password => 'blackops-password',
+    :ssh_root_password => 'root-password',
+})
+...
+```
+
+Any call to the `ops` command gets simplified even more:
+
+```
+ops source rubylib.op --remote --node=prod1
+```
