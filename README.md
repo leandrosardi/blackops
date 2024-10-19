@@ -2,17 +2,17 @@
 
 # BlackOps
 
-The **BlackOps** library makes it easy to manage CD operations of your software projects.
+The **BlackOps** library makes it easy to manage your DevOps.
 
-The `ops` provides the following features: 
+Once installed, BlackOps gives you a `ops` tool to perform your deployments and monitor your nodes from the comfort of your command line.
+
+The `ops` command provides the following features: 
 
 1. **Infrastructure as a Code** (IaaS),
 2. **Continious Deployment** (CD),
 3. **Logs Monitoring**, 
 4. **Processes Monitoring**; and
 5. **Infrastructure Monitoring**.
-
-Once installed, BlackOps gives you a `ops` tool to perform your deployments and monitor your nodes from the comfort of your command line.
 
 ## 1. Getting Started
 
@@ -25,7 +25,7 @@ sudo apt-get install blackops
 
 2. Run an installation script of your environment.
 
-The following command executes bash command that set `dev1` as the hostname of your computer. 
+The code below will download and esecute a `.ops` script that sets the hostname of your computer. 
 
 ```
 wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op
@@ -33,13 +33,32 @@ wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops
 ops source ./hostname.op --local --name=dev1
 ```
 
-3. If you are writing Ruby code, you can additionally install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
+**Notes:**
+
+Here are some other considerations about the `ops` command.
+
+- If you are writing Ruby code, you can additionally install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
+
+First, install the gem.
 
 ```
 gem install blackops
 ```
 
-**Notes:**
+Then, execute your ops from a Ruby script.
+
+```ruby
+require 'simple_cloud_logging'
+require 'blackops'
+
+l = BlackStack::LocalLogger.new('./example.log')
+
+BlackOps.source_local(
+        op: './hostname.op',
+        connect_as_root: false,
+        logger: l   
+)
+```
 
 - The content of `hostname.op` looks like this:
 
@@ -58,6 +77,7 @@ RUN hostnamectl set-hostname "$$name"
 - The argument `--name` in the `ops` command is to replace the `$$name` variable into the `.ops` file.
 
 - You can define any variable into your `.ops` file, and you can set its value into a command argument. 
+
 E.g.: 
 
 **set-rubylib.op**
