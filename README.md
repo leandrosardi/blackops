@@ -23,7 +23,7 @@ sudo apt-get update
 sudo apt-get install blackops
 ```
 
-2. Run an installation script of your environment.
+2. Run an operation.
 
 The code below will download and esecute a `.ops` script that sets the hostname of your computer. 
 
@@ -37,7 +37,7 @@ ops source ./hostname.op --local --name=dev1
 
 Here are some other considerations about the `ops` command.
 
-- If you are writing Ruby code, you can additionally install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
+- If you are writing Ruby code, you can install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
 
 First, install the gem.
 
@@ -55,7 +55,6 @@ l = BlackStack::LocalLogger.new('./example.log')
 
 BlackOps.source_local(
         op: './hostname.op',
-        connect_as_root: false,
         logger: l   
 )
 ```
@@ -98,6 +97,29 @@ You have to use the `--remote` and `--ssh` arguments instead of `--local`.
 ops source ./hostname.op --remote --ssh=username:password@ip:port --name=prod1
 ```
 
+If you are coding with Ruby, you can do a call to the `source_remote` method.
+
+```ruby
+require 'simple_cloud_logging'
+require 'blackstack-nodes'
+require 'blackops'
+
+l = BlackStack::LocalLogger.new('./example.log')
+
+n = BlackStack::Infrastructure::Node.new({
+    :ip => '81.28.96.103',  
+    :ssh_username => 'root',
+    :ssh_port => 22,
+    :ssh_password => '****',
+})
+
+BlackOps.source_remote(
+        node: n,
+        op: './hostname.op',
+        logger: l   
+)
+```
+
 ## 3. Configuration Files
 
 You can define nodes into a **configuration file**.
@@ -127,6 +149,25 @@ Then you can run the `ops` command refrencing to
 
 ```
 ops source ./hostname.ops --remote --config=./config.rb --node=prod1 --name=prod1
+```
+
+You can do the same from Ruby code:
+
+```ruby
+require 'simple_cloud_logging'
+require 'blackstack-nodes'
+require 'blackops'
+
+l = BlackStack::LocalLogger.new('./example.log')
+
+require_relative './config'
+
+BlackOps.source(
+        'prod1', # name of node defined in `config.rb`
+        op: './hostname.op',
+        connect_as_root: true,
+        logger: l
+)
 ```
 
 ## 4. Environment Variable `$OPSLIB`
