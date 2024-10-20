@@ -448,7 +448,7 @@ Then run the `ops add` command.
 ops add ./new_nodes.json
 ```
 
-If you place your `.json` files into any folder specified into the `$OPSLIB`, then you don't need to write the full patch such a `.json` file in the command call.
+If you place your `.json` files into any folder specified into the `$OPSLIB`, then you don't need to write the full path of such a `.json` file in the command call.
 
 ```
 ops add new_nodes.json
@@ -504,12 +504,28 @@ BlackOps.add_node({
 Then, call the `proc` command to list watch if they are running or not.
 
 ```
-ops proc worker*
+ops proc
 ```
 
 _picture pending_
 
+You can also use wildcards with specify the nodes you want to watch:
+
+```
+ops proc worker*
+```
+
+**Notes:**
+
+- The `proc` command simply connect the nodes via SSH and performa a `grep` command to find the processes you specified.
+
+- If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
+
+- If one
+
 ### `proc` overwriting
+
+**my-proc.rb**
 
 ```ruby
 require 'blackops'
@@ -519,6 +535,10 @@ BlackOps.add_node({
     ...
 })
 require 'blackops-proc' # <=== This line invoques the `ops list` command, including the command line arguments processing.
+```
+
+```
+ops my-proc
 ```
 
 ## 13. Logs Watching
@@ -540,7 +560,7 @@ BlackOps.add_node({
 })
 ```
 
-You can also define a patterm of log files using wildcards.
+You can also define a pattern of log files using wildcards.
 
 **config.rb**
 
@@ -591,7 +611,15 @@ ops logkeywords worker06 --filename=*dispatch.log
 
 The `logkeywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
-## 14. Email Notifications
+**Notes:**
+
+- If the 
+
+## 14. Custom Alerts
+
+_pending_
+
+## 15. Email Notifications
 
 You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
 
