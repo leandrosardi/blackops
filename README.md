@@ -25,7 +25,7 @@ sudo apt-get install blackops
 
 2. Run an operation.
 
-The code below will download and esecute a `.ops` script that sets the hostname of your computer. 
+The code below will download and execute a `.ops` script that sets the hostname of your computer. 
 
 ```
 wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op
@@ -55,6 +55,9 @@ l = BlackStack::LocalLogger.new('./example.log')
 
 BlackOps.source_local(
         op: './hostname.op',
+        parameters: => {
+            'name' => 'dev1',
+        },
         logger: l   
 )
 ```
@@ -85,7 +88,7 @@ E.g.:
 RUN export RUBYLIB=$$rubylib
 ```
 
-- All the variables defined into the `.ops` file must be present into the list of arguments of the `ops` command.
+- All the variables defined into the `.ops` file must be present into the list of arguments of the `ops` command. Or, if you are using the `blackops` gem, all the variables must be present into the `parameters` hash.
 
 ## 2. Remote Operations
 
@@ -116,6 +119,9 @@ n = BlackStack::Infrastructure::Node.new({
 BlackOps.source_remote(
         node: n,
         op: './hostname.op',
+        parameters: => {
+            'name' => 'dev1',
+        },
         logger: l   
 )
 ```
@@ -143,12 +149,16 @@ BlackOps.add_node({
 
 Then you can run the `ops` command refrencing to 
 
-1. such a configuration file and 
+1. such a configuration file;
 
-2. the name of the node defined in such a configuration file.
+2. the node defined in such a configuration file;
+
+and
+
+3. the `--connect-as-root` flag to use `root` user for this operation.
 
 ```
-ops source ./hostname.ops --remote --config=./config.rb --node=prod1 --name=prod1
+ops source ./hostname.ops --remote --config=./config.rb --node=prod1 --connect-as-root --name=prod1 
 ```
 
 You can do the same from Ruby code:
@@ -165,24 +175,35 @@ require_relative './config'
 BlackOps.source(
         'prod1', # name of node defined in `config.rb`
         op: './hostname.op',
+        parameters: => {
+            'name' => 'dev1',
+        },
         connect_as_root: true,
         logger: l
 )
 ```
 
+Note, if the `--connect-as-root` flag is disabled, then BlackOps will access the node with the `blackstack` user.
+
 ## 4. Environment Variable `$OPSLIB`
 
 Additionally, you can define an environment variable `$OPSLIB`, and the `ops` command will look for `config.rb`.
 
+This way, you don't need to write the `--config` argument every time you call the `ops` command.
+
 ```
 export OPSLIB=~/
+
 ops source ./hostname.ops --remote --node=prod1 --name=prod1
 ```
 
-The environment variable `$OPSLIB` may include a list of folders separater by `:`. E.g.:
+The environment variable `$OPSLIB` may include a list of folders separater by `:`. 
+
+E.g.:
 
 ```
 export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
+
 ops source ./hostname.ops --remote --node=prod1 --name=prod1
 ```
 
@@ -211,7 +232,9 @@ Such locations must be either:
 ...
 BlackOps.set(
     repositories: [
+        # private operations defined in my local computer.
         '/home/leandro/code1/blackops/ops',
+        # public operations defined in blackops repository.
         'https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops',
     ],
 )
@@ -224,6 +247,12 @@ Any call to the `ops` command gets simplified:
 ops source hostname.op --remote --node=prod1 --name=prod1
 ```
 
+**Notes:**
+
+There are some considerations about the repositories.
+
+- If the file `hostname.op` is present into more than one repository, then the `ops` command with show an error message: `Operation hostname.op is present in more than one repository: <list of repositories.>`.
+
 ## 7. Custom Parameters
 
 The argument `--name` is not really necessary in the command below, 
@@ -232,7 +261,7 @@ The argument `--name` is not really necessary in the command below,
 ops source hostname.op --remote --node=prod1 --name=prod1
 ```
 
-becase it is already defined in the hash descriptior of the node (`:name`).
+because it is already defined in the hash descriptor of the node (`:name`).
 
 **config.rb**
 
@@ -249,7 +278,9 @@ BlackOps.add_node({
 ...
 ```
 
-You can define any custom parameter into the hash descriptor of your node. E.g.:
+You can define any custom parameter into the hash descriptor of your node. 
+
+E.g.: You can define the value for the `--rubylib` argument,
 
 ```ruby
 ...
@@ -265,7 +296,7 @@ BlackOps.add_node({
 ...
 ```
 
-Any call to the `ops` command gets simplified even more:
+so the execution of the operation `set-rubylib.op` gets simplified even more:
 
 ```
 ops source set-rubylib.op --remote --node=prod1
@@ -276,7 +307,7 @@ ops source set-rubylib.op --remote --node=prod1
 You manually access any node via SSH.
 
 ```
-ops ssh --node=prod1
+ops ssh prod1
 ```
 
 ## 9. Monitoring
