@@ -304,7 +304,7 @@ ops source set-rubylib.op --remote --node=prod1
 
 ## 8. Connecting
 
-You manually access any node via SSH.
+You can access any node via SSH using the credentials defined in `config.rb`.
 
 ```
 ops ssh prod1
@@ -312,7 +312,7 @@ ops ssh prod1
 
 ## 9. Monitoring
 
-Your can list your nodes and monitor them.
+Your can list your nodes and monitor the usage of CPU, RAM and disk space.
 
 ```
 ops list
@@ -324,11 +324,11 @@ The `ops list` command will:
 
 1. show all the nodes defined in your configuration file;
 
-2. connect the nodes one by one via SSH and bring **RAM usage**, **CPU usage**, **disk usage** and **custom alerts** that will be introduced further. 
+2. connect the nodes one by one via SSH and bring **RAM usage**, **CPU usage**, **disk usage** and **custom alerts** (custom alerts will be introduced further).
 
 **Notes:**
 
-- Once connected to a node, the values of its row will be aupdated every 5 seconds by default.
+- Once connected to a node, the values shown in the row of the node will be aupdated every 5 seconds by default.
 
 ![blackops list of nodes](/assets/list02.png)
 
@@ -408,15 +408,19 @@ ops list
 
 ![blackops infrastructure management](/assets/contabo01.png)
 
-The rows missing the Contabo ID (e.g.: `slave01`) are nodes defined into the configuration file, but not existing in the list of Contabo instances.
+**NoteS:**
 
-The `unknown` are Contabo instances that are not defined in your configuration file.
+- The rows with no value in the **Contabo ID** column are nodes defined into the configuration file, but not existing in the list of Contabo instances.
+
+E.g.: in the picture above, the no `slave01`.
+
+- The rows with `unknown` in the **status** column are Contabo instances that are not defined in your configuration file.
 
 The `unknown` situation happens when you have a software that creates instances on Contabo dynamically, using [Contabo Client's `create` feature](https://github.com/leandrosardi/contabo-client?tab=readme-ov-file#creating-an-instance). 
 
-**E.g.:** You developed a scalable SAAS that create a dedicated instance on Contabo for each user signed up.
+E.g.: You developed a scalable SAAS that create a dedicated instance on Contabo for each user signed up.
 
-To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add then add them to BlackOps dynamically too.
+To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too. The next section is about this ([Adding Nodes Dynamically](#11-adding-nodes-dynamically)).
 
 ## 11. Adding Nodes Dynamically
 
