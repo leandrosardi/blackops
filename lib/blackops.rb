@@ -28,33 +28,6 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         'https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops'
       ]
 
-      CONTABO_PRODUCT_IDS = [
-        :V45, 
-        :V47, 
-        :V46, 
-        :V48, 
-        :V50, 
-        :V49, 
-        :V51, 
-        :V53, 
-        :V52, 
-        :V54, 
-        :V56, 
-        :V55, 
-        :V57, 
-        :V59, 
-        :V58, 
-        :V60, 
-        :V62, 
-        :V61, 
-        :V8,  
-        :V9,  
-        :V10, 
-        :V11, 
-        :V16
-      ]
-
-
       # Determines if the given domain has a subdomain.
       #
       # @param domain [String] The domain name to check (e.g., 'sub.example.com.ar', 'example.com', 'example.com.ar').
@@ -468,7 +441,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
       end
 
       # Parse and execute the sentences into an `.op` file.
-      def self.source(
+      def self.source_remote(
         node_name,
         op:,
         connect_as_root: false,
@@ -559,7 +532,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           end
         end
 
-      end # def self.source(node_name, logger: nil)
+      end # def self.source_remote(node_name, logger: nil)
       
       # 
       def self.ssh(
@@ -712,7 +685,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         @@db.disconnect
         l.done
       end # def self.migrations(node_name, logger: nil)
-
+=begin
       # Return the hash descriptor of a contabo instance from its IP address.
       def self.get_instance(
         node_name,
@@ -882,7 +855,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run installation
         node[:install_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source( node_name,
+          BlackOps.source_remote( node_name,
               op: op,
               connect_as_root: true,
               logger: l
@@ -890,7 +863,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           l.done
         }
       end # def self.install
-
+=end
       # Connect the node as non-root, run the `deploy_ops`, and exeute migrations.
       def self.deploy(
         node_name,
@@ -907,7 +880,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run deployment
         node[:deploy_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source( node_name,
+          BlackOps.source_remote( node_name,
               op: op,
               connect_as_root: false,
               logger: l
@@ -922,7 +895,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         )
         l.done
       end # def self.deploy
-
+=begin
       # Connect the node as non-root, run the `start_ops`.
       def self.start(
         node_name,
@@ -939,7 +912,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run deployment
         node[:start_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source( node_name,
+          BlackOps.source_remote( node_name,
               op: op,
               connect_as_root: false,
               logger: l
@@ -964,7 +937,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run deployment
         node[:stop_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source( node_name,
+          BlackOps.source_remote( node_name,
               op: op,
               connect_as_root: false,
               logger: l
@@ -972,7 +945,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           l.done
         }        
       end # def self.stop
-
+=end
     end # BlackOps
 #end # BlackStack
     

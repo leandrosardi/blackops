@@ -327,7 +327,10 @@ The `ops deploy` executes an `.op` script (like the `ops source` does), and it a
 
 _pending_
 
-## 10. Starting / Stopping Nodes
+## 10. Starting and Stopping Nodes
+
+1. starting nodes
+2. stopping nodes
 
 _pending_
 
