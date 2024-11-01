@@ -94,10 +94,10 @@ RUN export RUBYLIB=$$rubylib
 
 You can also run operations on a remote node through SSH.
 
-You have to use the `--remote` and `--ssh` arguments instead of `--local`.
+You have to use the `--ssh` arguments instead of `--local`.
 
 ```
-ops source ./hostname.op --remote --ssh=username:password@ip:port --name=prod1
+ops source ./hostname.op --ssh=username:password@ip:port --name=prod1
 ```
 
 If you are coding with Ruby, you can do a call to the `source_remote` method.
@@ -132,7 +132,7 @@ You can define nodes into a **configuration file**.
 
 Such a configuration file is written with Ruby syntax.
 
-The `ops` command has a Ruby interpreted enbedded, so you don't need to have Ruby installed in your computer.
+The `ops` command has a Ruby interpreter enbedded, so you don't need to have Ruby installed in your computer.
 
 **config.rb**
 
@@ -158,7 +158,7 @@ and
 3. the `--connect-as-root` flag to use `root` user for this operation.
 
 ```
-ops source ./hostname.ops --remote --config=./config.rb --node=prod1 --connect-as-root --name=prod1 
+ops source ./hostname.ops --config=./config.rb --node=prod1 --connect-as-root --name=prod1 
 ```
 
 You can do the same from Ruby code:
@@ -183,7 +183,9 @@ BlackOps.source(
 )
 ```
 
-Note, if the `--connect-as-root` flag is disabled, then BlackOps will access the node with the `blackstack` user.
+**Note:** 
+
+- If the `--connect-as-root` flag is disabled, then BlackOps will access the node with the `blackstack` user.
 
 ## 4. Environment Variable `$OPSLIB`
 
@@ -194,7 +196,7 @@ This way, you don't need to write the `--config` argument every time you call th
 ```
 export OPSLIB=~/
 
-ops source ./hostname.ops --remote --node=prod1 --name=prod1
+ops source ./hostname.ops --node=prod1 --name=prod1
 ```
 
 The environment variable `$OPSLIB` may include a list of folders separater by `:`. 
@@ -204,7 +206,7 @@ E.g.:
 ```
 export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
 
-ops source ./hostname.ops --remote --node=prod1 --name=prod1
+ops source ./hostname.ops --node=prod1 --name=prod1
 ```
 
 ## 5. Remote `.op` Files
@@ -214,7 +216,7 @@ You can refer to `.op` files stored in your local computer or hosted in the web.
 E.g.:
 
 ```
-ops source https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --remote --node=prod1 --name=prod1
+ops source https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --name=prod1
 ```
 
 ## 6. Repositories
@@ -244,7 +246,7 @@ BlackOps.set(
 Any call to the `ops` command gets simplified:
 
 ```
-ops source hostname.op --remote --node=prod1 --name=prod1
+ops source hostname.op --node=prod1 --name=prod1
 ```
 
 **Notes:**
@@ -258,7 +260,7 @@ There are some considerations about the repositories.
 The argument `--name` is not really necessary in the command below, 
 
 ```
-ops source hostname.op --remote --node=prod1 --name=prod1
+ops source hostname.op --node=prod1 --name=prod1
 ```
 
 because it is already defined in the hash descriptor of the node (`:name`).
@@ -299,7 +301,7 @@ BlackOps.add_node({
 so the execution of the operation `set-rubylib.op` gets simplified even more:
 
 ```
-ops source set-rubylib.op --remote --node=prod1
+ops source set-rubylib.op --node=prod1
 ```
 
 ## 8. Connecting

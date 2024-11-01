@@ -209,9 +209,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         err = []
   
         # Set default values for optional keys if they are missing
-        h[:tag] ||= nil
         h[:ip] ||= nil
-        h[:provider] ||= :contabo
         h[:procs] ||= []
         h[:install_script] ||= []
         h[:deploy_script] ||= []
@@ -224,26 +222,15 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         if h[:name].nil? || !h[:name].is_a?(String) || h[:name].strip.empty?
           err << "Invalid value for :name. Must be a non-empty string."
         end
-  
-        # Validate the presence and format of the mandatory keys
-        if h[:tag].nil? || !h[:tag].is_a?(String) || h[:tag].strip.empty?
-          err << "Invalid value for :tag. Must be a non-empty string."
-        end
-  
-        if h.key?(:ip) && !h[:ip].nil?
+        
+        if !h[:ip].nil?
           unless h[:ip] =~ /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/
             err << "Invalid value for :ip. Must be a valid IP address or nil."
           end
+        else
+          err << "IP is required."
         end
-  
-        if h[:provider] != :contabo
-          err << "Invalid value for :provider. Allowed values: [:contabo]."
-        end
-  
-        if h[:service].nil? || !CONTABO_PRODUCT_IDS.include?(h[:service])
-          err << "Invalid value for :service. Allowed values: [#{CONTABO_PRODUCT_IDS.join(', ')}]."
-        end
-  
+          
         if h[:db].nil? || !h[:db].is_a?(String) || h[:db].strip.empty?
           err << "Invalid value for :db. Must be a non-empty string."
         end
@@ -427,9 +414,6 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # :ip=>"91.230.110.43",
         # :db=>"master",
         # :domain=>"leadshype.com",
-        # :tag=>"demo",
-        # :provider=>:contabo,
-        # :service=>:V45,
         # :ssh_username=>"blackstack",
         # :ssh_port=>22,
         # :ssh_password=>"SanCristobal943",
