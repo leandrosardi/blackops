@@ -327,12 +327,16 @@ The `ops deploy` executes an `.op` script (like the `ops source` does), and it a
 
 _pending_
 
-## 10. Configuration Templates
+## 10. Starting / Stopping Nodes
+
+_pending_
+
+## 11. Configuration Templates
 
 _pending_
 
 
-## 11. Monitoring
+## 12. Monitoring
 
 Your can list your nodes and monitor the usage of CPU, RAM and disk space.
 
@@ -401,7 +405,7 @@ ops list worker*
 
 - If you press `CTRL+C`, the `ops list` command will terminate.
 
-## 12. Infrastructure Managing
+## 13. Infrastructure Managing
 
 You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
 
@@ -444,7 +448,7 @@ E.g.: You developed a scalable SAAS that creates a dedicated instance on Contabo
 
 To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too, by editing your `BlackOpsFile`
 
-## 13. Processes Watching
+## 14. Processes Watching
 
 When you define a node, you can specify what are the processes that will be running there.
 
@@ -483,7 +487,7 @@ ops proc worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-## 14. Logs Watching
+## 15. Logs Watching
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
@@ -575,11 +579,11 @@ The `keywords` command simply connect the node via SSH and perform a `cat <logfi
 -----------------------------
 -----------------------------
 
-## 15. Custom Alerts
+## 16. Custom Alerts
 
 _pending_
 
-## 16. Email Notifications
+## 17. Email Notifications
 
 You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
 
@@ -624,7 +628,7 @@ ops list --background
 
 - Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
 
-## 17. Scalability
+## 18. Scalability
 
 - Scalable Monitoring
 - Scalable Processes Watching

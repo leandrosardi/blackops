@@ -230,11 +230,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         else
           err << "IP is required."
         end
-          
-        if h[:db].nil? || !h[:db].is_a?(String) || h[:db].strip.empty?
-          err << "Invalid value for :db. Must be a non-empty string."
-        end
-  
+
         required_ssh_keys = [:ssh_username, :ssh_port, :ssh_password, :ssh_root_password]
         required_ssh_keys.each do |key|
           if h[key].nil?
@@ -246,6 +242,10 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           elsif !h[key].is_a?(String) || h[key].strip.empty?
             err << "Invalid value for #{key}. Must be a non-empty string."
           end
+        end
+=begin
+        if h[:db] || !h[:db].is_a?(String) || h[:db].strip.empty?
+          err << "Invalid value for :db. Must be a non-empty string."
         end
 
         required_git_keys = [:git_repository, :git_branch, :git_username, :git_password]
@@ -264,7 +264,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         if h[:code_folder].nil? || !h[:code_folder].is_a?(String) || !h[:code_folder].start_with?('/')
           err << "Invalid value for :code_folder. Must be an absolute Linux path."
         end
-
+=end
         # if exists, :procs must by an array of strings
         if h.key?(:procs)
           unless h[:procs].is_a?(Array) && h[:procs].all? { |proc| proc.is_a?(String) }
