@@ -4,15 +4,14 @@
 
 The **BlackOps** library makes it easy to manage your DevOps.
 
-Once installed, BlackOps gives you a `ops` tool to perform your deployments and monitor your nodes from the comfort of your command line.
+Once installed, BlackOps gives you an `ops` tool to perform your deployments and monitor your nodes from the comfort of your command line.
 
 The `ops` command provides the following features: 
 
-1. **Infrastructure as a Code** (IaaS),
-2. **Continious Deployment** (CD),
-3. **Logs Monitoring**, 
-4. **Processes Monitoring**; and
-5. **Infrastructure Monitoring**.
+1. **Continious Deployment**,
+2. **Logs Monitoring**, 
+3. **Processes Monitoring**; and
+4. **Infrastructure Monitoring**.
 
 ## 1. Getting Started
 
@@ -45,7 +44,7 @@ First, install the gem.
 gem install blackops
 ```
 
-Then, execute your ops from a Ruby script.
+Then, execute your ops from a Ruby script using the `source_local` method:
 
 ```ruby
 require 'simple_cloud_logging'
@@ -94,13 +93,13 @@ RUN export RUBYLIB=$$rubylib
 
 You can also run operations on a remote node through SSH.
 
-You have to use the `--ssh` arguments instead of `--local`.
+Use the `--ssh` arguments instead of `--local`.
 
 ```
 ops source ./hostname.op --ssh=username:password@ip:port --name=prod1
 ```
 
-If you are coding with Ruby, you can do a call to the `source_remote` method.
+If you are coding with Ruby, call to the `source_remote` method.
 
 ```ruby
 require 'simple_cloud_logging'
@@ -134,7 +133,7 @@ Such a configuration file is written with Ruby syntax.
 
 The `ops` command has a Ruby interpreter enbedded, so you don't need to have Ruby installed in your computer.
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 BlackOps.add_node({
@@ -142,12 +141,12 @@ BlackOps.add_node({
     :ip => '55.55.55.55',
     :ssh_username => 'blackstack',
     :ssh_port => 22,
-    :ssh_password => 'blackops-password',
+    :ssh_password => 'blackstack-password',
     :ssh_root_password => 'root-password',
 })
 ```
 
-Then you can run the `ops` command refrencing to 
+Then you can run the `ops` command referencing to 
 
 1. such a configuration file;
 
@@ -158,7 +157,7 @@ and
 3. the `--connect-as-root` flag to use `root` user for this operation.
 
 ```
-ops source ./hostname.ops --config=./config.rb --node=prod1 --connect-as-root --name=prod1 
+ops source ./hostname.ops --config=./BlackOpsFile --node=prod1 --connect-as-root --name=prod1 
 ```
 
 You can do the same from Ruby code:
@@ -172,8 +171,8 @@ l = BlackStack::LocalLogger.new('./example.log')
 
 require_relative './config'
 
-BlackOps.source(
-        'prod1', # name of node defined in `config.rb`
+BlackOps.source_remote(
+        'prod1', # name of node defined in `BlackOpsFile`
         op: './hostname.op',
         parameters: => {
             'name' => 'dev1',
@@ -189,9 +188,9 @@ BlackOps.source(
 
 ## 4. Environment Variable `$OPSLIB`
 
-Additionally, you can define an environment variable `$OPSLIB`, and the `ops` command will look for `config.rb`.
+Additionally, you can define an environment variable `$OPSLIB`. The `ops` command will look for `BlackOpsFile` there.
 
-This way, you don't need to write the `--config` argument every time you call the `ops` command.
+Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `ops` command.
 
 ```
 export OPSLIB=~/
@@ -208,6 +207,12 @@ export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
 
 ops source ./hostname.ops --node=prod1 --name=prod1
 ```
+
+**Notes:**
+
+There are some considerations about the `$OPSLIB` variable:
+
+- If the file `BlackOpsFile` file is present into more than one path, then the `ops` command with show an error message: `Configuration file is present in more than one path: <list of paths.>`.
 
 ## 5. Remote `.op` Files
 
@@ -228,7 +233,7 @@ Such locations must be either:
 1. folders in your local computer, or
 2. URLs in the web.
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 ...
@@ -243,7 +248,7 @@ BlackOps.set(
 ...
 ```
 
-Any call to the `ops` command gets simplified:
+Any call to the `ops` command gets simplified, because you don't need to write the full path to the `.ops` file.
 
 ```
 ops source hostname.op --node=prod1 --name=prod1
@@ -265,7 +270,7 @@ ops source hostname.op --node=prod1 --name=prod1
 
 because it is already defined in the hash descriptor of the node (`:name`).
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 ...
@@ -298,7 +303,7 @@ BlackOps.add_node({
 ...
 ```
 
-so the execution of the operation `set-rubylib.op` gets simplified even more:
+So the execution of the operation `set-rubylib.op` gets simplified even more:
 
 ```
 ops source set-rubylib.op --node=prod1
@@ -306,11 +311,34 @@ ops source set-rubylib.op --node=prod1
 
 ## 8. Connecting
 
-You can access any node via SSH using the credentials defined in `config.rb`.
+You can access any node via SSH using the credentials defined in `BlackOpsFile`.
 
 ```
 ops ssh prod1
 ```
+
+## 9. Deploying
+
+_pending_
+
+## 10. Configuration Tempaltes
+
+_pending_
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
 
 ## 9. Monitoring
 
@@ -334,7 +362,7 @@ The `ops list` command will:
 
 ![blackops list of nodes](/assets/list02.png)
 
-- You an define a custom number of seconds to update each row:
+- You can define a custom number of seconds to update each row:
 
 ```
 ops list --interval 15
@@ -354,7 +382,7 @@ ops list --interval 15
 ops list --cpu-threshold 75 --ram-threshold 80 --disk-threshold 40 
 ```
 
-- You can define the thresholds of each node in your configuration file.
+- You can define the thresholds of each node in your configuration file, so you don't need write them in the command line:
 
 ```ruby
 ...
@@ -369,7 +397,7 @@ BlackOps.add_node({
 ...
 ```
 
-- The number of alerts must be 0, or it will be shown in red. This treshold is always `0` and cannot be modified.
+- The number of **custom alerts** must be 0, or it will be shown in red. This treshold is always `0` and cannot be modified.
 
 ![blackops list of nodes](/assets/list05.png)
 
@@ -379,13 +407,13 @@ BlackOps.add_node({
 ops list worker*
 ```
 
-- If you press `CTRL+C`, the SSH connections will be closed one by one.
+- If you press `CTRL+C`, the `ops list` command will terminate.
 
 ## 10. Infrastructure Managing
 
 You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 ...
@@ -418,17 +446,17 @@ E.g.: in the picture above, the no `slave01`.
 
 - The rows with `unknown` in the **status** column are Contabo instances that are not defined in your configuration file.
 
-The `unknown` situation happens when you have a software that creates instances on Contabo dynamically, using [Contabo Client's `create` feature](https://github.com/leandrosardi/contabo-client?tab=readme-ov-file#creating-an-instance). 
+The `unknown` situation happens when you have a software that creates instances on Contabo dynamically, using [Contabo Client's `create` feature](https://github.com/leandrosardi/contabo-client?tab=readme-ov-file#creating-an-instance).
 
-E.g.: You developed a scalable SAAS that create a dedicated instance on Contabo for each user signed up.
+E.g.: You developed a scalable SAAS that creates a dedicated instance on Contabo for each user signed up.
 
-To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too. The next section is about this ([Adding Nodes Dynamically](#11-adding-nodes-dynamically)).
+To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too, by editing your `BlackOpsFile`
 
 ## 11. Processes Watching
 
 When you define a node, you can specify what are the processes that will be running there.
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 BlackOps.add_node({
@@ -443,7 +471,7 @@ BlackOps.add_node({
 })
 ```
 
-Then, call the `proc` command to list watch if they are running or not.
+Then, call the `proc` command to watch if they are running or not.
 
 ```
 ops proc
@@ -467,14 +495,14 @@ ops proc worker*
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 BlackOps.add_node({
     :name => 'worker06',
     :ip => '195.179.229.21',
     ...
-    :logfiles => [
+    :logs => [
         '/home/blackstack/code1/master/ipn.log',
         '/home/blackstack/code1/master/dispatch.log',
         '/home/blackstack/code1/master/allocate.log',
@@ -484,14 +512,14 @@ BlackOps.add_node({
 
 You can also define a pattern of log files using wildcards.
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 BlackOps.add_node({
     :name => 'worker06',
     :ip => '195.179.229.21',
     ...
-    :logfiles => [
+    :logs => [
         '/home/blackstack/code1/master/*.log',
     ]
 })
@@ -507,17 +535,17 @@ ops logfiles worker*
 
 You can define a list of keywords into log files that can be indicating that an error is happening.
 
-**config.rb**
+**BlackOpsFile**
 
 ```ruby
 BlackOps.add_node({
     :name => 'worker06',
     :ip => '195.179.229.21',
     ...
-    :logfiles => [
+    :logs => [
         '/home/blackstack/code1/master/*.log',
     ],
-    :logkeywords => [
+    :keywords => [
         'error', 'failure', 'failed',
     ] 
 })
@@ -525,14 +553,13 @@ BlackOps.add_node({
 
 ![BlackOps Logfiles Watching](/assets/logfiles02.png)
 
-You can list the lines with **error keywords** into logfiles.
+You can list the lines with **error keywords** into some logfiles, into some nodes.
 
 ```
-ops logkeywords worker06 --filename=*dispatch.log 
+ops keywords worker* --filename=*dispatch.log 
 ```
 
-The `logkeywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
-
+The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
 ## 13. Custom Alerts
 
@@ -583,10 +610,9 @@ ops list --background
 
 - Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
 
-## 15. Deploying
+## 17. Scalability
 
-_pending_
-
-## 16. Configuration Tempaltes
-
-_pending_
+- Scalable Monitoring
+- Scalable Processes Watching
+- Scalable Log Watching
+- Scalable Deployment
