@@ -325,22 +325,8 @@ _pending_
 
 _pending_
 
-----
-----
-----
-----
-----
-----
-----
-----
-----
-----
-----
-----
-----
 
-
-## 9. Monitoring
+## 11. Monitoring
 
 Your can list your nodes and monitor the usage of CPU, RAM and disk space.
 
@@ -452,7 +438,7 @@ E.g.: You developed a scalable SAAS that creates a dedicated instance on Contabo
 
 To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too, by editing your `BlackOpsFile`
 
-## 11. Processes Watching
+## 12. Processes Watching
 
 When you define a node, you can specify what are the processes that will be running there.
 
@@ -491,7 +477,7 @@ ops proc worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-## 12. Logs Watching
+## 13. Logs Watching
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
@@ -561,11 +547,33 @@ ops keywords worker* --filename=*dispatch.log
 
 The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
-## 13. Custom Alerts
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+
+## 14. Custom Alerts
 
 _pending_
 
-## 14. Email Notifications
+## 15. Email Notifications
 
 You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
 
@@ -610,7 +618,7 @@ ops list --background
 
 - Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
 
-## 17. Scalability
+## 16. Scalability
 
 - Scalable Monitoring
 - Scalable Processes Watching
