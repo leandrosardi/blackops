@@ -410,7 +410,7 @@ ops list
 
 ![blackops infrastructure management](/assets/contabo01.png)
 
-**NoteS:**
+**Notes:**
 
 - The rows with no value in the **Contabo ID** column are nodes defined into the configuration file, but not existing in the list of Contabo instances.
 
@@ -424,67 +424,7 @@ E.g.: You developed a scalable SAAS that create a dedicated instance on Contabo 
 
 To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too. The next section is about this ([Adding Nodes Dynamically](#11-adding-nodes-dynamically)).
 
-## 11. Adding Nodes Dynamically
-
-Define the hash descriptor of a node into a `.json` file.
-
-**new_nodes.json**
-
-```ruby
-[
-    {
-        :name => 'worker06',
-        :ip => '195.179.229.21',
-        ...
-    }, {
-        :name => 'worker07',
-        :ip => '195.179.229.22',
-        ...
-    },
-]
-```
-
-Then run the `ops add` command.
-
-```
-ops add ./new_nodes.json
-```
-
-If you place your `.json` files into any folder specified into the `$OPSLIB`, then you don't need to write the full path of such a `.json` file in the command call.
-
-```
-ops add new_nodes.json
-```
-
-### `list` overwriting
-
-If you are coding on Ruby, you can use the `blackops` gem, and define your own `list` command.
-
-**my-list.rb**
-
-```ruby
-require 'blackops'
-BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
-    ...
-})
-require 'blackops-list' # <=== This line invoques the `ops list` command, including the command line arguments processing.
-```
-
-And then you call it.
-
-```
-ops my-list worker*
-```
-
-The `my-list.rb` file most be located in one of the folders listed into the environment variable `$OPSLIB`.
-
-This feature is important when you develop a software that create/delete instances of servers dynamically and sotre them into a databases instead of a configuration file.
-
-E.g.: You are coding a SaaS where a new VPS is created for for every new user of your platform.
-
-## 12. Processes Watching
+## 11. Processes Watching
 
 When you define a node, you can specify what are the processes that will be running there.
 
@@ -523,27 +463,7 @@ ops proc worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-- If one
-
-### `proc` overwriting
-
-**my-proc.rb**
-
-```ruby
-require 'blackops'
-BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
-    ...
-})
-require 'blackops-proc' # <=== This line invoques the `ops list` command, including the command line arguments processing.
-```
-
-```
-ops my-proc
-```
-
-## 13. Logs Watching
+## 12. Logs Watching
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
@@ -613,15 +533,12 @@ ops logkeywords worker06 --filename=*dispatch.log
 
 The `logkeywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
-**Notes:**
 
-- If the 
-
-## 14. Custom Alerts
+## 13. Custom Alerts
 
 _pending_
 
-## 15. Email Notifications
+## 14. Email Notifications
 
 You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
 
@@ -666,4 +583,10 @@ ops list --background
 
 - Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
 
+## 15. Deploying
 
+_pending_
+
+## 16. Configuration Tempaltes
+
+_pending_
