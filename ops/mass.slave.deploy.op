@@ -19,10 +19,12 @@ RUN git -C /home/$$ssh_username/code1/$$slave_code_folder reset --hard origin/$$
 # Configuration file
 # 
 # 1. Delete existing file /home/$$ssh_username/code1/$$slave_code_folder/conf.rb
-# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
-# 3. Copy the file /home/$$ssh_username/code1/secret/config-slave.rb into folder /home/$$ssh_username/code1/$$slave_code_folder/config.rb
+# 2. Delete existing folder /home/$$ssh_username/code1/secret
+# 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+# 4. Copy the file /home/$$ssh_username/code1/secret/config-slave.rb into folder /home/$$ssh_username/code1/$$slave_code_folder/config.rb
 # 
 RUN rm -f /home/$$ssh_username/code1/$$slave_code_folder/conf.rb
+RUN rm -rf /home/$$ssh_username/code1/secret
 RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
 RUN cp /home/$$ssh_username/code1/secret/config-slave.rb /home/$$ssh_username/code1/$$slave_code_folder/config.rb
 

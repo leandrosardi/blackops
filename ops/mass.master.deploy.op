@@ -6,98 +6,100 @@
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
-# Cloning and updating code of my.saas in the ~/code/maaster folder.
+# Cloning and updating code of my.saas in the ~/code/master folder.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder ]; then
-    git clone https://$$git_username:$$git_password@github.com/$$maaster_git_repository /home/$$ssh_username/code1/$$maaster_code_folder
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder ]; then
+    git clone https://$$git_username:$$git_password@github.com/$$master_git_repository /home/$$ssh_username/code1/$$master_code_folder
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder reset --hard origin/$$maaster_git_branch
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder reset --hard origin/$$master_git_branch
 
 # Configuration file
 # 
-# 1. Delete existing file /home/$$ssh_username/code1/$$maaster_code_folder/conf.rb
-# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
-# 3. Copy the file /home/$$ssh_username/code1/secret/config-master.rb into folder /home/$$ssh_username/code1/$$maaster_code_folder/config.rb
+# 1. Delete existing file /home/$$ssh_username/code1/$$master_code_folder/conf.rb
+# 2. Delete existing folder /home/$$ssh_username/code1/secret
+# 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+# 4. Copy the file /home/$$ssh_username/code1/secret/config-master.rb into folder /home/$$ssh_username/code1/$$master_code_folder/config.rb
 # 
-RUN rm -f /home/$$ssh_username/code1/$$maaster_code_folder/conf.rb
+RUN rm -f /home/$$ssh_username/code1/$$master_code_folder/conf.rb
+RUN rm -rf /home/$$ssh_username/code1/secret
 RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
-RUN cp /home/$$ssh_username/code1/secret/config-master.rb /home/$$ssh_username/code1/$$maaster_code_folder/config.rb
+RUN cp /home/$$ssh_username/code1/secret/config-master.rb /home/$$ssh_username/code1/$$master_code_folder/config.rb
 
 # Cloning and updating code of monitoring extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder/extensions/monitoring ]; then
-    git clone https://$$git_username:$$git_password@github.com/leandrosardi/monitoring /home/$$ssh_username/code1/$$maaster_code_folder/extensions/monitoring
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder/extensions/monitoring ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/monitoring /home/$$ssh_username/code1/$$master_code_folder/extensions/monitoring
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/monitoring fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/monitoring fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/monitoring reset --hard origin/$$maaster_git_branch
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/monitoring reset --hard origin/$$master_git_branch
 
 # Cloning and updating code of i2p extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder/extensions/i2p ]; then
-    git clone https://$$git_username:$$git_password@github.com/leandrosardi/i2p /home/$$ssh_username/code1/$$maaster_code_folder/extensions/i2p
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder/extensions/i2p ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/i2p /home/$$ssh_username/code1/$$master_code_folder/extensions/i2p
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/i2p fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/i2p fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/i2p reset --hard origin/master
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/i2p reset --hard origin/master
 
 # Cloning and updating code of dropbox-token-helper extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder/extensions/dropbox-token-helper ]; then
-    git clone https://$$git_username:$$git_password@github.com/leandrosardi/dropbox-token-helper /home/$$ssh_username/code1/$$maaster_code_folder/extensions/dropbox-token-helper
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder/extensions/dropbox-token-helper ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/dropbox-token-helper /home/$$ssh_username/code1/$$master_code_folder/extensions/dropbox-token-helper
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/dropbox-token-helper fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/dropbox-token-helper fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/dropbox-token-helper reset --hard origin/$$maaster_git_branch
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/dropbox-token-helper reset --hard origin/$$master_git_branch
 
 # Cloning and updating code of content extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder/extensions/content ]; then
-    git clone https://$$git_username:$$git_password@github.com/leandrosardi/content /home/$$ssh_username/code1/$$maaster_code_folder/extensions/content
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder/extensions/content ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/content /home/$$ssh_username/code1/$$master_code_folder/extensions/content
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/content fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/content fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/content reset --hard origin/$$maaster_git_branch
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/content reset --hard origin/$$master_git_branch
 
 # Cloning and updating code of mass.commons extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.commons ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.commons /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.commons
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.commons ]; then
+    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.commons /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.commons
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.commons fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.commons fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.commons reset --hard origin/$$maaster_git_branch
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.commons reset --hard origin/$$master_git_branch
 
 # Cloning and updating code of mass.subaccount extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.subaccount ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.subaccount /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.subaccount
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.subaccount ]; then
+    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.subaccount /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.subaccount
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.subaccount fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.subaccount fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/mass.subaccount reset --hard origin/$$maaster_git_branch
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/mass.subaccount reset --hard origin/$$master_git_branch
 
 # Bundler
 # Glitch: https://github.com/MassProspecting/deployment/issues/38
 #
-RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$maaster_code_folder && bundler update
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$master_code_folder && bundler update
 
 # Cloning and updating code of selectrowsjs extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$maaster_code_folder/extensions/selectrowsjs ]; then
-    git clone https://$$git_username:$$git_password@github.com/leandrosardi/selectrowsjs /home/$$ssh_username/code1/$$maaster_code_folder/extensions/selectrowsjs
+RUN if [ ! -d /home/$$ssh_username/code1/$$master_code_folder/extensions/selectrowsjs ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/selectrowsjs /home/$$ssh_username/code1/$$master_code_folder/extensions/selectrowsjs
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/selectrowsjs fetch --all
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/selectrowsjs fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$maaster_code_folder/extensions/selectrowsjs reset --hard origin/$$maaster_git_branch
+RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/selectrowsjs reset --hard origin/$$master_git_branch
 
