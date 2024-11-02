@@ -648,6 +648,10 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # validate the node is also a host
         raise "Node #{node_name} is hosting its DB into another node." if n[:db].to_s != n[:name].to_s
 
+# TODO: Validate that node has required parameters:
+# - ip, postgres_port, postgres_database, postgres_username, postgres_password
+#
+
         # list all files in the folder
         files = []
         n[:migration_folders].each { |migrations_folder|
@@ -662,9 +666,9 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         l.logs "Connecting to the database... "
         BlackStack::PostgreSQL::set_db_params({ 
           :db_url => n[:ip],
-          :db_port => '5432', # default postgres port
-          :db_name => 'blackstack', 
-          :db_user => 'blackstack', 
+          :db_port => n[:postgres_port], # default postgres port
+          :db_name => n[:postgres_database], 
+          :db_user => n[:postgres_username], 
           :db_password => n[:postgres_password],
           :db_sslmode => 'disable',
         })
@@ -897,7 +901,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         l.done
 
       end # def self.deploy
-=begin
+      
       # Connect the node as non-root, run the `start_ops`.
       def self.start(
         node_name,
@@ -947,7 +951,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           l.done
         }        
       end # def self.stop
-=end
+
     end # BlackOps
 #end # BlackStack
     

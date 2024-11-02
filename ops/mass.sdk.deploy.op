@@ -1,0 +1,33 @@
+# Description:
+# - This script is used to install the required source code for running massprospecting sdk nodes.
+# 
+
+# Dedicated code folder for MassProspecting code.
+#
+RUN mkdir -p /home/$$ssh_username/code1
+
+# Cloning and updating code of my.saas in the ~/code/sdk folder.
+#
+RUN if [ ! -d /home/$$ssh_username/code1/$$sdk_code_folder ]; then
+    git clone https://$$git_username:$$git_password@github.com/$$sdk_git_repository /home/$$ssh_username/code1/$$sdk_code_folder
+fi
+
+RUN git -C /home/$$ssh_username/code1/$$sdk_code_folder fetch --all
+
+RUN git -C /home/$$ssh_username/code1/$$sdk_code_folder reset --hard origin/$$sdk_git_branch
+
+# Configuration file
+# 
+# 1. Delete existing file /home/$$ssh_username/code1/$$sdk_code_folder/conf.rb
+# 2. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+# 3. Copy the file /home/$$ssh_username/code1/secret/config-sdk.rb into folder /home/$$ssh_username/code1/$$sdk_code_folder/config.rb
+# 
+RUN rm -f /home/$$ssh_username/code1/$$sdk_code_folder/conf.rb
+RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
+RUN cp /home/$$ssh_username/code1/secret/config-sdk.rb /home/$$ssh_username/code1/$$sdk_code_folder/config.rb
+
+# Bundler
+# Glitch: https://github.com/MassProspecting/deployment/issues/38
+#
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$sdk_code_folder && bundler update
+
