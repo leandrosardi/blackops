@@ -10,8 +10,7 @@
 
 # TODO: Implementing requires
 # This requires execute another op at this point.
-#require mysaas.ubuntu_20_04.base.op
-# 
+#require mysaas.install.ubuntu_20_04.base.op
 
 # Backup old .postgresql folder if it exists
 RUN if [ -d ~/.postgresql ]; then

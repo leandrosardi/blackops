@@ -8,6 +8,10 @@
 #!root
 # 
 
+# TODO: Implementing requires
+# This requires execute another op at this point.
+#require mysaas.install.ubuntu_20_04.base.op
+
 # Install required packages
 RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
 
