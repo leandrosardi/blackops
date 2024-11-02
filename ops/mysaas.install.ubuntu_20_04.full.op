@@ -8,11 +8,6 @@
 #!root
 # 
 
-# TODO: Implementing requires
-# This requires execute another op at this point.
-#require blackstack.base.ubuntu_20_04.op
-# 
-
 # Set timezone to America/Argentina/Buenos_Aires
 RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 

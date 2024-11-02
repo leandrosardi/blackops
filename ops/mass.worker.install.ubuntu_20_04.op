@@ -1,0 +1,15 @@
+# Description:
+# - This script is used to install the required packages for the BlackStack project on Ubuntu 20-04.
+# - Source this op as root.
+# 
+
+# TODO: Implementing directives like the ones below
+# This directive validates you are connecting the node as root.
+#!root
+
+# TODO: Implementing requires
+# This requires execute another op at this point.
+require mysaas.install.ubuntu_20_04.base.op
+require mysaas.install.ubuntu_20_04.adspower.op
+
+ 
