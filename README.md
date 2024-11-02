@@ -637,3 +637,25 @@ ops list --background
 - Scalable Processes Watching
 - Scalable Log Watching
 - Scalable Deployment
+
+## 19. Directives
+
+E.g.:
+
+**mysaas.ubuntu_20_04.full.op**
+
+```ruby
+# This directive validates you are connecting the node as root.
+#!root
+```
+
+## 20. Requires
+
+E.g.:
+
+**mysaas.ubuntu_20_04.full.op**
+
+```ruby
+# This requires execute another op at this point.
+require mysaas.ubuntu_20_04.base.op
+```
