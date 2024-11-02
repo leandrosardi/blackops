@@ -9,7 +9,7 @@ if ARGV.empty? || ARGV[0] == '--help' || ARGV[0] == '--h' || ARGV[0] == '-h'
     puts "Usage: ops ssh <node name>"
     exit 1
 end
-  
+
 node_name = ARGV.shift # Get the name of the node to connect
 
 begin

@@ -4,10 +4,9 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
-    # stop server
-    BlackOps.stop( :master,
+    BlackOps.deploy( :master,
         logger: l
-    )
+    )    
 rescue => e
     l.reset
     l.log(e.to_console.red)

@@ -99,7 +99,7 @@ Use the `--ssh` arguments instead of `--local`.
 ops source ./hostname.op --ssh=username:password@ip:port --name=prod1
 ```
 
-If you are coding with Ruby, call to the `source_remote` method.
+If you are coding with Ruby, call to the `source` method.
 
 ```ruby
 require 'simple_cloud_logging'
@@ -115,7 +115,7 @@ n = BlackStack::Infrastructure::Node.new({
     :ssh_password => '****',
 })
 
-BlackOps.source_remote(
+BlackOps.source(
         node: n,
         op: './hostname.op',
         parameters: => {
@@ -171,7 +171,7 @@ l = BlackStack::LocalLogger.new('./example.log')
 
 require_relative './config'
 
-BlackOps.source_remote(
+BlackOps.source(
         'prod1', # name of node defined in `BlackOpsFile`
         op: './hostname.op',
         parameters: => {

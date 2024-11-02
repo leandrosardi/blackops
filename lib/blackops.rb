@@ -441,7 +441,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
       end
 
       # Parse and execute the sentences into an `.op` file.
-      def self.source_remote(
+      def self.source(
         node_name,
         op:,
         connect_as_root: false,
@@ -532,7 +532,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           end
         end
 
-      end # def self.source_remote(node_name, logger: nil)
+      end # def self.source(node_name, logger: nil)
       
       # 
       def self.ssh(
@@ -855,7 +855,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run installation
         node[:install_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
+          BlackOps.source( node_name,
               op: op,
               connect_as_root: true,
               logger: l
@@ -880,7 +880,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run deployment
         node[:deploy_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
+          BlackOps.source( node_name,
               op: op,
               connect_as_root: false,
               logger: l
@@ -912,7 +912,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run deployment
         node[:start_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
+          BlackOps.source( node_name,
               op: op,
               connect_as_root: false,
               logger: l
@@ -937,7 +937,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         # run deployment
         node[:stop_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
+          BlackOps.source( node_name,
               op: op,
               connect_as_root: false,
               logger: l
