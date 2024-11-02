@@ -34,7 +34,7 @@ fi
 
 RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/monitoring fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/monitoring reset --hard origin/$$git_branch
+RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/monitoring reset --hard origin/$$slave_git_branch
 
 # Cloning and updating code of i2p extension.
 #
@@ -54,7 +54,7 @@ fi
 
 RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/dropbox-token-helper fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/dropbox-token-helper reset --hard origin/$$git_branch
+RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/dropbox-token-helper reset --hard origin/$$slave_git_branch
 
 # Cloning and updating code of content extension.
 #
@@ -64,7 +64,7 @@ fi
 
 RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/content fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/content reset --hard origin/$$git_branch
+RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/content reset --hard origin/$$slave_git_branch
 
 # Cloning and updating code of mass.commons extension.
 #
@@ -74,7 +74,7 @@ fi
 
 RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.commons fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.commons reset --hard origin/$$git_branch
+RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.commons reset --hard origin/$$slave_git_branch
 
 # Cloning and updating code of mass.subaccount extension.
 #
@@ -84,7 +84,7 @@ fi
 
 RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.subaccount fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.subaccount reset --hard origin/$$git_branch
+RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.subaccount reset --hard origin/$$slave_git_branch
 
 # Bundler
 # Glitch: https://github.com/MassProspecting/deployment/issues/38
@@ -99,5 +99,5 @@ fi
 
 RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/selectrowsjs fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/selectrowsjs reset --hard origin/$$git_branch
+RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/selectrowsjs reset --hard origin/$$slave_git_branch
 

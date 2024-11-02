@@ -499,7 +499,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
 
           # verify that there is a key in the hash `n` that matches with each one of the strings present in the array of strings `param`
           missed = params.reject { |key| n.key?(key.to_sym) }
-          raise ArgumentError, "Node #{node_name} is missing the following parameters required by the op: #{missed.join(', ')}." if !missed.empty?
+          raise ArgumentError, "Node #{node_name} is missing the following parameters required by the op #{op.to_s}: #{missed.join(', ')}." if !missed.empty?
 
           # execute the script fragment by fragment
           bash_script.split(/(?<!#)RUN /).each { |fragment|
@@ -894,7 +894,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
             logger: l
         )
         l.done
-        
+
       end # def self.deploy
 =begin
       # Connect the node as non-root, run the `start_ops`.
