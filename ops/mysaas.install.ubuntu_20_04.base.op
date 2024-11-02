@@ -36,6 +36,12 @@ RUN apt-get upgrade -y
 # Install required packages
 RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
 
+# Import the necessary GPG keys:
+gpg2 --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+#If the keyserver command fails, import the keys directly from the RVM site:
+#curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
+#curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -
+
 # Install RVM
 RUN curl -sSL https://get.rvm.io | bash -s stable
 
