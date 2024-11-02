@@ -894,6 +894,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
             logger: l
         )
         l.done
+        
       end # def self.deploy
 =begin
       # Connect the node as non-root, run the `start_ops`.
