@@ -4,7 +4,7 @@ require_relative '../config.rb'
 l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
-    BlackOps.source( :master,
+    BlackOps.source_remote( :master,
         op: :hostname,
         connect_as_root: true,
         logger: l

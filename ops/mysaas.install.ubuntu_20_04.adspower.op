@@ -7,6 +7,10 @@
 # This directive validates you are connecting the node as root.
 #!root
 
+# TODO: Implementing requires
+# This requires execute another op at this point.
+require mysaas.install.ubuntu_20_04.base.op
+
 # Install AdsPower
 RUN cd /tmp
 RUN wget -q https://version.adspower.net/software/linux-x64-global/AdsPower-Global-5.9.14-x64.deb

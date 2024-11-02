@@ -115,7 +115,7 @@ n = BlackStack::Infrastructure::Node.new({
     :ssh_password => '****',
 })
 
-BlackOps.source(
+BlackOps.source_remote(
         node: n,
         op: './hostname.op',
         parameters: => {
@@ -171,7 +171,7 @@ l = BlackStack::LocalLogger.new('./example.log')
 
 require_relative './config'
 
-BlackOps.source(
+BlackOps.source_remote(
         'prod1', # name of node defined in `BlackOpsFile`
         op: './hostname.op',
         parameters: => {
