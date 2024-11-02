@@ -11,11 +11,11 @@
 # Install required packages
 RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
 
-# Grant 'blackstack' user passwordless sudo access for managing Nginx and nginx.conf
-# Grant 'blackstack' user passwordless sudo access for managing Nginx and nginx.conf
-#RUN echo "blackstack ALL=(ALL) NOPASSWD: /bin/systemctl start nginx, /bin/systemctl stop nginx, /bin/systemctl restart nginx, /bin/rm /etc/nginx/nginx.conf, /bin/cp /home/blackstack/code1/master/nginx.conf /etc/nginx/nginx.conf" | tee /etc/sudoers.d/blackstack-nginx && \
-#    chmod 0440 /etc/sudoers.d/blackstack-nginx && \
-#    visudo -cf /etc/sudoers.d/blackstack-nginx
+# Grant '$$ssh_username' user passwordless sudo access for managing Nginx and nginx.conf
+# Grant '$$ssh_username' user passwordless sudo access for managing Nginx and nginx.conf
+#RUN echo "$$ssh_username ALL=(ALL) NOPASSWD: /bin/systemctl start nginx, /bin/systemctl stop nginx, /bin/systemctl restart nginx, /bin/rm /etc/nginx/nginx.conf, /bin/cp /home/$$ssh_username/code1/master/nginx.conf /etc/nginx/nginx.conf" | tee /etc/sudoers.d/$$ssh_username-nginx && \
+#    chmod 0440 /etc/sudoers.d/$$ssh_username-nginx && \
+#    visudo -cf /etc/sudoers.d/$$ssh_username-nginx
 
 # Set Correct Permissions for the Sudoers File:
 #RUN chown root:root /etc/nginx/nginx.conf
@@ -26,14 +26,14 @@ RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot g
 #
 RUN service nginx stop
 RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
-RUN mkdir -p /home/blackstack/ssl
-RUN rm -f /home/blackstack/ssl/dev.crt
-RUN rm -f /home/blackstack/ssl/dev.key 
-RUN chown -R blackstack:blackstack /etc/letsencrypt/live/$$domain
-RUN cp /etc/letsencrypt/live/$$domain/fullchain.pem /home/blackstack/ssl/
-RUN cp /etc/letsencrypt/live/$$domain/privkey.pem /home/blackstack/ssl/
-RUN mv /home/blackstack/ssl/fullchain.pem /home/blackstack/ssl/dev.crt
-RUN mv /home/blackstack/ssl/privkey.pem /home/blackstack/ssl/dev.key
+RUN mkdir -p /home/$$ssh_username/ssl
+RUN rm -f /home/$$ssh_username/ssl/dev.crt
+RUN rm -f /home/$$ssh_username/ssl/dev.key 
+RUN chown -R $$ssh_username:$$ssh_username /etc/letsencrypt/live/$$domain
+RUN cp /etc/letsencrypt/live/$$domain/fullchain.pem /home/$$ssh_username/ssl/
+RUN cp /etc/letsencrypt/live/$$domain/privkey.pem /home/$$ssh_username/ssl/
+RUN mv /home/$$ssh_username/ssl/fullchain.pem /home/$$ssh_username/ssl/dev.crt
+RUN mv /home/$$ssh_username/ssl/privkey.pem /home/$$ssh_username/ssl/dev.key
 
 # Nginx configuration file
 #

@@ -11,14 +11,14 @@
 # Set timezone to America/Argentina/Buenos_Aires
 RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 
-# Add user 'blackstack' with home directory and bash shell
-RUN useradd -m -s /bin/bash blackstack
+# Add user '$$ssh_username' with home directory and bash shell
+RUN useradd -m -s /bin/bash $$ssh_username
 
-# Set password for 'blackstack' user
-RUN echo "blackstack:$$ssh_password" | chpasswd
+# Set password for '$$ssh_username' user
+RUN echo "$$ssh_username:$$ssh_password" | chpasswd
 
-# Add 'blackstack' to sudoers
-RUN usermod -aG sudo blackstack
+# Add '$$ssh_username' to sudoers
+RUN usermod -aG sudo $$ssh_username
 
 # Change hostname
 RUN hostnamectl set-hostname "$$name"
@@ -56,11 +56,11 @@ RUN systemctl start postgresql
 # Configure PostgreSQL to listen on all addresses
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/12/main/postgresql.conf
 
-# Create PostgreSQL user 'blackstack' with superuser privileges
-RUN sudo -u postgres createuser -s blackstack
+# Create PostgreSQL user '$$ssh_username' with superuser privileges
+RUN sudo -u postgres createuser -s $$ssh_username
 
-# Set password for PostgreSQL user 'blackstack'
-RUN cd /tmp && sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$$postgres_password';"
+# Set password for PostgreSQL user '$$ssh_username'
+RUN cd /tmp && sudo -u postgres psql -c "ALTER USER $$ssh_username WITH PASSWORD '$$postgres_password';"
 
 # Allow connections with no SSL certificates from any location
 RUN sudo grep -Fxq "host    all             all             0.0.0.0/0               md5" /etc/postgresql/12/main/pg_hba.conf || echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
@@ -69,17 +69,17 @@ RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/12/main/postgres
 # Restart PostgreSQL service
 RUN systemctl restart postgresql
 
-# Create new database 'blackstack' owned by user 'blackstack'
-RUN sudo -u postgres createdb -O blackstack blackstack
+# Create new database '$$ssh_username' owned by user '$$ssh_username'
+RUN sudo -u postgres createdb -O $$ssh_username $$ssh_username
 
 # Install required packages
 RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
 
-# Grant 'blackstack' user passwordless sudo access for managing Nginx and nginx.conf
-# Grant 'blackstack' user passwordless sudo access for managing Nginx and nginx.conf
-#RUN echo "blackstack ALL=(ALL) NOPASSWD: /bin/systemctl start nginx, /bin/systemctl stop nginx, /bin/systemctl restart nginx, /bin/rm /etc/nginx/nginx.conf, /bin/cp /home/blackstack/code1/master/nginx.conf /etc/nginx/nginx.conf" | tee /etc/sudoers.d/blackstack-nginx && \
-#    chmod 0440 /etc/sudoers.d/blackstack-nginx && \
-#    visudo -cf /etc/sudoers.d/blackstack-nginx
+# Grant '$$ssh_username' user passwordless sudo access for managing Nginx and nginx.conf
+# Grant '$$ssh_username' user passwordless sudo access for managing Nginx and nginx.conf
+#RUN echo "$$ssh_username ALL=(ALL) NOPASSWD: /bin/systemctl start nginx, /bin/systemctl stop nginx, /bin/systemctl restart nginx, /bin/rm /etc/nginx/nginx.conf, /bin/cp /home/$$ssh_username/code1/master/nginx.conf /etc/nginx/nginx.conf" | tee /etc/sudoers.d/$$ssh_username-nginx && \
+#    chmod 0440 /etc/sudoers.d/$$ssh_username-nginx && \
+#    visudo -cf /etc/sudoers.d/$$ssh_username-nginx
 
 # Set Correct Permissions for the Sudoers File:
 #RUN chown root:root /etc/nginx/nginx.conf
@@ -99,8 +99,8 @@ RUN gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \
 # Install RVM
 RUN curl -sSL https://get.rvm.io | bash -s stable
 
-# Add 'blackstack' user to 'rvm' group
-RUN usermod -aG rvm blackstack
+# Add '$$ssh_username' user to 'rvm' group
+RUN usermod -aG rvm $$ssh_username
 
 # Suppress rvmsudo warnings
 RUN sed -i '$ a export rvmsudo_secure_path=1' /etc/profile.d/rvm.sh
@@ -115,9 +115,9 @@ RUN ruby -v
 # Install bundler
 RUN gem install bundler
 
-# Create code directory for 'blackstack' user
-#RUN mkdir -p /home/blackstack/code
-#RUN chown -R blackstack:blackstack /home/blackstack/code
+# Create code directory for '$$ssh_username' user
+#RUN mkdir -p /home/$$ssh_username/code
+#RUN chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/code
 
 # Add Ubuntu focal-updates repository if not present
 RUN if ! grep -q "focal-updates main" /etc/apt/sources.list; then
@@ -139,23 +139,23 @@ RUN mv chromedriver-linux64/chromedriver /usr/bin/
 RUN chmod +x /usr/bin/chromedriver
 RUN rm -rf chromedriver-linux64*
 
-# Create a flag file for 'blackstack' user
-RUN touch /home/blackstack/.pampa
-RUN chown blackstack:blackstack /home/blackstack/.pampa
+# Create a flag file for '$$ssh_username' user
+RUN touch /home/$$ssh_username/.pampa
+RUN chown $$ssh_username:$$ssh_username /home/$$ssh_username/.pampa
 
 # Install SSL Certificate
 # Reference: https://github.com/leandrosardi/my.saas/discussions/40
 #
 RUN service nginx stop
 RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
-RUN mkdir -p /home/blackstack/ssl
-RUN rm -f /home/blackstack/ssl/dev.crt
-RUN rm -f /home/blackstack/ssl/dev.key 
-RUN chown -R blackstack:blackstack /etc/letsencrypt/live/$$domain
-RUN cp /etc/letsencrypt/live/$$domain/fullchain.pem /home/blackstack/ssl/
-RUN cp /etc/letsencrypt/live/$$domain/privkey.pem /home/blackstack/ssl/
-RUN mv /home/blackstack/ssl/fullchain.pem /home/blackstack/ssl/dev.crt
-RUN mv /home/blackstack/ssl/privkey.pem /home/blackstack/ssl/dev.key
+RUN mkdir -p /home/$$ssh_username/ssl
+RUN rm -f /home/$$ssh_username/ssl/dev.crt
+RUN rm -f /home/$$ssh_username/ssl/dev.key 
+RUN chown -R $$ssh_username:$$ssh_username /etc/letsencrypt/live/$$domain
+RUN cp /etc/letsencrypt/live/$$domain/fullchain.pem /home/$$ssh_username/ssl/
+RUN cp /etc/letsencrypt/live/$$domain/privkey.pem /home/$$ssh_username/ssl/
+RUN mv /home/$$ssh_username/ssl/fullchain.pem /home/$$ssh_username/ssl/dev.crt
+RUN mv /home/$$ssh_username/ssl/privkey.pem /home/$$ssh_username/ssl/dev.key
 
 # Nginx configuration file
 #

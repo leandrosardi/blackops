@@ -35,11 +35,11 @@ RUN systemctl start postgresql
 # Configure PostgreSQL to listen on all addresses
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/12/main/postgresql.conf
 
-# Create PostgreSQL user 'blackstack' with superuser privileges
-RUN sudo -u postgres createuser -s blackstack
+# Create PostgreSQL user '$$postgres_username' with superuser privileges
+RUN sudo -u postgres createuser -s $$postgres_username
 
-# Set password for PostgreSQL user 'blackstack'
-RUN cd /tmp && sudo -u postgres psql -c "ALTER USER blackstack WITH PASSWORD '$$postgres_password';"
+# Set password for PostgreSQL user '$$postgres_username'
+RUN cd /tmp && sudo -u postgres psql -c "ALTER USER $$postgres_username WITH PASSWORD '$$postgres_password';"
 
 # Allow connections with no SSL certificates from any location
 RUN sudo grep -Fxq "host    all             all             0.0.0.0/0               md5" /etc/postgresql/12/main/pg_hba.conf || echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
@@ -48,6 +48,6 @@ RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/12/main/postgres
 # Restart PostgreSQL service
 RUN systemctl restart postgresql
 
-# Create new database 'blackstack' owned by user 'blackstack'
-RUN sudo -u postgres createdb -O blackstack blackstack
+# Create new database '$$postgres_database' owned by user '$$postgres_username'
+RUN sudo -u postgres createdb -O $$postgres_database $$postgres_username
 
