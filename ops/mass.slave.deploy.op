@@ -9,7 +9,7 @@ RUN mkdir -p /home/$$ssh_username/code1
 # Cloning and updating code of my.saas in the ~/code/slave folder.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$slave_code_folder ]; then
-    git clone https://$$git_username:$$git_password@github.com/$$slave_git_repository $$slave_code_folder
+    git clone https://$$git_username:$$git_password@github.com/$$slave_git_repository /home/$$ssh_username/code1/$$slave_code_folder
 fi
 
 RUN git -C /home/$$ssh_username/code1/$$slave_code_folder fetch --all

@@ -789,7 +789,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
 
         ret
       end # def self.reinstall
-
+=end
       # Setup the DNS, connect the node as `root` and run the `install_ops`.
       def self.install(
         node_name,
@@ -803,7 +803,8 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         node = get_node(node_name)
         raise ArgumentError, "Node not found: #{node_name}" if node.nil?
         l.done
-
+# feature removed
+=begin
         # setup domain
         l.logs 'Setting domain or subdomain... '
         if node[:domain]
@@ -851,7 +852,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         else
             l.skip
         end
-
+=end
         # run installation
         node[:install_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "
@@ -863,7 +864,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           l.done
         }
       end # def self.install
-=end
+
       # Connect the node as non-root, run the `deploy_ops`, and exeute migrations.
       def self.deploy(
         node_name,

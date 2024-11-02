@@ -33,6 +33,9 @@ RUN systemctl restart ssh
 RUN apt-get update -y
 RUN apt-get upgrade -y
 
+# Install required packages
+RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
+
 # Install RVM
 RUN curl -sSL https://get.rvm.io | bash -s stable
 
