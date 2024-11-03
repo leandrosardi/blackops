@@ -150,20 +150,30 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         end
       end
 
-      def self.set(namecheap: nil, contabo: nil, repositories: nil)
+      def self.set(
+        repositories: nil,
+        secrets_git: nil,
+        secrets: nil,
+        contabo: nil, 
+        namecheap: nil
+      )
         err = []
         if repositories
           unless repositories.is_a?(Array) && repositories.all? { |rep| rep.is_a?(String) }
             err << "Invalid value for repositories. Must be an array of strings."
           end
         end # if repositories
-        # TODO: Validate each string inot the repositories array is a valid URL or a valid PATH with no slash (/) at the end
+        # TODO: Validate each string into the repositories array is a valid URL or a valid PATH with no slash (/) at the end
+        # TODO: Validate the secrets_git is a valid PATH with no slash (/) at the end
+        # TODO: Validate each string into the secrets array is a valid PATH with no slash (/) at the end
         # TODO: Validate namecheap is an instance of NamecheapClient
         # TODO: Validate contabo is an instance of ContaboClient
         raise err.join("\n") if err.size > 0
-        @@namecheap = namecheap if namecheap
-        @@contabo = contabo if contabo
         @@repositories = repositories if repositories
+        @@secrets_git = secrets_git if secrets_git
+        @@secrets = secrets if secrets
+        @@contabo = contabo if contabo
+        @@namecheap = namecheap if namecheap
       end # def self.set
 
       def self.namecheap
