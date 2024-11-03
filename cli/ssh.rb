@@ -14,7 +14,7 @@ node_name = ARGV.shift # Get the name of the node to connect
 
 begin
     BlackOps.ssh( node_name.to_sym,
-        connect_as_root: true,
+        connect_as_root: false,
         logger: l
     )
 rescue => e

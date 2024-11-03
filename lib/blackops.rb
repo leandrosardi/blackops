@@ -895,10 +895,14 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         
         # run migrations
         l.logs "Running migrations... "
-        BlackOps.migrations( node_name,
-            logger: l
-        )
-        l.done
+        unless node[:db] && node[:db].to_s == node[:name].to_s
+          l.skip(details: "No database hosted by the node.")
+        else
+          BlackOps.migrations( node_name,
+              logger: l
+          )
+          l.done
+        end
 
       end # def self.deploy
       

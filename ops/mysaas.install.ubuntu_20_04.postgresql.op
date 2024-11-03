@@ -48,5 +48,5 @@ RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/12/main/postgres
 RUN systemctl restart postgresql
 
 # Create new database '$$postgres_database' owned by user '$$postgres_username'
-RUN sudo -u postgres createdb -O $$postgres_database $$postgres_username
+RUN sudo -u postgres createdb -O $$postgres_username $$postgres_database
 
