@@ -47,6 +47,17 @@ RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/12/main/postgres
 # Restart PostgreSQL service
 RUN systemctl restart postgresql
 
-# Create new database '$$postgres_database' owned by user '$$postgres_username'
-RUN sudo -u postgres createdb -O $$postgres_username $$postgres_database
+# Check if a database '$$postgres_database' exists.
+# If it doesn't, create new database '$$postgres_database' owned by user 
+# '$$postgres_username'.
+#
+# Note: Prevent PostgreSQL tries to access the current working directory 
+# (/root), because the postgres user doesn’t have permission to do so. 
+# 
+# This warning is benign and doesn’t prevent the command from working. 
+# However, to avoid it, you can change to a directory accessible to the 
+# postgres user before running the command.
+#
+RUN cd /tmp && sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$$postgres_database'" | grep -q 1 || sudo -u postgres createdb -O $$postgres_username $$postgres_database
+#              sudo -u postgres createdb -O $$postgres_username $$postgres_database
 
