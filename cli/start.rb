@@ -5,9 +5,9 @@ l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
     #BlackOps.nodes.map { |n| n[:name] }.each { |name|
-name = 'master'
+name = 'w01b'
         l.logs "#{name.blue}... "
-        BlackOps.install( name.to_sym,
+        BlackOps.start( name.to_sym,
             logger: l
         )
         l.done
