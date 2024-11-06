@@ -268,7 +268,7 @@ There are some considerations about the repositories.
 
 ## 7. Custom Parameters
 
-The argument `--name` is not really necessary in the command below, 
+The argument `--name` is not really necessary in the command line, 
 
 ```
 ops source hostname.op --node=prod1 --name=prod1
