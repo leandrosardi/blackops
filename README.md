@@ -36,6 +36,10 @@ ops source ./hostname.op --local --name=dev1
 
 Here are some other considerations about the `ops` command.
 
+- You can write `./hostname` instead of `./hostname.op`.
+
+The `source` command will lookfor the `./hostname` file. And if `./hostname` doesn't exists, then the `source` command will try with `./hostname.op`
+
 - If you are writing Ruby code, you can install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
 
 First, install the gem.
@@ -470,7 +474,11 @@ BlackOps.add_node({
 })
 ```
 
-Then, call the `proc` command to watch if they are running or not.
+Then, call the `proc` command to watch 
+
+1. if they are running or not,
+2. the RAM consumed by each one of the processes; and 
+3. the CPU consumed by each one of the processes.
 
 ```
 ops proc
