@@ -103,7 +103,7 @@ Use the `--ssh` arguments instead of `--local`.
 ops source ./hostname.op --ssh=username:password@ip:port --name=prod1
 ```
 
-If you are coding with Ruby, call to the `source` method.
+If you are coding with Ruby, call to the `source_remote` method.
 
 ```ruby
 require 'simple_cloud_logging'
@@ -164,7 +164,7 @@ and
 ops source ./hostname.ops --config=./BlackOpsFile --node=prod1 --connect-as-root --name=prod1 
 ```
 
-You can do the same from Ruby code:
+You can do the same from Ruby code by requiring the `BlackOpsFile` and calling the `source_remote` method:
 
 ```ruby
 require 'simple_cloud_logging'
@@ -173,7 +173,7 @@ require 'blackops'
 
 l = BlackStack::LocalLogger.new('./example.log')
 
-require_relative './config'
+require_relative './BlackOpsFile'
 
 BlackOps.source_remote(
         'prod1', # name of node defined in `BlackOpsFile`
@@ -192,7 +192,9 @@ BlackOps.source_remote(
 
 ## 4. Environment Variable `$OPSLIB`
 
-Additionally, you can define an environment variable `$OPSLIB`. The `ops` command will look for `BlackOpsFile` there.
+Additionally, you can store one or more paths into the environment variable `$OPSLIB`. 
+
+The `ops` command will look for `BlackOpsFile` there.
 
 Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `ops` command.
 
@@ -202,7 +204,7 @@ export OPSLIB=~/
 ops source ./hostname.ops --node=prod1 --name=prod1
 ```
 
-The environment variable `$OPSLIB` may include a list of folders separater by `:`. 
+The environment variable `$OPSLIB` can include a list of folders separated by `:`. 
 
 E.g.:
 
