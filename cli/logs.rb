@@ -1,5 +1,5 @@
 require_relative '../lib/blackops.rb'
-require_relative '../config.rb'
+require_relative '../BlackOpsFile'
 
 # clean the rows array
 rows = [] 
