@@ -1,5 +1,7 @@
 **THIS PROJECT IS UNDER CONSTRUCTION**
 
+**Just a VERY SIMPLE library to manage your DevOps.**
+
 # BlackOps
 
 The **BlackOps** library makes it easy to manage your DevOps.
@@ -38,7 +40,7 @@ Here are some other considerations about the `ops` command.
 
 - You can write `./hostname` instead of `./hostname.op`.
 
-The `source` command will lookfor the `./hostname` file. And if `./hostname` doesn't exists, then the `source` command will try with `./hostname.op`
+The `source` command will look for the `./hostname` file. And if `./hostname` doesn't exists, then the `source` command will try with `./hostname.op`
 
 - If you are writing Ruby code, you can install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
 
@@ -164,7 +166,7 @@ and
 ops source ./hostname.ops --config=./BlackOpsFile --node=prod1 --connect-as-root --name=prod1 
 ```
 
-You can do the same from Ruby code by requiring the `BlackOpsFile` and calling the `source_remote` method:
+You can do the same from Ruby code by **including** the `BlackOpsFile` and calling the `source_remote` method:
 
 ```ruby
 require 'simple_cloud_logging'
@@ -173,7 +175,7 @@ require 'blackops'
 
 l = BlackStack::LocalLogger.new('./example.log')
 
-require_relative './BlackOpsFile'
+include './BlackOpsFile' # <===
 
 BlackOps.source_remote(
         'prod1', # name of node defined in `BlackOpsFile`
@@ -188,15 +190,17 @@ BlackOps.source_remote(
 
 **Note:** 
 
-- If the `--connect-as-root` flag is disabled, then BlackOps will access the node with the `blackstack` user.
+- In the example above, if the `--connect-as-root` flag is disabled, then BlackOps will access the node with the `blackstack` user. Otherwise, it will access with the `root` user.
 
 ## 4. Environment Variable `$OPSLIB`
 
 Additionally, you can store one or more paths into the environment variable `$OPSLIB`. 
 
-The `ops` command will look for `BlackOpsFile` there.
+The `ops source` command will look for `BlackOpsFile` there.
 
-Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `ops` command.
+Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `ops source` command.
+
+E.g.:
 
 ```
 export OPSLIB=~/
@@ -222,7 +226,7 @@ There are some considerations about the `$OPSLIB` variable:
 
 ## 5. Remote `.op` Files
 
-You can refer to `.op` files stored in your local computer or hosted in the web.
+You can refer to `.op` files hosted in the web.
 
 E.g.:
 
@@ -309,7 +313,11 @@ BlackOps.add_node({
 ...
 ```
 
-So the execution of the operation `set-rubylib.op` gets simplified even more:
+So the execution of any operation gets simplified even more.
+
+E.g.:
+
+The `--rubylib` argument in the command line is not longer needed:
 
 ```
 ops source set-rubylib.op --node=prod1
