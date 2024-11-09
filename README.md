@@ -354,11 +354,7 @@ BlackOps.ssh( :prod1,
 
 ## 9. Deploying
 
-The `ops deploy` executes one or more `.op` scripts (like the `ops source` does), and it also performs the following other tasks:
-
-1. connect a PostgreSQL database and run SQL migrations,
-
-2. install SSL certificates for one or more domains pointing to such a node.
+The `ops deploy` executes one or more `.op` scripts (like the `ops source` does), and it also connects a **PostgreSQL database** for running SQL migrations.
 
 E.g.:
 
@@ -368,29 +364,64 @@ ops deploy worker*
 
 **Notes:**
 
-- The list of `.op` scripts to execute are defined in the node descriptor:
+- The command allow will run deployment for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+
+- The list of `.op` scripts to execute are defined in the key `deploy_ops` of the node descriptor.
+
+E.g.:
 
 ```ruby
 BlackOps.add_node({
     :name => 'worker06',
     :ip => '195.179.229.21',
     ...
-    :deploy_ops => [
+    :deploy_ops => [ # <===
         'mass.slave.deploy',
         'mass.sdk.deploy',
     ]
 })
 ```
 
+- To execute migrations, your node must to define both, the **connection parameters** and the **migration folders**:
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    # db connection parameters 
+    :postgres_port => 5432, # <===
+    :postgres_database => 'blackstack',
+    :postgres_username => 'blackstack',
+    :postgres_password => 'MyFooPassword123' 
+    ...
+    # migration folders
+    : migration_folders => [ # <===
+        '/home/leandro/code1/sql',
+    ],
+    ...
+    :deploy_ops => [ 
+        'mass.slave.deploy',
+        'mass.sdk.deploy',
+    ]
+})
+```
+
+- When running migrations, BlackOps will execute every `.sql` file into the migration folders. 
+
+BlackOps will iterate the folders in the same order they are listed.
+
+At each folder, BlackOps will execute the `.sql` scripts sorted by their filenames.
+
 - You can execute a deployment from Ruby code too:
 
 ```ruby
-BlackOps.deploy( :worker06,
+BlackOps.deploy_remote( :worker06,
     logger: l
 )
 ```
 
-- Internally, the `BlackOps.deploy` method calls `BlackOps.source`.
+- Internally, the `BlackOps.deploy_remote` method calls `BlackOps.source_remote`.
 
 - So, the `ops deploy` command supports all the same parameters than `ops source`:
 
@@ -399,6 +430,72 @@ BlackOps.deploy( :worker06,
     3. `--connect-as-root`
     4. `--config`
     5. `--ssh`
+
+- The `BlackOps.deploy_remote` method also supports all the same parameters than `BlackStack.source_remote`:
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.deploy_remote(
+        node: n,
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+- There is a `BlackOps.deploy_local` method too.
+
+```ruby
+BlackOps.deploy_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+- When running `ops deploy` in your local computer, don't forget to define the **list of operations**, the **connection parameters** and **migration folders** into your command line:
+
+```
+ops deploy worker* \
+    --deploy_ops "./hostname.op,./rubylib.op" \
+    --postgres_port 5432
+    --postgres_database blackstack \
+    --postgres_username blackstack \
+    --postgres_password MyFooPassword123 \
+    --migration_folders="/home/leandro/code1/sql,/home/leandro/code2.sql" \
+```
+and you can do the same from Ruby code:
+
+```ruby
+BlackOps.deploy_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+            ...
+            'deploy_ops' => [ # <===
+                'mass.slave.deploy',
+                'mass.sdk.deploy',
+            ],
+            ...
+            # db connection parameters 
+            'postgres_port' => 5432, # <===
+            'postgres_database' => 'blackstack',
+            'postgres_username' => 'blackstack',
+            'postgres_password' => 'MyFooPassword123',
+            ...
+            # migration folders
+            'migration_folders' => [ # <===
+                '/home/leandro/code1/sql',
+            ],
+        },
+        logger: l   
+)
+```
 
 ## 10. Starting and Stopping Nodes
 
