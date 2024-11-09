@@ -366,7 +366,7 @@ ops install worker*
 
 **Notes:**
 
-- The command allow will run installations for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+- The command above will run installations for all the nodes in your `BlackOpsFile` with name matching `worker*`.
 
 - The list of `.op` scripts to execute are defined in the key `install_ops` of the node descriptor.
 
@@ -491,7 +491,7 @@ ops deploy worker*
 
 **Notes:**
 
-- The command allow will run deployment for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+- The command above will run deployment for all the nodes in your `BlackOpsFile` with name matching `worker*`.
 
 - The list of `.op` scripts to execute are defined in the key `deploy_ops` of the node descriptor.
 
@@ -683,11 +683,202 @@ E.g.:
 
 ```
 ops start worker*
-...
+```
+
+and 
+
+```
 ops stop worker*
 ```
 
-Like you did with 
+The `ops install` executes one or more `.op` scripts, like the `ops source` does.
+
+E.g.:
+
+```
+ops install worker*
+```
+
+**Notes:**
+
+- The commands above will run operations for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+
+- The list of `.op` scripts to execute are defined in the keys `start_ops` and `stop_ops` of the node descriptor.
+
+E.g.:
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    # starting operations
+    :start_ops => [ # <===
+        'mass.worker.start',
+    ],
+    # stopping operations
+    :stop_ops => [ # <===
+        'mass.worker.stop',
+    ],
+})
+```
+
+- You can also require to connect as `root`.
+
+E.g.:
+
+```
+ops start worker* --root
+```
+
+or
+
+```
+ops stop worker* --root
+```
+
+- You can do the same from Ruby code.
+
+E.g.:
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.start_remote(
+    node: n,
+    connect_as_root: true,
+    logger: l
+)
+```
+
+or
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.stop_remote(
+    node: n,
+    connect_as_root: true,
+    logger: l
+)
+```
+
+- Internally, the `BlackOps.start_remote` and `BlackOps.stop_remote` methods call `BlackOps.source_remote`.
+
+- The `ops start` and `ops stop` commands support all the same parameters than `ops source`:
+
+    1. `--local`.
+    2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
+    3. `--root`
+    4. `--config`
+    5. `--ssh`
+
+- The `BlackOps.start_remote` and `BlackOps.stop_remote` methods also support all the same parameters than `BlackStack.source_remote`:
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.start_remote(
+        node: n,
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+or
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.stop_remote(
+        node: n,
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+- There are `BlackOps.start_local` and `BlackOps.stop_local` methods too.
+
+```ruby
+BlackOps.start_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+and
+
+```ruby
+BlackOps.stop_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+- When running `ops start` or `ops stop` in your local computer, use the `--local` argument, and don't forget the `--start_ops` or `--stop_ops` argument too.
+
+```
+ops start --local \
+    --start_ops "./start.worker.op"
+```
+
+or
+
+```
+ops stop --local \
+    --stop_ops "./start.worker.op"
+```
+
+and you can do the same from Ruby code:
+
+```ruby
+BlackOps.start_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+            ...
+            'start_ops' => [ # <===
+                'mass.worker.start',
+            ],
+        },
+        logger: l   
+)
+```
+
+or
+
+```ruby
+BlackOps.stop_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+            ...
+            'stop_ops' => [ # <===
+                'mass.worker.stop',
+            ],
+        },
+        logger: l   
+)
+```
+
+**Pre-Built Start/Stop Operations:**
+
+There are some pre-built operations for starting or stopping your software:
+
+- 
+
 
 
 ## 12. Configuration Templates
