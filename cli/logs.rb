@@ -1,5 +1,5 @@
 require_relative '../lib/blackops.rb'
-load '/home/leandro/code1/blackops/BlackOpsFile'
+load '/home/leandro/code1/secret/BlackOpsFile'
 
 # clean the rows array
 rows = [] 
