@@ -375,6 +375,7 @@ BlackOps.add_node({
     :name => 'worker06',
     :ip => '195.179.229.21',
     ...
+    # deployment operations
     :deploy_ops => [ # <===
         'mass.slave.deploy',
         'mass.sdk.deploy',
@@ -382,7 +383,7 @@ BlackOps.add_node({
 })
 ```
 
-- To execute migrations, your node must to define both, the **connection parameters** and the **migration folders**:
+- To execute migrations, your node must to define both: the **connection parameters** and the **migration folders**:
 
 ```ruby
 BlackOps.add_node({
@@ -400,6 +401,7 @@ BlackOps.add_node({
         '/home/leandro/code1/sql',
     ],
     ...
+    # deployment operations
     :deploy_ops => [ 
         'mass.slave.deploy',
         'mass.sdk.deploy',
@@ -461,7 +463,7 @@ BlackOps.deploy_local(
 - When running `ops deploy` in your local computer, don't forget to define the **list of operations**, the **connection parameters** and **migration folders** into your command line:
 
 ```
-ops deploy worker* \
+ops deploy --local \
     --deploy_ops "./hostname.op,./rubylib.op" \
     --postgres_port 5432
     --postgres_database blackstack \
@@ -469,6 +471,7 @@ ops deploy worker* \
     --postgres_password MyFooPassword123 \
     --migration_folders="/home/leandro/code1/sql,/home/leandro/code2.sql" \
 ```
+
 and you can do the same from Ruby code:
 
 ```ruby
@@ -496,6 +499,16 @@ BlackOps.deploy_local(
         logger: l   
 )
 ```
+
+- If one of the following parameters is defined, then all the others must be defined too:
+
+    1. `postgres_port`,
+    2. `postgres_database`,
+    3. `postgres_username`,
+    4. `postgres_password`,
+    5. `migration_folders`.
+
+Otherwise, `BlackOps.deploy` will raise an exception:
 
 ## 10. Starting and Stopping Nodes
 
