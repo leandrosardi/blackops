@@ -160,10 +160,10 @@ Then you can run the `ops` command referencing to
 
 and
 
-3. the `--connect-as-root` flag to use `root` user for this operation.
+3. the `--root` flag to use `root` user for this operation.
 
 ```
-ops source ./hostname.ops --config=./BlackOpsFile --node=prod1 --connect-as-root --name=prod1 
+ops source ./hostname.ops --config=./BlackOpsFile --node=prod1 --root --name=prod1 
 ```
 
 You can do the same from Ruby code by **including** the `BlackOpsFile` and calling the `source_remote` method:
@@ -190,7 +190,7 @@ BlackOps.source_remote(
 
 **Note:** 
 
-- In the example above, if the `--connect-as-root` flag is disabled, then BlackOps will access the node with the `blackstack` user. Otherwise, it will access with the `root` user.
+- In the example above, if the `--root` flag is disabled, then BlackOps will access the node with the `blackstack` user. Otherwise, it will access with the `root` user.
 
 ## 4. Environment Variable `$OPSLIB`
 
@@ -333,26 +333,153 @@ The goal of the `ops ssh` command is that you can access any node easily, writin
 ops ssh prod1
 ```
 
-You can also require to connect as `root`.
+**Notes:**
+
+- You can also require to connect as `root`.
 
 E.g.:
 
 ```
-ops ssh prod1 --connect-as-root
+ops ssh prod1 --root
 ```
 
-You can do the same from Ruby code.
+- You can do the same from Ruby code.
 
 E.g.:
 
 ```ruby
 BlackOps.ssh( :prod1,
-    connect_as_root: false,
+    connect_as_root: true,
     logger: l
 )
 ```
 
-## 9. Deploying
+## 9. Installing
+
+The `ops install` executes one or more `.op` scripts, like the `ops source` does.
+
+E.g.:
+
+```
+ops install worker*
+```
+
+**Notes:**
+
+- The command allow will run installations for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+
+- The list of `.op` scripts to execute are defined in the key `install_ops` of the node descriptor.
+
+E.g.:
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    # installation operations
+    :install_ops => [ # <===
+        'mysaas.install.ubuntu_20_04.base',
+        'mysaas.install.ubuntu_20_04.postgresql',
+        'mysaas.install.ubuntu_20_04.nginx',
+        'mysaas.install.ubuntu_20_04.adspower',
+    ]
+})
+```
+
+- You can also require to connect as `root`.
+
+E.g.:
+
+```
+ops install worker* --root
+```
+
+- You can do the same from Ruby code.
+
+E.g.:
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.install_remote(
+    node: n,
+    connect_as_root: true,
+    logger: l
+)
+```
+
+- Internally, the `BlackOps.install_remote` method calls `BlackOps.source_remote`.
+
+- The `ops install` command supports all the same parameters than `ops source`:
+
+    1. `--local`.
+    2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
+    3. `--root`
+    4. `--config`
+    5. `--ssh`
+
+- The `BlackOps.install_remote` method also supports all the same parameters than `BlackStack.source_remote`:
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.install_remote(
+        node: n,
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+- There is a `BlackOps.install_local` method too.
+
+```ruby
+BlackOps.install_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+        },
+        logger: l   
+)
+```
+
+- When running `ops deploy` in your local computer, use the `--local` argument, and don't forget the `--install_ops` argument too.
+
+```
+ops deploy --local \
+    --install_ops "./hostname.op,./rubylib.op" \
+```
+
+and you can do the same from Ruby code:
+
+```ruby
+BlackOps.install_local(
+        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
+        parameters: => {
+            'name' => 'dev1',
+            ...
+            'install_ops' => [ # <===
+                'mass.slave.install',
+                'mass.sdk.install',
+            ],
+        },
+        logger: l   
+)
+```
+
+**Pre-Built Install Operations:**
+
+There are some pre-built install operations that you can use:
+
+- [Install base required packages on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.base.op).
+- [Install PostgreSQL on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.postgresql.op).
+- [Install Nginx on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.nginx.op).
+- [Install AdsPower on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.adspower.op).
+
+## 10. Deploying
 
 The `ops deploy` executes one or more `.op` scripts (like the `ops source` does), and it also connects a **PostgreSQL database** for running SQL migrations.
 
@@ -381,6 +508,28 @@ BlackOps.add_node({
         'mass.sdk.deploy',
     ]
 })
+```
+
+- You can also require to connect as `root`.
+
+E.g.:
+
+```
+ops deploy worker* --root
+```
+
+- You can do the same from Ruby code.
+
+E.g.:
+
+```ruby
+n = BlackOps.get_node(:worker06)
+
+BlackOps.deploy_remote( 
+    node: n,
+    connect_as_root: true,
+    logger: l
+)
 ```
 
 - To execute migrations, your node must to define both: the **connection parameters** and the **migration folders**:
@@ -418,18 +567,21 @@ At each folder, BlackOps will execute the `.sql` scripts sorted by their filenam
 - You can execute a deployment from Ruby code too:
 
 ```ruby
-BlackOps.deploy_remote( :worker06,
+n = BlackOps.get_node(:worker06)
+
+BlackOps.deploy_remote(
+    node: n,
     logger: l
 )
 ```
 
 - Internally, the `BlackOps.deploy_remote` method calls `BlackOps.source_remote`.
 
-- So, the `ops deploy` command supports all the same parameters than `ops source`:
+- The `ops deploy` command supports all the same parameters than `ops source`:
 
     1. `--local`.
     2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
-    3. `--connect-as-root`
+    3. `--root`
     4. `--config`
     5. `--ssh`
 
@@ -510,19 +662,40 @@ BlackOps.deploy_local(
 
 Otherwise, `BlackOps.deploy` will raise an exception:
 
-## 10. Starting and Stopping Nodes
+**Pre-Built Deploy Operations:**
 
-1. starting nodes
-2. stopping nodes
+There are some pre-built deploy operations that you can use:
+
+- [Deploy source code of master node of MassProspsecting](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.master.deploy.op).
+- [Deploy source code of slave node of MassProspsecting](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.slave.deploy.op).
+- [Deploy source code of MassProspsecting SDK](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.sdk.deploy.op).
+
+## 11. Starting and Stopping Nodes
+
+You can define a list of operations for:
+
+1. starting (running) your software, and
+2. stopping your software 
+
+in any node.
+
+E.g.:
+
+```
+ops start worker*
+...
+ops stop worker*
+```
+
+Like you did with 
+
+
+## 12. Configuration Templates
 
 _pending_
 
-## 11. Configuration Templates
 
-_pending_
-
-
-## 12. Monitoring
+## 13. Monitoring
 
 Your can list your nodes and monitor the usage of CPU, RAM and disk space.
 
@@ -591,7 +764,7 @@ ops list worker*
 
 - If you press `CTRL+C`, the `ops list` command will terminate.
 
-## 13. Infrastructure Managing
+## 14. Infrastructure Managing
 
 You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
 
@@ -677,7 +850,7 @@ ops proc worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-## 15. Logs Watching
+## 16. Logs Watching
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
@@ -747,31 +920,31 @@ ops keywords worker* --filename=*dispatch.log
 
 The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
------------------------------
-
-## 16. Custom Alerts
+## 17. Custom Alerts
 
 _pending_
+
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
 
 ## 17. Email Notifications
 
