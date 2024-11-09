@@ -325,21 +325,80 @@ ops source set-rubylib.op --node=prod1
 
 ## 8. Connecting
 
-You can access any node via SSH using the credentials defined in `BlackOpsFile`.
+You can access any node via SSH using the `ops ssh` command and the credentials defined in `BlackOpsFile`.
+
+The goal of the `ops ssh` command is that you can access any node easily, writing short commands.
 
 ```
 ops ssh prod1
 ```
 
+You can also require to connect as `root`.
+
+E.g.:
+
+```
+ops ssh prod1 --connect-as-root
+```
+
+You can do the same from Ruby code.
+
+E.g.:
+
+```ruby
+BlackOps.ssh( :prod1,
+    connect_as_root: false,
+    logger: l
+)
+```
+
 ## 9. Deploying
 
-The `ops deploy` executes an `.op` script (like the `ops source` does), and it also performs the following other tasks:
+The `ops deploy` executes one or more `.op` scripts (like the `ops source` does), and it also performs the following other tasks:
 
 1. connect a PostgreSQL database and run SQL migrations,
 
 2. install SSL certificates for one or more domains pointing to such a node.
 
-_pending_
+E.g.:
+
+```
+ops deploy worker*
+```
+
+**Notes:**
+
+- The list of `.op` scripts to execute are defined in the node descriptor:
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    :deploy_ops => [
+        'mass.slave.deploy',
+        'mass.sdk.deploy',
+    ]
+})
+```
+
+- You can execute a deployment from Ruby code too:
+
+```ruby
+BlackOps.deploy( :worker06,
+    logger: l
+)
+```
+
+- Internally, the `BlackOps.deploy` method calls `BlackOps.source`.
+
+- So, the `ops deploy` command supports all the same parameters than `ops source`:
+
+    1. `--local`.
+    2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
+    3. `--connect-as-root`
+    4. `--config`
+    5. `--ssh`
 
 ## 10. Starting and Stopping Nodes
 
