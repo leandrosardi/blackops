@@ -402,7 +402,8 @@ ops install worker* --root
 E.g.:
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.install_remote(
     node: n,
@@ -424,7 +425,8 @@ BlackOps.install_remote(
 - The `BlackOps.install_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.install_remote(
         node: n,
@@ -525,7 +527,8 @@ ops deploy worker* --root
 E.g.:
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.deploy_remote( 
     node: n,
@@ -569,7 +572,8 @@ At each folder, BlackOps will execute the `.sql` scripts sorted by their filenam
 - You can execute a deployment from Ruby code too:
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.deploy_remote(
     node: n,
@@ -590,7 +594,8 @@ BlackOps.deploy_remote(
 - The `BlackOps.deploy_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.deploy_remote(
         node: n,
@@ -738,7 +743,8 @@ ops stop worker* --root
 E.g.:
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.start_remote(
     node: n,
@@ -750,7 +756,8 @@ BlackOps.start_remote(
 or
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.stop_remote(
     node: n,
@@ -772,7 +779,8 @@ BlackOps.stop_remote(
 - The `BlackOps.start_remote` and `BlackOps.stop_remote` methods also support all the same parameters than `BlackStack.source_remote`:
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.start_remote(
         node: n,
@@ -787,7 +795,8 @@ BlackOps.start_remote(
 or
 
 ```ruby
-n = BlackOps.get_node(:worker06)
+h = BlackOps.get_node(:worker06)
+n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.stop_remote(
         node: n,
