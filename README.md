@@ -15,6 +15,8 @@ The `ops` command provides the following features:
 3. **Processes Monitoring**; and
 4. **Infrastructure Monitoring**.
 
+**Note:** The `ops` command has been tested on Ubuntu 20.04.
+
 ## 1. Getting Started
 
 1. Install the `ops` command.
@@ -366,7 +368,7 @@ ops install worker*
 
 **Notes:**
 
-- The command above will run installations for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+- The command above will run installations for all the nodes defined in your `BlackOpsFile` with name matching `worker*`.
 
 - The list of `.op` scripts to execute are defined in the key `install_ops` of the node descriptor.
 
@@ -419,7 +421,7 @@ BlackOps.install_remote(
     4. `--config`
     5. `--ssh`
 
-- The `BlackOps.install_remote` method also supports all the same parameters than `BlackStack.source_remote`:
+- The `BlackOps.install_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
 
 ```ruby
 n = BlackOps.get_node(:worker06)
@@ -446,14 +448,12 @@ BlackOps.install_local(
 )
 ```
 
-- When running `ops deploy` in your local computer, use the `--local` argument, and don't forget the `--install_ops` argument too.
+- When running `ops install` in your local computer, use the `--local` argument, and don't forget the `--install_ops` argument too.
 
 ```
-ops deploy --local \
-    --install_ops "./hostname.op,./rubylib.op" \
+ops install --local \
+    --install_ops "mysaas.install.ubuntu_20_04.base,mysaas.install.ubuntu_20_04.postgresql,mysaas.install.ubuntu_20_04.nginx,mysaas.install.ubuntu_20_04.adspower" \
 ```
-
-and you can do the same from Ruby code:
 
 ```ruby
 BlackOps.install_local(
@@ -462,8 +462,10 @@ BlackOps.install_local(
             'name' => 'dev1',
             ...
             'install_ops' => [ # <===
-                'mass.slave.install',
-                'mass.sdk.install',
+                'mysaas.install.ubuntu_20_04.base',
+                'mysaas.install.ubuntu_20_04.postgresql',
+                'mysaas.install.ubuntu_20_04.nginx',
+                'mysaas.install.ubuntu_20_04.adspower',
             ],
         },
         logger: l   
@@ -491,7 +493,7 @@ ops deploy worker*
 
 **Notes:**
 
-- The command above will run deployment for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+- The command above will run deployment for all the nodes defined in your `BlackOpsFile` with name matching `worker*`.
 
 - The list of `.op` scripts to execute are defined in the key `deploy_ops` of the node descriptor.
 
@@ -577,7 +579,7 @@ BlackOps.deploy_remote(
 
 - Internally, the `BlackOps.deploy_remote` method calls `BlackOps.source_remote`.
 
-- The `ops deploy` command supports all the same parameters than `ops source`:
+- The `ops deploy` command supports all the same parameters than `ops source`, except the `op` parameter:
 
     1. `--local`.
     2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
@@ -585,7 +587,7 @@ BlackOps.deploy_remote(
     4. `--config`
     5. `--ssh`
 
-- The `BlackOps.deploy_remote` method also supports all the same parameters than `BlackStack.source_remote`:
+- The `BlackOps.deploy_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
 
 ```ruby
 n = BlackOps.get_node(:worker06)
@@ -691,17 +693,11 @@ and
 ops stop worker*
 ```
 
-The `ops install` executes one or more `.op` scripts, like the `ops source` does.
-
-E.g.:
-
-```
-ops install worker*
-```
+Both `ops start` and `ops stop` execute one or more `.op` scripts, like the `ops source` does.
 
 **Notes:**
 
-- The commands above will run operations for all the nodes in your `BlackOpsFile` with name matching `worker*`.
+- The commands above will run operations for all the nodes defined in your `BlackOpsFile` with name matching `worker*`.
 
 - The list of `.op` scripts to execute are defined in the keys `start_ops` and `stop_ops` of the node descriptor.
 
