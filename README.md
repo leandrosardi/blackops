@@ -545,22 +545,26 @@ BlackOps.deploy_remote(
 
 - To execute migrations, your node must to define both: the **connection parameters** and the **migration folders**:
 
+**BlackOpsFile**
+
 ```ruby
 BlackOps.add_node({
     :name => 'worker06',
     :ip => '195.179.229.21',
     ...
-    # db connection parameters 
-    :postgres_port => 5432, # <===
-    :postgres_database => 'blackstack',
-    :postgres_username => 'blackstack',
-    :postgres_password => 'MyFooPassword123' 
-    ...
-    # migration folders
-    :migration_folders => [ # <===
-        '/home/leandro/code1/sql',
-        '/home/leandro/code2/sql',
-    ],
+    :migrations => {
+        # db connection parameters 
+        'postgres_port' => 5432, # <===
+        'postgres_database' => 'blackstack',
+        'postgres_username' => 'blackstack',
+        'postgres_password' => 'MyFooPassword123', 
+        ...
+        # migration folders
+        'migration_folders' => [ # <===
+            '/home/leandro/code1/sql',
+            '/home/leandro/code2/sql',
+        ],
+    },
     ...
     # deployment operations
     :deploy_ops => [ 
@@ -910,7 +914,6 @@ There are some pre-built operations for starting or stopping your software:
 - [Start processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op).
 - [Stop processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op)
 
-
 ## 12. Configuration Templates
 
 _pending_
@@ -1003,7 +1006,7 @@ BlackOps.set(
 ...
 ```
 
-The `ops list` command will **merge** the nodes defined in your confiuration file with the list of instances in your Contabo account.
+The `ops list` command will **merge** the nodes defined in your configuration file with the list of instances in your Contabo account.
 
 Such a merging is performed using the public IPv4 addess of **Contabo instances** and **nodes** defined in the configuration file.
 
@@ -1027,7 +1030,26 @@ E.g.: You developed a scalable SAAS that creates a dedicated instance on Contabo
 
 To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too, by editing your `BlackOpsFile`
 
-## 14. Processes Watching
+## 15. Custom Alerts
+
+You can write code snipets of monitoring of your nodes:
+
+**BlackOpsFile**
+
+```ruby
+BlackOps.add_node({
+    :name => 'worker06',
+    :ip => '195.179.229.21',
+    ...
+    :procs => [
+        '/home/blackstack/code1/master/ipn.rb',
+        '/home/blackstack/code1/master/dispatch.rb',
+        '/home/blackstack/code1/master/allocate.rb',
+    ]
+})
+```
+
+## 16. Processes Watching
 
 When you define a node, you can specify what are the processes that will be running there.
 
@@ -1070,7 +1092,7 @@ ops proc worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-## 16. Logs Watching
+## 17. Logs Watching
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
@@ -1140,12 +1162,6 @@ ops keywords worker* --filename=*dispatch.log
 
 The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
-## 17. Custom Alerts
-
-You can write code snipets of monitoring of your nodes:
-
-_pending_
-
 ## 18. Further Work
 
 ### Email Notifications
@@ -1156,13 +1172,13 @@ You can define an SMTP relay and a list of email address to notify when any valu
 ...
 BlackOps.set({
     :alerts => {
-        :smtp_ip => '...', 
-        :smtp_port => '...', 
-        :smtp_username => '...', 
-        :smtp_password => '...', 
-        :smtp_sending_name => 'BlackOps',
-        :smtp_sending_email => 'blackops@massprospecting.com',
-        :receivers => [
+        'smtp_ip' => '...', 
+        'smtp_port' => '...', 
+        'smtp_username' => '...', 
+        'smtp_password' => '...', 
+        'smtp_sending_name' => 'BlackOps',
+        'smtp_sending_email' => 'blackops@massprospecting.com',
+        'receivers' => [
             'leandro@massprospecting.com',
             ...
             'cto@massprospecting.com',
