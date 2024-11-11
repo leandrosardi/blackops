@@ -1115,6 +1115,8 @@ ops proc worker*
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
+E.g.:
+
 **BlackOpsFile**
 
 ```ruby
@@ -1130,7 +1132,25 @@ BlackOps.add_node({
 })
 ```
 
-You can also define a pattern of log files using wildcards.
+Then, you can run the `ops logs` command that is a kinda `ls` of all the files into a node that matches with the list of files defined in its hash descriptor.
+
+```
+ops logs worker*
+```
+
+![BlackOps Logfiles Watching](/assets/logfiles01.png)
+
+**Notes:**
+
+- In the list of logfiles shown by the command `ops logs`, you can choose one of then and start watching it online.
+
+This feature simply does a `tail -f` of such a logfile.
+
+_picture pending_
+
+- You can also define a pattern of log files using wildcards.
+
+E.g.:
 
 **BlackOpsFile**
 
@@ -1145,15 +1165,9 @@ BlackOps.add_node({
 })
 ```
 
-You can run a kinda `ls` of all the files into a node that matches with the list of files defined in its hash descriptor.
+- You can define a list of keywords into log files that can be indicating that an error happened.
 
-```
-ops logfiles worker*
-```
-
-![BlackOps Logfiles Watching](/assets/logfiles01.png)
-
-You can define a list of keywords into log files that can be indicating that an error is happening.
+E.g.:
 
 **BlackOpsFile**
 
@@ -1173,13 +1187,15 @@ BlackOps.add_node({
 
 ![BlackOps Logfiles Watching](/assets/logfiles02.png)
 
-You can list the lines with **error keywords** into some logfiles, into some nodes.
+- You can run the command `ops keywords` for listing the lines with **error keywords** into some logfiles, into some nodes.
+
+E.g.:
 
 ```
 ops keywords worker* --filename=*dispatch.log 
 ```
 
-The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
+- The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
 ## 18. Further Work
 
