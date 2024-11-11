@@ -1038,15 +1038,34 @@ You can write code snipets of monitoring of your nodes:
 
 ```ruby
 BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
+    :name => 's01',
+    :ip => '195.179.229.20',
     ...
-    :procs => [
-        '/home/blackstack/code1/master/ipn.rb',
-        '/home/blackstack/code1/master/dispatch.rb',
-        '/home/blackstack/code1/master/allocate.rb',
-    ]
+    :alerts => { # <=== 
+
+        # this function calls the REST-API of a MassProspecting Slave Node, 
+        # and returns true if there are one or more `job` record with failed status  
+        #
+        # Arguments:
+        # - node: Instance of a node object.
+        # - ssh: Already opened SSH connection with the node.
+        :massprospecting_failed_jobs => Proc.new do |node, ssh, *args|
+            # ...
+            # source code to call the REST-API of the slave node
+            # ...
+        end,
+        ...
+    },
+    ...
+    # to call the REST-API of the slave node, you will need an API key for sure.
+    :api_key => 'foo-api-key',
 })
+```
+
+Using the `ops alerts` command, you can get a report of the alerts raised by each node.
+
+```
+ops alerts s*
 ```
 
 ## 16. Processes Watching
