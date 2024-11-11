@@ -402,7 +402,9 @@ ops install worker* --root
 E.g.:
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.install_remote(
@@ -414,7 +416,7 @@ BlackOps.install_remote(
 
 - Internally, the `BlackOps.install_remote` method calls `BlackOps.source_remote`.
 
-- The `ops install` command supports all the same parameters than `ops source`:
+- The `ops install` command supports all the same parameters than `ops source`, except the `op` parameter:
 
     1. `--local`.
     2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
@@ -425,7 +427,9 @@ BlackOps.install_remote(
 - The `BlackOps.install_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.install_remote(
@@ -527,7 +531,9 @@ ops deploy worker* --root
 E.g.:
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.deploy_remote( 
@@ -572,7 +578,9 @@ At each folder, BlackOps will execute the `.sql` scripts sorted by their filenam
 - You can execute a deployment from Ruby code too:
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.deploy_remote(
@@ -594,7 +602,9 @@ BlackOps.deploy_remote(
 - The `BlackOps.deploy_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.deploy_remote(
@@ -743,7 +753,9 @@ ops stop worker* --root
 E.g.:
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.start_remote(
@@ -756,7 +768,9 @@ BlackOps.start_remote(
 or
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.stop_remote(
@@ -779,7 +793,9 @@ BlackOps.stop_remote(
 - The `BlackOps.start_remote` and `BlackOps.stop_remote` methods also support all the same parameters than `BlackStack.source_remote`:
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.start_remote(
@@ -795,7 +811,9 @@ BlackOps.start_remote(
 or
 
 ```ruby
+# Get hash descriptor of the node.
 h = BlackOps.get_node(:worker06)
+# Create instance of node.
 n = BlackStack::Infrastructure::Node.new(h)
 
 BlackOps.stop_remote(
