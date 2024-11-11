@@ -785,7 +785,7 @@ BlackOps.stop_remote(
 
 - Internally, the `BlackOps.start_remote` and `BlackOps.stop_remote` methods call `BlackOps.source_remote`.
 
-- The `ops start` and `ops stop` commands support all the same parameters than `ops source`:
+- The `ops start` and `ops stop` commands support all the same arguments than `ops source`, except the `op` argument:
 
     1. `--local`.
     2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
@@ -793,7 +793,7 @@ BlackOps.stop_remote(
     4. `--config`
     5. `--ssh`
 
-- The `BlackOps.start_remote` and `BlackOps.stop_remote` methods also support all the same parameters than `BlackStack.source_remote`:
+- The `BlackOps.start_remote` and `BlackOps.stop_remote` methods also support all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
 
 ```ruby
 # Get hash descriptor of the node.
@@ -853,7 +853,7 @@ BlackOps.stop_local(
 )
 ```
 
-- When running `ops start` or `ops stop` in your local computer, use the `--local` argument, and don't forget the `--start_ops` or `--stop_ops` argument too.
+- When running `ops start` or `ops stop` in your local computer, use the `--local` argument, and don't forget the `--start_ops` or `--stop_ops` arguments too.
 
 ```
 ops start --local \
@@ -903,14 +903,17 @@ BlackOps.stop_local(
 
 There are some pre-built operations for starting or stopping your software:
 
-- 
-
+- [Start processes on MassProspecting Master Node](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.master.start.op).
+- [Stop processes on MassProspecting Master Node](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.master.stop.op).
+- Start processes on MassProspecting Slave Nodes.
+- Stop processes on MassProspecting Slave Nodes.
+- [Start processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op).
+- [Stop processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op)
 
 
 ## 12. Configuration Templates
 
 _pending_
-
 
 ## 13. Monitoring
 
