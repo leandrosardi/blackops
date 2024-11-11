@@ -17,6 +17,27 @@ The `ops` command provides the following features:
 
 **Note:** The `ops` command has been tested on Ubuntu 20.04.
 
+**Table of Contents**
+
+1. [Getting Started](#1-getting-started)
+2. [Remote Operations](#2-remote-operations)
+3. [Configuration Files](#3-configuration-files)
+4. [Environment Variable `$OPSLIB`](#4-environment-variable-opslib)
+5. [Remote `.op` Files](#5-remote-op-files)
+6. [Repositories](#6-repositories)
+7. [Custom Parameters](#7-custom-parameters)
+8. [Connecting](#8-connecting)
+9. [Installing](#9-installing)
+10. [Deploying](#10-deploying)
+11. [Starting and Stopping Nodes](#11-starting-and-stopping-nodes)
+12. [Configuration Templates](#12-configuration-templates)
+13. [Monitoring](#13-monitoring)
+14. [Infrastructure Managing](#14-infrastructure-managing)
+15. [Custom Alerts](#15-custom-alerts)
+16. [Processes Watching](#16-processes-watching)
+17. [Logs Watching](#17-logs-watching)
+18. [Further Work](#18-further-work)
+
 ## 1. Getting Started
 
 1. Install the `ops` command.
