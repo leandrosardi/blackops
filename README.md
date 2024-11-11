@@ -416,7 +416,7 @@ BlackOps.install_remote(
 
 - Internally, the `BlackOps.install_remote` method calls `BlackOps.source_remote`.
 
-- The `ops install` command supports all the same parameters than `ops source`, except the `op` parameter:
+- The `ops install` command supports all the same arguments than `ops source`, except the `op` argument:
 
     1. `--local`.
     2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
@@ -557,8 +557,9 @@ BlackOps.add_node({
     :postgres_password => 'MyFooPassword123' 
     ...
     # migration folders
-    : migration_folders => [ # <===
+    :migration_folders => [ # <===
         '/home/leandro/code1/sql',
+        '/home/leandro/code2/sql',
     ],
     ...
     # deployment operations
@@ -574,6 +575,8 @@ BlackOps.add_node({
 BlackOps will iterate the folders in the same order they are listed.
 
 At each folder, BlackOps will execute the `.sql` scripts sorted by their filenames.
+
+For each `.sql` file, BlackOps will execute sentence by sentence. Where each sentence finishes whith a semicolon (`;`).
 
 - You can execute a deployment from Ruby code too:
 
@@ -591,7 +594,7 @@ BlackOps.deploy_remote(
 
 - Internally, the `BlackOps.deploy_remote` method calls `BlackOps.source_remote`.
 
-- The `ops deploy` command supports all the same parameters than `ops source`, except the `op` parameter:
+- The `ops deploy` command supports all the same arguments than `ops source`, except the `op` argument:
 
     1. `--local`.
     2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
@@ -629,7 +632,7 @@ BlackOps.deploy_local(
 )
 ```
 
-- When running `ops deploy` in your local computer, don't forget to define the **list of operations**, the **connection parameters** and **migration folders** into your command line:
+- When running `ops deploy` in your local computer, don't forget to define the `--local` argument, the **list of operations**, the **connection parameters** and **migration folders** into your command line:
 
 ```
 ops deploy --local \
@@ -669,7 +672,7 @@ BlackOps.deploy_local(
 )
 ```
 
-- If one of the following parameters is defined, then all the others must be defined too:
+- The parameters below are not mandatory, but if one of them is defined, all the others must be defined too:
 
     1. `postgres_port`,
     2. `postgres_database`,
