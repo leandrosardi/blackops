@@ -44,7 +44,7 @@ begin
     load config_file
   else
     # look for BlackOpsFile into any of the paths defined in the environment variable $OPSLIB
-    load_blackopsfile
+    BlackOps.load_blackopsfile
   end
 
   # Open SSH connection
