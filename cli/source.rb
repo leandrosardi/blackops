@@ -74,30 +74,26 @@ begin
         password = match[2]
         ip = match[3]
         port = match[4].to_i
-        
+
         # Create a temporary node hash
         node_hash = {
-          name: 'temp_node',
+          name: '__temp_node_unique_name__', # Required by add_node
           ip: ip,
           ssh_username: username,
           ssh_password: password,
-          ssh_root_password: password, # just because it is mandatory
+          ssh_root_password: password, # Assuming same password - Just because it is mandatory by blackstack-nodes
           ssh_port: port
         }
-        # If connect_as_root, adjust credentials
-        #if connect_as_root
-        #  node_hash[:ssh_username] = 'root'
-        #  node_hash[:ssh_password] = password # Assuming same password
-        #end
+
         # Add the node to BlackOps nodes
         BlackOps.add_node(node_hash)
 
-        # Call source_remote with 'temp_node' as node name
+        # Call source_remote with '__temp_node_unique_name__' as node name
         BlackOps.source_remote(
-          'temp_node',
+          '__temp_node_unique_name__',
           op: op_file,
           parameters: parameters,
-          connect_as_root: false, #connect_as_root,
+          connect_as_root: false,
           logger: l
         )
       else

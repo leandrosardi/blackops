@@ -164,8 +164,16 @@ require 'contabo-client'
         @@contabo = contabo if contabo
       end # def self.set
 
+      def self.db
+        @@db
+      end
+
       def self.contabo
         @@contabo
+      end
+
+      def self.repositories
+        @@repositories
       end
 
       def self.nodes
