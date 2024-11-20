@@ -6,7 +6,7 @@ begin
   # arguments
   BlackOps.standard_operation_bundle(
     arguments: ARGV,
-    operation_bundle_name: 'deploy',
+    operation_bundle_name: 'stop',
     logger: l  
   )
 rescue => e

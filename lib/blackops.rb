@@ -967,7 +967,6 @@ require 'contabo-client'
         ret
       end # def self.reinstall
 =end
-
       def self.standard_operation_bundle(
         arguments: ,
         operation_bundle_name: ,
