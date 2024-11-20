@@ -74,13 +74,14 @@ begin
         password = match[2]
         ip = match[3]
         port = match[4].to_i
-
+binding.pry
         # Create a temporary node hash
         node_hash = {
           name: 'temp_node',
           ip: ip,
           ssh_username: username,
           ssh_password: password,
+          ssh_root_password: password,
           ssh_port: port
         }
         # If connect_as_root, adjust credentials
