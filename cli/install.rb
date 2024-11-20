@@ -5,7 +5,7 @@ l = BlackStack::LocalLogger.new('blackops.log')
 begin
   # Initialize variables
   config_file = nil
-  node_name = nil
+  node_pattern = nil
   ssh_credentials = nil
   local = false
   connect_as_root = false
@@ -22,7 +22,7 @@ begin
     when /^--config=(.+)$/
       config_file = $1
     when /^--node=(.+)$/
-      node_name = $1
+      node_pattern = $1
     when /^--ssh=(.+)$/
       ssh_credentials = $1
     when /^--install_ops=(.+)$/
@@ -33,7 +33,7 @@ begin
       parameters[key] = value
     else
       puts "Unknown argument: #{arg}"
-      puts "Usage: install.rb [--config=<config_file>] [--node=<node_name>] [--ssh=<ssh_credentials>] [--local] [--root] [--install_ops=op1,op2,...] [--param1=value1] [--param2=value2] ..."
+      puts "Usage: install.rb [--config=<config_file>] [--node=<node_pattern>] [--ssh=<ssh_credentials>] [--local] [--root] [--install_ops=op1,op2,...] [--param1=value1] [--param2=value2] ..."
       exit 1
     end
   end
@@ -42,10 +42,13 @@ begin
   if config_file
     load config_file
   else
-    # look for BlackOpsFile into any of the paths defined in the environment variable $OPSLIB
+    # Look for BlackOpsFile in any of the paths defined in the environment variable $OPSLIB
     BlackOps.load_blackopsfile
   end
 
+
+  nodes_list = []
+  
   if local
     # Local execution
     if install_ops.nil?
@@ -66,11 +69,23 @@ begin
 
   else
     # Remote operation
-    if node_name
-      # Get node from configuration
-      node = BlackOps.get_node(node_name)
-      if node.nil?
-        raise "Node not found: #{node_name}"
+    if node_pattern
+      # Determine if the node_pattern contains wildcards
+      if node_pattern.include?('*') || node_pattern.include?('?') || node_pattern.include?('[')
+        # Use File.fnmatch to match node names
+        nodes_list = BlackOps.nodes.select { |node| File.fnmatch(node_pattern, node[:name]) }
+
+        if nodes_list.empty?
+          raise "No nodes match the pattern '#{node_pattern}'."
+        end
+      else
+        # No wildcard, process a single node
+        # Check if the node exists
+        if !BlackOps.nodes.any? { |node| node[:name] == node_pattern }
+          raise "Node not found: #{node_pattern}"
+        end
+
+        nodes_list << BlackOps.nodes.select { |node| node[:name] == node_pattern }.first
       end
     elsif ssh_credentials
       # Parse ssh_credentials to create a temporary node
@@ -92,54 +107,59 @@ begin
           ssh_port: port
         }
 
+        # If using --ssh, then --install_ops is required
+        if install_ops.nil?
+            puts "Error: --install_ops is required when using --ssh."
+            puts "Usage: install.rb --ssh=<ssh_credentials> --install_ops=op1,op2,... [--param1=value1] [--param2=value2] ..."
+            exit 1
+        end
+        node_hash[:install_ops] = install_ops
+
         # Add the node to BlackOps nodes
         BlackOps.add_node(node_hash)
 
         # Retrieve the node
-        node = BlackOps.get_node('__temp_node_unique_name__')
+        nodes_list << BlackOps.get_node('__temp_node_unique_name__')
       else
         puts "Invalid SSH credentials format. Expected username:password@ip:port"
         exit 1
       end
-
-      # If using --ssh, then --install_ops is required
-      if install_ops.nil?
-        puts "Error: --install_ops is required when using --ssh."
-        puts "Usage: install.rb --ssh=<ssh_credentials> --install_ops=op1,op2,... [--param1=value1] [--param2=value2] ..."
-        exit 1
-      end
-      node[:install_ops] = install_ops
-
     else
-      puts "Error: You must specify either --node=<node_name> or --ssh=<ssh_credentials> or --local"
-      puts "Usage: install.rb [--config=<config_file>] [--node=<node_name>] [--ssh=<ssh_credentials>] [--local] [--root] [--install_ops=op1,op2,...] [--param1=value1] [--param2=value2] ..."
+      puts "Error: You must specify either --node=<node_pattern> or --ssh=<ssh_credentials> or --local"
+      puts "Usage: install.rb [--config=<config_file>] [--node=<node_pattern>] [--ssh=<ssh_credentials>] [--local] [--root] [--install_ops=op1,op2,...] [--param1=value1] [--param2=value2] ..."
       exit 1
     end
 
-    # Merge parameters into node parameters (parameters take precedence)
-    parameters.each do |k, v|
-      node[k.to_sym] = v unless k.to_sym==:name && node[k.to_sym]=='__temp_node_unique_name__'
-    end
-
-    # Get the list of .op files from the node's description
-    ops_list = node[:install_ops]
-    if ops_list.nil? || !ops_list.is_a?(Array) || ops_list.empty?
-      raise "No .op files specified in the node's :install_ops list."
-    end
-    
     # Iterate over the list of .op files and execute them
-    ops_list.each do |op_file|
-      l.logs "Executing #{op_file.blue} on node #{node[:name].blue}..."
-      BlackOps.source_remote(
-        node[:name],
-        op: op_file,
-        parameters: parameters,
-        connect_as_root: connect_as_root,
-        logger: l
-      )
-      l.done
-    end
+    nodes_list.each do |node|
+        l.logs "Installing node #{node[:name]}... " 
 
+        # Merge parameters into node parameters (parameters take precedence)
+        parameters.each do |k, v|
+            node[k.to_sym] = v unless k.to_sym==:name && node[k.to_sym]=='__temp_node_unique_name__'
+        end
+
+        # Get the list of .op files from the node's description
+        ops_list = node[:install_ops]
+        if ops_list.nil? || !ops_list.is_a?(Array) || ops_list.empty?
+            raise "No .op files specified in the node's :install_ops list."
+        end
+    
+        ops_list.each do |op_file|
+            l.logs "Executing #{op_file.blue} on node #{node[:name].blue}..."
+            BlackOps.source_remote(
+                node[:name],
+                op: op_file,
+                parameters: parameters,
+                connect_as_root: connect_as_root,
+                logger: l
+            )
+            l.done
+        end
+
+        # Installing node...
+        l.done
+    end
   end
 
 rescue => e
