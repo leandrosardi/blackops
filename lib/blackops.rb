@@ -1,6 +1,7 @@
 BLACKOPS_VERSION = '0.1'
 
 require 'pry'
+require 'blackstack-core'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 require 'resolv'
@@ -450,16 +451,17 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         all
       end
 
-      # Parse and execute the sentences into an `.op` file.
+      # Parse and execute the sentences in an `.op` file on a remote node.
       def self.source_remote(
         node_name,
         op:,
+        parameters: {},
         connect_as_root: false,
         logger: nil
       )
         op = op.to_s
         node = nil
-        begin        
+        begin
           l = logger || BlackStack::DummyLogger.new(nil)
           node_name = node_name.dup.to_s
 
@@ -469,25 +471,39 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           raise ArgumentError, "Node not found: #{node_name}" if n.nil?
           l.done
 
-          # download the file from the URL
+          # Validate that parameters is a hash
+          raise ArgumentError, "Parameters must be a hash" unless parameters.is_a?(Hash)
+
+          # Check for overlapping keys between node parameters and provided parameters
+          overlapping_keys = parameters.keys.map(&:to_s) & n.keys.map(&:to_s)
+          if overlapping_keys.any?
+            raise ArgumentError, "Parameters defined in both node and parameters argument: #{overlapping_keys.join(', ')}"
+          end
+
+          # Merge parameters into node parameters
+          parameters.each do |k, v|
+            n[k.to_sym] = v
+          end
+
+          # Download the `.op` file from the repository
           bash_script = nil
-          @@repositories.each { |rep|
+          @@repositories.each do |rep|
             if rep =~ /^http/i
               url = "#{rep}/#{op}.op"
               l.logs "Downloading bash script from #{url.blue}... "
-              # TODO: Validate if the URL exists. And return if I got the script from there.
-              bash_script = Net::HTTP.get(URI(url)) 
+              # TODO: Validate if the URL exists. And return if the script is successfully retrieved.
+              bash_script = Net::HTTP.get(URI(url))
               l.done(details: "#{bash_script.length} bytes downloaded")
             else
               filename = "#{rep}/#{op}.op"
               l.logs "Getting bash script from #{filename.blue}... "
-              # TODO: Validate if the PATH exists. And return if I got the script from there.
-              bash_script = File.read(filename) 
+              # TODO: Validate if the PATH exists. And return if the script is successfully retrieved.
+              bash_script = File.read(filename)
               l.done(details: "#{bash_script.length} bytes in file")
             end
-          }
+          end
 
-          # switch user to root and create the node object
+          # Create the node object with the appropriate SSH credentials
           l.logs "Creating node object... "
           if connect_as_root
             n[:ssh_username] = 'root'
@@ -497,42 +513,45 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
             node = BlackStack::Infrastructure::Node.new(n)
           end
           l.done
-        
+
+          # Connect to the remote node via SSH
           l.logs("Connect to node #{node_name.to_s.blue}... ")
           node.connect
           l.done
-          # => n.ssh
 
-          # build a list of all the parameters like $$foo present into the bash_script varaible
-          # scan for variables in the form $$VAR
+          # Extract parameters used in the `.op` file (e.g., $$param)
           params = bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
 
-          # verify that there is a key in the hash `n` that matches with each one of the strings present in the array of strings `param`
+          # Check for missing parameters required by the `.op` file
           missed = params.reject { |key| n.key?(key.to_sym) }
-          raise ArgumentError, "Node #{node_name} is missing the following parameters required by the op #{op.to_s}: #{missed.join(', ')}." if !missed.empty?
+          unless missed.empty?
+            raise ArgumentError, "Node #{node_name} is missing the following parameters required by the op #{op.to_s}: #{missed.join(', ')}."
+          end
 
-          # execute the script fragment by fragment
-          bash_script.split(/(?<!#)RUN /).each { |fragment|
+          # Execute the script fragment by fragment
+          bash_script.split(/(?<!#)RUN /).each do |fragment|
             fragment.strip!
             next if fragment.empty?
-            next if fragment.start_with?('#')  
-            
+            next if fragment.start_with?('#')
+
             l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
 
-            # remove all lines starting with `#`
+            # Remove all lines starting with `#`
             fragment = fragment.lines.reject { |line| line.strip.start_with?('#') }.join
 
-            # replace params in the fragment. Example: $$name is replaced by n[:name]
-            params.each { |key|
-              fragment.gsub!("$$#{key.to_s}", n0[key.to_sym].to_s)
-            }
+            # Replace parameters in the fragment
+            params.each do |key|
+              fragment.gsub!("$$#{key.to_s}", n[key.to_sym].to_s)
+            end
 
+            # Execute the fragment on the remote node
             res = node.exec(fragment)
-            l.done#(details: res)
-          }
+            l.done
+          end
         rescue => e
           raise e
         ensure
+          # Disconnect from the remote node
           l.logs "Disconnect from node #{node_name.blue}... "
           if node && node.ssh
             node.disconnect
@@ -541,9 +560,82 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
             l.skip(details: "Node not connected")
           end
         end
+      end
 
-      end # def self.source_remote(node_name, logger: nil)
-      
+      # Execute the sentences in an `.op` file on the local machine.
+      def self.source_local(
+        op:,
+        parameters: {},
+        logger: nil
+      )
+        begin
+          l = logger || BlackStack::DummyLogger.new(nil)
+          op = op.to_s
+
+          # Validate that parameters is a hash
+          raise ArgumentError, "Parameters must be a hash" unless parameters.is_a?(Hash)
+
+          # Download the `.op` file from the repositories
+          bash_script = nil
+          @@repositories.each do |rep|
+            if rep =~ /^http/i
+              url = "#{rep}/#{op}.op"
+              l.logs "Downloading bash script from #{url.blue}... "
+              # TODO: Validate if the URL exists. And return if the script is successfully retrieved.
+              bash_script = Net::HTTP.get(URI(url))
+              l.done(details: "#{bash_script.length} bytes downloaded")
+            else
+              filename = "#{rep}/#{op}.op"
+              l.logs "Getting bash script from #{filename.blue}... "
+              # TODO: Validate if the PATH exists. And return if the script is successfully retrieved.
+              bash_script = File.read(filename)
+              l.done(details: "#{bash_script.length} bytes in file")
+            end
+          end
+
+          # Extract parameters used in the `.op` file (e.g., $$param)
+          params = bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
+
+          # Check for missing parameters required by the `.op` file
+          missed = params.reject { |key| parameters.key?(key.to_sym) || parameters.key?(key.to_s) }
+          unless missed.empty?
+            raise ArgumentError, "Missing parameters required by the op #{op.to_s}: #{missed.join(', ')}."
+          end
+
+          # Execute the script fragment by fragment
+          bash_script.split(/(?<!#)RUN /).each do |fragment|
+            fragment.strip!
+            next if fragment.empty?
+            next if fragment.start_with?('#')
+
+            l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
+
+            # Remove all lines starting with `#`
+            fragment = fragment.lines.reject { |line| line.strip.start_with?('#') }.join
+
+            # Replace parameters in the fragment
+            params.each do |key|
+              value = parameters[key.to_sym] || parameters[key.to_s]
+              fragment.gsub!("$$#{key.to_s}", value.to_s)
+            end
+
+            # Execute the fragment locally
+            require 'open3'
+            stdout, stderr, status = Open3.capture3(fragment)
+
+            if status.success?
+              l.done
+            else
+              l.error "Command failed with status #{status.exitstatus}: #{stderr.strip}"
+              raise "Command failed: #{fragment}"
+            end
+          end
+        rescue => e
+          #l.error "An error occurred: #{e.message}".red
+          raise e
+        end
+      end
+
       # 
       def self.ssh(
         node_name,
