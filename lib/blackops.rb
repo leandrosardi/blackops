@@ -527,6 +527,11 @@ require 'contabo-client'
           raise ArgumentError, "Node not found: #{node_name}" if n.nil?
           l.done
       
+          # Remove :name from node descriptor if it's "__temp_node_unique_name__"
+          if n[:name] == "__temp_node_unique_name__"
+            n.delete(:name)
+          end
+      
           # Validate that parameters is a hash
           raise ArgumentError, "Parameters must be a hash" unless parameters.is_a?(Hash)
       
@@ -548,7 +553,7 @@ require 'contabo-client'
           params = extract_parameters_from_script(bash_script)
       
           # Check for missing parameters required by the `.op` file
-          check_missing_parameters(params, n, "Node #{node_name} is missing the following parameters required by the op #{op.to_s}")
+          check_missing_parameters(params, n, "Missing parameters required by the op #{op.to_s}")
       
           # Create the node object with the appropriate SSH credentials
           l.logs "Creating node object... "
@@ -587,7 +592,7 @@ require 'contabo-client'
           end
         end
       end
-      
+            
       def self.source_local(
         op:,
         parameters: {},
