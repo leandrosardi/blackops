@@ -16,14 +16,10 @@ require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
 require 'blackstack-db'
 require 'contabo-client'
 
-#require 'namecheap-client'
-require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
-
 #module BlackStack
     module BlackOps
       @@nodes = []
       @@db = nil
-      @@namecheap = nil
       @@contabo = nil
       @@repositories = [
         'https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops'
@@ -153,10 +149,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
 
       def self.set(
         repositories: nil,
-        secrets_git: nil,
-        secrets: nil,
-        contabo: nil, 
-        namecheap: nil
+        contabo: nil
       )
         err = []
         if repositories
@@ -165,21 +158,11 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
           end
         end # if repositories
         # TODO: Validate each string into the repositories array is a valid URL or a valid PATH with no slash (/) at the end
-        # TODO: Validate the secrets_git is a valid PATH with no slash (/) at the end
-        # TODO: Validate each string into the secrets array is a valid PATH with no slash (/) at the end
-        # TODO: Validate namecheap is an instance of NamecheapClient
         # TODO: Validate contabo is an instance of ContaboClient
         raise err.join("\n") if err.size > 0
         @@repositories = repositories if repositories
-        @@secrets_git = secrets_git if secrets_git
-        @@secrets = secrets if secrets
         @@contabo = contabo if contabo
-        @@namecheap = namecheap if namecheap
       end # def self.set
-
-      def self.namecheap
-        @@namecheap
-      end
 
       def self.contabo
         @@contabo
@@ -909,56 +892,7 @@ require_relative '/home/leandro/code1/namecheap-client/lib/namecheap-client.rb'
         node = get_node(node_name)
         raise ArgumentError, "Node not found: #{node_name}" if node.nil?
         l.done
-# feature removed
-=begin
-        # setup domain
-        l.logs 'Setting domain or subdomain... '
-        if node[:domain]
-            nc = BlackOps.namecheap
-            domain = node[:domain]
-            subdomain = BlackOps.get_subdomain(domain) 
-            # DNS records `host`
-            host = subdomain || "@" 
-            # SLD (secondary level domain)
-            sld = subdomain.nil? ? domain : domain.gsub(/#{Regexp.escape(subdomain)}\./, '')
-            ip = node[:ip]
-            # DNS record `value` 
-            value = ip
-            nc.add_dns_record(sld, 'A', host, value)
-            l.done
 
-            # wait until the ping to a subdomain is pointing to  a specific ip
-            l.logs "Check DNS... "
-            start_time = Time.now
-            end_time = Time.now
-            hostname = node[:subdomain] ? "#{node[:subdomain]}.#{node[:domain]}" : node[:domain]
-            ip = BlackOps.resolve_ip(hostname, 
-              logger: nil
-            )
-            l.skip(details: 'not propagated yet') if ip.nil?
-            l.skip(details: "not propagated yet (wrong IP: #{ip.blue})") if ip && ip != node[:ip]
-            l.done if ip && ip == node[:ip]
-            while (ip.nil? || ip != node[:ip]) && (end_time - start_time) < dns_propagation_timeout 
-                l.logs 'Waiting... '
-                sleep(5)
-                l.done
-
-                l.logs 'Check DNS... '
-                ip = BlackOps.resolve_ip(hostname, 
-                  logger: nil
-                )
-                l.skip(details: 'not propagated yet') if ip.nil?
-                l.skip(details: "not propagated yet (wrong IP: #{ip.blue})") if ip && ip != node[:ip]
-                l.done if ip && ip == node[:ip]
-                end_time = Time.now
-            end
-            if (ip.nil? || ip != node[:ip])
-              raise "DNS propagation not resolved after #{dns_propagation_timeout} seconds."
-            end
-        else
-            l.skip
-        end
-=end
         # run installation
         node[:install_ops].each { |op|
           l.logs "op: #{op.to_s.blue}... "

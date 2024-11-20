@@ -1,5 +1,5 @@
 require_relative '../lib/blackops.rb'
-load '/home/leandro/code1/secret/BlackOpsFile'
+load '/home/leandro/code1/blackops/cli/BlackOpsFile'
 
 l = BlackStack::LocalLogger.new('blackops.log')
 
@@ -14,7 +14,7 @@ node_name = ARGV.shift # Get the name of the node to connect
 
 begin
     BlackOps.ssh( node_name.to_sym,
-        connect_as_root: false,
+        connect_as_root: true,
         logger: l
     )
 rescue => e
