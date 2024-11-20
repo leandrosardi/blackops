@@ -132,7 +132,7 @@ begin
 
     # Iterate over the list of .op files and execute them
     nodes_list.each do |node|
-        l.logs "Installing node #{node[:name]}... " 
+        l.logs "Working on node #{node[:name].to_s.blue}... " 
 
         # Merge parameters into node parameters (parameters take precedence)
         parameters.each do |k, v|
