@@ -1133,7 +1133,7 @@ require 'contabo-client'
               l.done
           end
         end
-    end
+      end # def self.standard_operation_bundle
 
     end # BlackOps
 #end # BlackStack
