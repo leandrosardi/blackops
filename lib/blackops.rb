@@ -434,7 +434,72 @@ require 'contabo-client'
         all
       end
 
-      # Parse and execute the sentences in an `.op` file on a remote node.
+      # Downloads the `.op` file from the repositories.
+      def self.download_op_file(op, logger)
+        l = logger || BlackStack::DummyLogger.new(nil)
+        bash_script = nil
+        @@repositories.each do |rep|
+          if rep =~ /^http/i
+            url = "#{rep}/#{op}.op"
+            l.logs "Downloading bash script from #{url.blue}... "
+            # TODO: Validate if the URL exists and handle errors appropriately.
+            bash_script = Net::HTTP.get(URI(url))
+            l.done(details: "#{bash_script.length} bytes downloaded")
+          else
+            filename = "#{rep}/#{op}.op"
+            l.logs "Getting bash script from #{filename.blue}... "
+            # TODO: Validate if the PATH exists and handle errors appropriately.
+            bash_script = File.read(filename)
+            l.done(details: "#{bash_script.length} bytes in file")
+          end
+          # Break the loop if the script is found
+          break if bash_script
+        end
+        # Handle case when bash_script is nil (file not found)
+        if bash_script.nil?
+          raise "Could not find the .op file '#{op}.op' in any repository."
+        end
+        bash_script
+      end
+
+      # Extracts parameters used in the `.op` file (e.g., $$param).
+      def self.extract_parameters_from_script(bash_script)
+        bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
+      end
+
+      # Checks for missing parameters required by the `.op` file.
+      def self.check_missing_parameters(params, param_values, error_message_prefix)
+        missed = params.reject { |key| param_values.key?(key.to_sym) || param_values.key?(key.to_s) }
+        unless missed.empty?
+          raise ArgumentError, "#{error_message_prefix}: #{missed.join(', ')}."
+        end
+      end
+
+      # Executes the script fragments by replacing parameters and running the fragments.
+      def self.execute_script_fragments(bash_script, params, param_values, execute_fragment_proc, logger)
+        l = logger || BlackStack::DummyLogger.new(nil)
+        bash_script.split(/(?<!#)RUN /).each do |fragment|
+          fragment.strip!
+          next if fragment.empty?
+          next if fragment.start_with?('#')
+
+          l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
+
+          # Remove all lines starting with `#`
+          fragment = fragment.lines.reject { |line| line.strip.start_with?('#') }.join
+
+          # Replace parameters in the fragment
+          params.each do |key|
+            value = param_values[key.to_sym] || param_values[key.to_s]
+            fragment.gsub!("$$#{key.to_s}", value.to_s)
+          end
+
+          # Execute the fragment using the provided execute_fragment_proc
+          execute_fragment_proc.call(fragment)
+          l.done
+        end
+      end
+
       def self.source_remote(
         node_name,
         op:,
@@ -447,45 +512,36 @@ require 'contabo-client'
         begin
           l = logger || BlackStack::DummyLogger.new(nil)
           node_name = node_name.dup.to_s
-
+      
           l.logs "Getting node #{node_name.blue}... "
           n0 = get_node(node_name)
           n = n0.clone
           raise ArgumentError, "Node not found: #{node_name}" if n.nil?
           l.done
-
+      
           # Validate that parameters is a hash
           raise ArgumentError, "Parameters must be a hash" unless parameters.is_a?(Hash)
-
+      
           # Check for overlapping keys between node parameters and provided parameters
           overlapping_keys = parameters.keys.map(&:to_s) & n.keys.map(&:to_s)
           if overlapping_keys.any?
             raise ArgumentError, "Parameters defined in both node and parameters argument: #{overlapping_keys.join(', ')}"
           end
-
+      
           # Merge parameters into node parameters
           parameters.each do |k, v|
             n[k.to_sym] = v
           end
-
+      
           # Download the `.op` file from the repository
-          bash_script = nil
-          @@repositories.each do |rep|
-            if rep =~ /^http/i
-              url = "#{rep}/#{op}.op"
-              l.logs "Downloading bash script from #{url.blue}... "
-              # TODO: Validate if the URL exists. And return if the script is successfully retrieved.
-              bash_script = Net::HTTP.get(URI(url))
-              l.done(details: "#{bash_script.length} bytes downloaded")
-            else
-              filename = "#{rep}/#{op}.op"
-              l.logs "Getting bash script from #{filename.blue}... "
-              # TODO: Validate if the PATH exists. And return if the script is successfully retrieved.
-              bash_script = File.read(filename)
-              l.done(details: "#{bash_script.length} bytes in file")
-            end
-          end
-
+          bash_script = download_op_file(op, l)
+      
+          # Extract parameters used in the `.op` file (e.g., $$param)
+          params = extract_parameters_from_script(bash_script)
+      
+          # Check for missing parameters required by the `.op` file
+          check_missing_parameters(params, n, "Node #{node_name} is missing the following parameters required by the op #{op.to_s}")
+      
           # Create the node object with the appropriate SSH credentials
           l.logs "Creating node object... "
           if connect_as_root
@@ -496,41 +552,20 @@ require 'contabo-client'
             node = BlackStack::Infrastructure::Node.new(n)
           end
           l.done
-          
+      
           # Connect to the remote node via SSH
           l.logs("Connect to node #{node_name.to_s.blue}... ")
           node.connect
           l.done
-
-          # Extract parameters used in the `.op` file (e.g., $$param)
-          params = bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
-
-          # Check for missing parameters required by the `.op` file
-          missed = params.reject { |key| n.key?(key.to_sym) }
-          unless missed.empty?
-            raise ArgumentError, "Node #{node_name} is missing the following parameters required by the op #{op.to_s}: #{missed.join(', ')}."
-          end
-
-          # Execute the script fragment by fragment
-          bash_script.split(/(?<!#)RUN /).each do |fragment|
-            fragment.strip!
-            next if fragment.empty?
-            next if fragment.start_with?('#')
-
-            l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
-
-            # Remove all lines starting with `#`
-            fragment = fragment.lines.reject { |line| line.strip.start_with?('#') }.join
-
-            # Replace parameters in the fragment
-            params.each do |key|
-              fragment.gsub!("$$#{key.to_s}", n[key.to_sym].to_s)
-            end
-
-            # Execute the fragment on the remote node
+      
+          # Prepare the execution lambda
+          execute_fragment_proc = Proc.new { |fragment|
             res = node.exec(fragment)
-            l.done
-          end
+          }
+      
+          # Execute the script fragment by fragment
+          execute_script_fragments(bash_script, params, n, execute_fragment_proc, l)
+      
         rescue => e
           raise e
         ensure
@@ -544,8 +579,7 @@ require 'contabo-client'
           end
         end
       end
-
-      # Execute the sentences in an `.op` file on the local machine.
+      
       def self.source_local(
         op:,
         parameters: {},
@@ -554,70 +588,40 @@ require 'contabo-client'
         begin
           l = logger || BlackStack::DummyLogger.new(nil)
           op = op.to_s
-
+      
           # Validate that parameters is a hash
           raise ArgumentError, "Parameters must be a hash" unless parameters.is_a?(Hash)
-
+      
           # Download the `.op` file from the repositories
-          bash_script = nil
-          @@repositories.each do |rep|
-            if rep =~ /^http/i
-              url = "#{rep}/#{op}.op"
-              l.logs "Downloading bash script from #{url.blue}... "
-              # TODO: Validate if the URL exists. And return if the script is successfully retrieved.
-              bash_script = Net::HTTP.get(URI(url))
-              l.done(details: "#{bash_script.length} bytes downloaded")
-            else
-              filename = "#{rep}/#{op}.op"
-              l.logs "Getting bash script from #{filename.blue}... "
-              # TODO: Validate if the PATH exists. And return if the script is successfully retrieved.
-              bash_script = File.read(filename)
-              l.done(details: "#{bash_script.length} bytes in file")
-            end
-          end
-
+          bash_script = download_op_file(op, l)
+      
           # Extract parameters used in the `.op` file (e.g., $$param)
-          params = bash_script.scan(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/).flatten.uniq
-
+          params = extract_parameters_from_script(bash_script)
+      
           # Check for missing parameters required by the `.op` file
-          missed = params.reject { |key| parameters.key?(key.to_sym) || parameters.key?(key.to_s) }
-          unless missed.empty?
-            raise ArgumentError, "Missing parameters required by the op #{op.to_s}: #{missed.join(', ')}."
-          end
-
-          # Execute the script fragment by fragment
-          bash_script.split(/(?<!#)RUN /).each do |fragment|
-            fragment.strip!
-            next if fragment.empty?
-            next if fragment.start_with?('#')
-
-            l.logs "#{fragment.split(/\n/).first.to_s.strip[0..35].blue.ljust(57, '.')}... "
-
-            # Remove all lines starting with `#`
-            fragment = fragment.lines.reject { |line| line.strip.start_with?('#') }.join
-
-            # Replace parameters in the fragment
-            params.each do |key|
-              value = parameters[key.to_sym] || parameters[key.to_s]
-              fragment.gsub!("$$#{key.to_s}", value.to_s)
-            end
-
-            # Execute the fragment locally
+          check_missing_parameters(params, parameters, "Missing parameters required by the op #{op.to_s}")
+      
+          # Prepare the execution lambda
+          execute_fragment_proc = Proc.new { |fragment|
             require 'open3'
             stdout, stderr, status = Open3.capture3(fragment)
-
+      
             if status.success?
-              l.done
+              # Do nothing; success is handled outside
             else
               l.error "Command failed with status #{status.exitstatus}: #{stderr.strip}"
               raise "Command failed: #{fragment}"
             end
-          end
+          }
+      
+          # Execute the script fragment by fragment
+          execute_script_fragments(bash_script, params, parameters, execute_fragment_proc, l)
+      
         rescue => e
-          #l.error "An error occurred: #{e.message}".red
+          # l.error "An error occurred: #{e.message}".red
           raise e
         end
-      end
+      end      
 
       # 
       def self.ssh(
