@@ -442,31 +442,77 @@ require 'contabo-client'
         all
       end
 
-      # Downloads the `.op` file from the repositories.
+      # Downloads the `.op` file from the repositories or directly from a path or URL.
       def self.download_op_file(op, logger)
         l = logger || BlackStack::DummyLogger.new(nil)
         bash_script = nil
+
+        # 1. Remove '.op' from the end of the 'op' parameter if it exists
+        op = op.sub(/\.op\z/, '')
+
+        # 2. Try to find the file in the repositories
         @@repositories.each do |rep|
           if rep =~ /^http/i
             url = "#{rep}/#{op}.op"
             l.logs "Downloading bash script from #{url.blue}... "
-            # TODO: Validate if the URL exists and handle errors appropriately.
-            bash_script = Net::HTTP.get(URI(url))
-            l.done(details: "#{bash_script.length} bytes downloaded")
+            begin
+              response = Net::HTTP.get_response(URI(url))
+              if response.is_a?(Net::HTTPSuccess)
+                bash_script = response.body
+                l.done(details: "#{bash_script.length} bytes downloaded")
+                break
+              else
+                l.log("Failed to download from #{url}: #{response.code} #{response.message}")
+              end
+            rescue => e
+              l.log("Error accessing #{url}: #{e.message}")
+            end
           else
-            filename = "#{rep}/#{op}.op"
+            filename = File.join(rep, "#{op}.op")
             l.logs "Getting bash script from #{filename.blue}... "
-            # TODO: Validate if the PATH exists and handle errors appropriately.
-            bash_script = File.read(filename)
-            l.done(details: "#{bash_script.length} bytes in file")
+            if File.exist?(filename)
+              bash_script = File.read(filename)
+              l.done(details: "#{bash_script.length} bytes in file")
+              break
+            else
+              l.log("File not found: #{filename}")
+            end
           end
-          # Break the loop if the script is found
-          break if bash_script
         end
+
+        # 3. If bash_script is still nil, try to load op as a full path or URL
+        if bash_script.nil?
+          # Try as a local file path
+          if File.exist?("#{op}.op")
+            l.logs "Getting bash script from #{"#{op}.op".blue}... "
+            bash_script = File.read("#{op}.op")
+            l.done(details: "#{bash_script.length} bytes in file")
+          else
+            # Try as a URL
+            if op =~ /^http/i
+              l.logs "Downloading bash script from #{"#{"#{op}.op"}.op".blue}... "
+              begin
+                response = Net::HTTP.get_response(URI("#{op}.op"))
+                if response.is_a?(Net::HTTPSuccess)
+                  bash_script = response.body
+                  l.done(details: "#{bash_script.length} bytes downloaded")
+                else
+                  l.log("Failed to download from #{"#{op}.op"}: #{response.code} #{response.message}")
+                end
+              rescue => e
+                l.log("Error accessing #{"#{op}.op"}: #{e.message}")
+              end
+            else
+              l.log("File not found and not a valid URL: #{"#{op}.op"}")
+            end
+          end
+        end
+
         # Handle case when bash_script is nil (file not found)
         if bash_script.nil?
-          raise "Could not find the .op file '#{op}.op' in any repository."
+          raise "Could not find the .op file '#{op}.op' in any repository, nor as a full path or URL."
         end
+
         bash_script
       end
 
@@ -592,7 +638,7 @@ require 'contabo-client'
           end
         end
       end
-            
+
       def self.source_local(
         op:,
         parameters: {},
