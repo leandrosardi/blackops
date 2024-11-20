@@ -1,23 +1,59 @@
 require_relative '../lib/blackops.rb'
-load '/home/leandro/code1/blackops/cli/BlackOpsFile'
 
 l = BlackStack::LocalLogger.new('blackops.log')
 
-# Check if a script name is provided
-if ARGV.empty? || ARGV[0] == '--help' || ARGV[0] == '--h' || ARGV[0] == '-h'
+# Initialize variables
+config_file = nil
+node_name = nil
+connect_as_root = false
+
+# Process command-line arguments
+ARGV.each do |arg|
+  if arg == '--help' || arg == '--h' || arg == '-h'
     puts 'This command opens an SSH connection with a node defined in your configuration file.'
-    puts "Usage: ops ssh <node name>"
+    puts 'Usage: ops ssh [--config=<config_file>] [--root] <node name>'
+    puts 'Options:'
+    puts '  --config=<config_file>  Specify a custom configuration file.'
+    puts '  --root                  Connect as root user.'
+    puts '  --help                  Display this help message.'
+    exit 0
+  elsif arg == '--root'
+    connect_as_root = true
+  elsif arg =~ /^--config=(.+)$/
+    config_file = $1
+  elsif arg.start_with?('--')
+    puts "Unknown option: #{arg}"
+    puts 'Usage: ops ssh [--config=<config_file>] [--root] <node name>'
     exit 1
+  else
+    node_name = arg
+  end
 end
 
-node_name = ARGV.shift # Get the name of the node to connect
+# Ensure node_name is provided
+if node_name.nil?
+  puts 'Error: Node name is required.'
+  puts 'Usage: ops ssh [--config=<config_file>] [--root] <node name>'
+  exit 1
+end
 
 begin
-    BlackOps.ssh( node_name.to_sym,
-        connect_as_root: true,
-        logger: l
-    )
+  # Load the configuration file
+  if config_file
+    l.log "Loading configuration from #{config_file}..."
+    load config_file
+  else
+    # look for BlackOpsFile into any of the paths defined in the environment variable $OPSLIB
+    load_blackopsfile
+  end
+
+  # Open SSH connection
+  BlackOps.ssh(
+    node_name.to_s,
+    connect_as_root: connect_as_root,
+    logger: l
+  )
 rescue => e
-    l.reset
-    l.log(e.to_console.red)
+  l.reset
+  l.log(e.to_console.red)
 end

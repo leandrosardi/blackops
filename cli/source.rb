@@ -46,25 +46,8 @@ begin
   if config_file
     load config_file
   else
-    # If config_file is not defined, look for a file named 'BlackOpsFile' in the directories specified by $OPSLIB
-    opslib = ENV['OPSLIB']
-    if opslib
-      found = false
-      opslib.split(':').each do |dir|
-        filename = File.join(dir, 'BlackOpsFile')
-        if File.exist?(filename)
-          l.log "Loading configuration from #{filename}..."
-          load filename
-          found = true
-          break
-        end
-      end
-      unless found
-        raise "No configuration file found in $OPSLIB directories. Please provide a --config option or set up $OPSLIB environment variable correctly."
-      end
-    else
-      raise "No configuration file specified and $OPSLIB environment variable is not set. Please provide a --config option or set up $OPSLIB."
-    end
+    # look for BlackOpsFile into any of the paths defined in the environment variable $OPSLIB
+    load_blackopsfile
   end
 
   if local
