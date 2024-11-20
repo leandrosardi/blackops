@@ -496,7 +496,7 @@ require 'contabo-client'
             node = BlackStack::Infrastructure::Node.new(n)
           end
           l.done
-
+          
           # Connect to the remote node via SSH
           l.logs("Connect to node #{node_name.to_s.blue}... ")
           node.connect

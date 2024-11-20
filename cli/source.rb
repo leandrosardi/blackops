@@ -74,21 +74,21 @@ begin
         password = match[2]
         ip = match[3]
         port = match[4].to_i
-binding.pry
+        
         # Create a temporary node hash
         node_hash = {
           name: 'temp_node',
           ip: ip,
           ssh_username: username,
           ssh_password: password,
-          ssh_root_password: password,
+          ssh_root_password: password, # just because it is mandatory
           ssh_port: port
         }
         # If connect_as_root, adjust credentials
-        if connect_as_root
-          node_hash[:ssh_username] = 'root'
-          node_hash[:ssh_password] = password # Assuming same password
-        end
+        #if connect_as_root
+        #  node_hash[:ssh_username] = 'root'
+        #  node_hash[:ssh_password] = password # Assuming same password
+        #end
         # Add the node to BlackOps nodes
         BlackOps.add_node(node_hash)
 
@@ -97,7 +97,7 @@ binding.pry
           'temp_node',
           op: op_file,
           parameters: parameters,
-          connect_as_root: connect_as_root,
+          connect_as_root: false, #connect_as_root,
           logger: l
         )
       else
