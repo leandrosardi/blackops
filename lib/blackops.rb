@@ -462,10 +462,10 @@ require 'contabo-client'
                 l.done(details: "#{bash_script.length} bytes downloaded")
                 break
               else
-                l.log("Failed to download from #{url}: #{response.code} #{response.message}")
+                l.logf("Failed to download from #{url}: #{response.code} #{response.message}")
               end
             rescue => e
-              l.log("Error accessing #{url}: #{e.message}")
+              l.logf("Error accessing #{url}: #{e.message}")
             end
           else
             filename = File.join(rep, "#{op}.op")
@@ -475,7 +475,7 @@ require 'contabo-client'
               l.done(details: "#{bash_script.length} bytes in file")
               break
             else
-              l.log("File not found: #{filename}")
+              l.logf("File not found: #{filename}")
             end
           end
         end
@@ -497,13 +497,13 @@ require 'contabo-client'
                   bash_script = response.body
                   l.done(details: "#{bash_script.length} bytes downloaded")
                 else
-                  l.log("Failed to download from #{"#{op}.op"}: #{response.code} #{response.message}")
+                  l.logf("Failed to download from #{"#{op}.op"}: #{response.code} #{response.message}")
                 end
               rescue => e
-                l.log("Error accessing #{"#{op}.op"}: #{e.message}")
+                l.logf("Error accessing #{"#{op}.op"}: #{e.message}")
               end
             else
-              l.log("File not found and not a valid URL: #{"#{op}.op"}")
+              l.logf("File not found and not a valid URL: #{"#{op}.op"}")
             end
           end
         end
@@ -553,7 +553,7 @@ require 'contabo-client'
           l.done
         end
       end
-      
+
       # Static method to look for BlackOpsFile into any of the paths defined in the environment variable $OPSLIB and load it.
       def self.load_blackopsfile(logger: nil)
         l = logger || BlackStack::DummyLogger.new(nil)
@@ -564,9 +564,10 @@ require 'contabo-client'
           opslib.split(':').each do |dir|
             filename = File.join(dir, 'BlackOpsFile')
             if File.exist?(filename)
-              l.log "Loading configuration from #{filename}..."
+              l.logs "Loading configuration from #{filename}..."
               load filename
               found = true
+              l.done
               break
             end
           end
@@ -797,7 +798,7 @@ require 'contabo-client'
             @@db.execute(statement) #if statement.to_s.strip.size > 0
             l.done
           rescue => e
-            l.log(e.to_console.red)
+            l.logf(e.to_console.red)
             raise "Error executing statement: #{statement}\n#{e.message}"
           end
         }
