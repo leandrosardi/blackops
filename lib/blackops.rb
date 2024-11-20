@@ -967,118 +967,173 @@ require 'contabo-client'
         ret
       end # def self.reinstall
 =end
-      # Setup the DNS, connect the node as `root` and run the `install_ops`.
-      def self.install(
-        node_name,
-        dns_propagation_timeout: 60,
+
+      def self.standard_operation_bundle(
+        arguments: ,
+        operation_bundle_name: ,
         logger: nil
       )
         l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
 
-        l.logs "Getting node #{node_name.blue}... "
-        node = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
-        l.done
+        # Initialize variables
+        config_file = nil
+        node_pattern = nil
+        ssh_credentials = nil
+        local = false
+        connect_as_root = false
+        parameters = {}
+        ops = nil
 
-        # run installation
-        node[:install_ops].each { |op|
-          l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
-              op: op,
-              connect_as_root: true,
-              logger: l
-          )
-          l.done
-        }
-      end # def self.install
-
-      # Connect the node as non-root, run the `deploy_ops`, and exeute migrations.
-      def self.deploy(
-        node_name,
-        logger: nil
-      )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
-
-        l.logs "Getting node #{node_name.blue}... "
-        node = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
-        l.done
-
-        # run deployment
-        node[:deploy_ops].each { |op|
-          l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
-              op: op,
-              connect_as_root: false,
-              logger: l
-          )
-          l.done
-        }
-        
-        # run migrations
-        l.logs "Running migrations... "
-        unless node[:db] && node[:db].to_s == node[:name].to_s
-          l.skip(details: "No database hosted by the node.")
-        else
-          BlackOps.migrations( node_name,
-              logger: l
-          )
-          l.done
+        # Process command-line arguments
+        arguments.each do |arg|
+          case arg
+          when '--root'
+            connect_as_root = true
+          when '--local'
+            local = true
+          when /^--config=(.+)$/
+            config_file = $1
+          when /^--node=(.+)$/
+            node_pattern = $1
+          when /^--ssh=(.+)$/
+            ssh_credentials = $1
+          when /^--#{operation_bundle_name}_ops=(.+)$/
+            ops = $1.split(',')
+          when /^--(\w+)=(.*)$/
+            key = $1
+            value = $2
+            parameters[key] = value
+          else
+            puts "Unknown argument: #{arg}"
+            puts "Usage: #{operation_bundle_name}.rb [--config=<config_file>] [--node=<node_pattern>] [--ssh=<ssh_credentials>] [--local] [--root] [--#{operation_bundle_name}_ops=op1,op2,...] [--param1=value1] [--param2=value2] ..."
+            exit 1
+          end
         end
 
-      end # def self.deploy
-      
-      # Connect the node as non-root, run the `start_ops`.
-      def self.start(
-        node_name,
-        logger: nil
-      )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
+        # Load the configuration file
+        if config_file
+          load config_file
+        else
+          # Look for BlackOpsFile in any of the paths defined in the environment variable $OPSLIB
+          BlackOps.load_blackopsfile
+        end
 
-        l.logs "Getting node #{node_name.blue}... "
-        node = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
-        l.done
 
-        # run deployment
-        node[:start_ops].each { |op|
-          l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
-              op: op,
-              connect_as_root: false,
+        nodes_list = []
+        
+        if local
+          # Local execution
+          if ops.nil?
+            puts "Error: --#{operation_bundle_name}_ops is required when using --local."
+            puts "Usage: #{operation_bundle_name}.rb --local --#{operation_bundle_name}_ops=op1,op2,... [--param1=value1] [--param2=value2] ..."
+            exit 1
+          end
+
+          ops.each do |op_file|
+            l.logs "Executing #{op_file.blue} locally..."
+            BlackOps.source_local(
+              op: op_file,
+              parameters: parameters,
               logger: l
-          )
-          l.done
-        }        
-      end # def self.start
+            )
+            l.done
+          end
 
-      # Connect the node as non-root, run the `stop_ops`.
-      def self.stop(
-        node_name,
-        logger: nil
-      )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
+        else
+          # Remote operation
+          if node_pattern
+            # Determine if the node_pattern contains wildcards
+            if node_pattern.include?('*') || node_pattern.include?('?') || node_pattern.include?('[')
+              # Use File.fnmatch to match node names
+              nodes_list = BlackOps.nodes.select { |node| File.fnmatch(node_pattern, node[:name]) }
 
-        l.logs "Getting node #{node_name.blue}... "
-        node = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
-        l.done
+              if nodes_list.empty?
+                raise "No nodes match the pattern '#{node_pattern}'."
+              end
+            else
+              # No wildcard, process a single node
+              # Check if the node exists
+              if !BlackOps.nodes.any? { |node| node[:name] == node_pattern }
+                raise "Node not found: #{node_pattern}"
+              end
 
-        # run deployment
-        node[:stop_ops].each { |op|
-          l.logs "op: #{op.to_s.blue}... "
-          BlackOps.source_remote( node_name,
-              op: op,
-              connect_as_root: false,
-              logger: l
-          )
-          l.done
-        }        
-      end # def self.stop
+              nodes_list << BlackOps.nodes.select { |node| node[:name] == node_pattern }.first
+            end
+          elsif ssh_credentials
+            # Parse ssh_credentials to create a temporary node
+            # Expected format: username:password@ip:port
+            match = ssh_credentials.match(/^([^:]+):([^@]+)@([\d\.]+):(\d+)$/)
+            if match
+              username = match[1]
+              password = match[2]
+              ip = match[3]
+              port = match[4].to_i
+
+              # Create a temporary node hash
+              node_hash = {
+                name: '__temp_node_unique_name__',
+                ip: ip,
+                ssh_username: username,
+                ssh_password: password,
+                ssh_root_password: password, # Assuming same password
+                ssh_port: port
+              }
+
+              # If using --ssh, then --#{operation_bundle_name}_ops is required
+              if ops.nil?
+                  puts "Error: --#{operation_bundle_name}_ops is required when using --ssh."
+                  puts "Usage: #{operation_bundle_name}.rb --ssh=<ssh_credentials> --#{operation_bundle_name}_ops=op1,op2,... [--param1=value1] [--param2=value2] ..."
+                  exit 1
+              end
+              node_hash["#{operation_bundle_name}_ops".to_sym] = ops
+
+              # Add the node to BlackOps nodes
+              BlackOps.add_node(node_hash)
+
+              # Retrieve the node
+              nodes_list << BlackOps.get_node('__temp_node_unique_name__')
+            else
+              puts "Invalid SSH credentials format. Expected username:password@ip:port"
+              exit 1
+            end
+          else
+            puts "Error: You must specify either --node=<node_pattern> or --ssh=<ssh_credentials> or --local"
+            puts "Usage: #{operation_bundle_name}.rb [--config=<config_file>] [--node=<node_pattern>] [--ssh=<ssh_credentials>] [--local] [--root] [--#{operation_bundle_name}_ops=op1,op2,...] [--param1=value1] [--param2=value2] ..."
+            exit 1
+          end
+
+          # Iterate over the list of .op files and execute them
+          nodes_list.each do |node|
+              l.logs "Working on node #{node[:name].to_s.blue}... " 
+
+              # Merge parameters into node parameters (parameters take precedence)
+              parameters.each do |k, v|
+                  node[k.to_sym] = v unless k.to_sym==:name && node[k.to_sym]=='__temp_node_unique_name__'
+              end
+
+              # Get the list of .op files from the node's description
+              ops_list = node["#{operation_bundle_name}_ops".to_sym]
+              if ops_list.nil? || !ops_list.is_a?(Array) || ops_list.empty?
+                  raise "No .op files specified in the node's :#{operation_bundle_name}_ops list."
+              end
+          
+              ops_list.each do |op_file|
+                  l.logs "Executing #{op_file.blue} on node #{node[:name].blue}..."
+                  BlackOps.source_remote(
+                      node[:name],
+                      op: op_file,
+                      parameters: parameters,
+                      connect_as_root: connect_as_root,
+                      logger: l
+                  )
+                  l.done
+              end
+
+              # Installing node...
+              l.done
+          end
+        end
+    end
 
     end # BlackOps
 #end # BlackStack
