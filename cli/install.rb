@@ -115,10 +115,10 @@ begin
       puts "Usage: install.rb [--config=<config_file>] [--node=<node_name>] [--ssh=<ssh_credentials>] [--local] [--root] [--install_ops=op1,op2,...] [--param1=value1] [--param2=value2] ..."
       exit 1
     end
-
+#binding.pry
     # Merge parameters into node parameters (parameters take precedence)
     parameters.each do |k, v|
-      node[k.to_sym] = v
+      node[k.to_sym] = v unless k.to_sym==:name && node[k.to_sym]=='__temp_node_unique_name__'
     end
 
     # Get the list of .op files from the node's description
@@ -126,7 +126,7 @@ begin
     if ops_list.nil? || !ops_list.is_a?(Array) || ops_list.empty?
       raise "No .op files specified in the node's :install list."
     end
-
+#binding.pry
     # Iterate over the list of .op files and execute them
     ops_list.each do |op_file|
       l.logs "Executing #{op_file.blue} on node #{node[:name].blue}..."
