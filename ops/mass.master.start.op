@@ -4,12 +4,13 @@
 
 # kill existing processes
 RUN ps ax | grep "ruby" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
-RUN ps ax | grep "adspower" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
+RUN ps ax | grep "puma" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
+#RUN ps ax | grep "adspower" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
 
 # start sinatra webserver in background
-RUN export RUBYLIB=/home/$$ssh_username/code1/sdk && \
-    cd /home/blackstack/$$ssh_username/code1/sdk && \
+RUN export RUBYLIB=/home/$$ssh_username/code1/$$master_code_folder && \
+    cd /home/blackstack/$$ssh_username/code1/$$master_code_folder && \
     source /etc/profile.d/rvm.sh && \
-    ruby /home/$$ssh_username/code1/sdk/app.rb port=3000 config=/home/$$ssh_username/code1/sdk/config.rb >>/home/$$ssh_username/start.output 2>&1
+    ruby /home/$$ssh_username/code1/$$master_code_folder/app.rb port=3000 config=/home/$$ssh_username/code1/$$master_code_folder/config.rb >>/home/$$ssh_username/start.output 2>&1
 
 # TODO: Start other processes like ipn, baddebt, etc.
