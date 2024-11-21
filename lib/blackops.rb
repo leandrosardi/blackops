@@ -628,18 +628,26 @@ require 'contabo-client'
       
           # Create the node object with the appropriate SSH credentials
           l.logs "Creating node object... "
+          backup_ssh_username = nil
+          backup_ssh_password = nil
           if connect_as_root
+            backup_ssh_username = n[:ssh_username]
+            backup_ssh_password = n[:ssh_password]
+  
             n[:ssh_username] = 'root'
             n[:ssh_password] = n[:ssh_root_password]
+
             node = BlackStack::Infrastructure::Node.new(n)
           else
             node = BlackStack::Infrastructure::Node.new(n)
           end
           l.done
-      
+          
           # Connect to the remote node via SSH
           l.logs("Connect to node #{node_name.to_s.blue}... ")
           node.connect
+          n[:ssh_username] = backup_ssh_username if backup_ssh_username
+          n[:ssh_password] = backup_ssh_password if backup_ssh_password
           l.done
       
           # Prepare the execution lambda
