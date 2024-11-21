@@ -140,8 +140,8 @@ RUN chmod +x /usr/bin/chromedriver
 RUN rm -rf chromedriver-linux64*
 
 # Create a flag file for '$$ssh_username' user
-RUN touch /home/$$ssh_username/.pampa
-RUN chown $$ssh_username:$$ssh_username /home/$$ssh_username/.pampa
+#RUN touch /home/$$ssh_username/.pampa
+#RUN chown $$ssh_username:$$ssh_username /home/$$ssh_username/.pampa
 
 # Install SSL Certificate
 # Reference: https://github.com/leandrosardi/my.saas/discussions/40
