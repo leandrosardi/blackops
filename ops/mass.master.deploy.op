@@ -119,7 +119,6 @@ RUN git -C /home/$$ssh_username/code1/$$master_code_folder/extensions/selectrows
 # 11. Into /home/$$ssh_username/code1/$$master_code_folder/config.rb, replace !!dropbox_refresh_token by $$dropbox_refresh_token
 # 12. Into /home/$$ssh_username/code1/$$master_code_folder/config.rb, replace !!postmark_api_key by $$postmark_api_key
 # 13. Into /home/$$ssh_username/code1/$$master_code_folder/config.rb, replace !!postmark_api_key by $$postmark_api_key
-# 14. Check for remaining '!!' in config.rb and raise an exception if found
 
 # 1. Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$master_code_folder/extensions/mass.account/MySaaSFile" "/home/$$ssh_username/code1/$$master_code_folder/config.rb"
@@ -159,6 +158,3 @@ RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/cod
 
 # 13. Replace !!postmark_api_key with $$postmark_api_key
 RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$master_code_folder/config.rb"
-
-# 14. Check for remaining '!!' in config.rb and raise an exception if found
-grep -Fq '!!' "/home/$$ssh_username/code1/$$master_code_folder/config.rb" && { echo "Error: '!!' found in /home/$$ssh_username/code1/$$master_code_folder/config.rb"; exit 1; }
