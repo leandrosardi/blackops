@@ -6,9 +6,11 @@ require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 require 'resolv'
 require 'public_suffix'
+require 'open3'
 require 'shellwords'
 require 'highline'
 require 'terminal-table'
+
 
 #require 'blackstack-nodes' 
 require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
@@ -24,6 +26,26 @@ require 'contabo-client'
       @@repositories = [
         'https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops'
       ]
+
+
+      # Helper method to display help messages
+      def self.display_help(operation:)
+        case operation
+        when 'migrate'
+          puts <<~HELP
+            Usage: migrate.rb [--config=<config_file>] [--node=<node_pattern>] [--migration_folders=folder1,folder2,...] [--postgres=username:password@address:port/database] [--param1=value1] [--param2=value2] ...
+            
+            Options:
+              --config=<config_file>             Path to the configuration file.
+              --node=<node_pattern>              Pattern to match target nodes (supports wildcards).
+              --migration_folders=folder1,folder2,...  Comma-separated list of migration folders.
+              --postgres=username:password@address:port/database  PostgreSQL connection parameters.
+              --help, -h                          Display this help message.
+          HELP
+        else
+          puts "No help available for operation: #{operation}"
+        end
+      end # self.display_help
 
       # Determines if the given domain has a subdomain.
       #
@@ -761,115 +783,6 @@ require 'contabo-client'
         system(s)
       end # def self.ssh(node_name, logger: nil)  
 
-
-      # Method to process an `.sql` file with one sql sentence by line.
-      # This method is called by `migrations`. 
-      # This method should not be called directly by user code.
-      def self.execute_sentences(sql, 
-        chunk_size: 200, 
-        logger: nil
-      )      
-        l = logger || BlackStack::DummyLogger.new(nil)
-        
-        # Fix issue: Ruby `split': invalid byte sequence in UTF-8 (ArgumentError)
-        # Reference: https://stackoverflow.com/questions/11065962/ruby-split-invalid-byte-sequence-in-utf-8-argumenterror
-        #
-        # Fix issue: `PG::SyntaxError: ERROR:  at or near "��truncate": syntax error`
-        #
-        l.logs "Fixing invalid byte sequences... "
-        sql.encode!('UTF-8', :invalid => :replace, :replace => '')
-        l.done
-
-        # Remove null bytes to avoid error: `String contains null byte`
-        # Reference: https://stackoverflow.com/questions/29320369/coping-with-string-contains-null-byte-sent-from-users
-        l.logs "Removing null bytes... "
-        sql.gsub!("\u0000", "")
-        l.done
-
-        # Get the array of sentences
-        l.logs "Splitting the sql sentences... "
-        sentences = sql.split(/;/i) 
-        l.done(details: "#{sentences.size} sentences")
-
-        # Chunk the array into parts of chunk_size elements
-        # Reference: https://stackoverflow.com/questions/2699584/how-to-split-chunk-a-ruby-array-into-parts-of-x-elements
-        l.logs "Bunlding the array of sentences into chunks of #{chunk_size} each... "
-        chunks = sentences.each_slice(chunk_size).to_a
-        l.done(details: "#{chunks.size} chunks")
-
-        chunk_number = -1
-        chunks.each { |chunk|
-          chunk_number += 1
-          statement = chunk.join(";\n").to_s.strip
-          l.logs "lines #{(chunk_size*chunk_number+1).to_s.blue} to #{(chunk_size*chunk_number+chunk.size).to_s.blue} of #{sentences.size.to_s.blue}... "
-          begin
-            @@db.execute(statement) #if statement.to_s.strip.size > 0
-            l.done
-          rescue => e
-            l.logf(e.to_console.red)
-            raise "Error executing statement: #{statement}\n#{e.message}"
-          end
-        }
-      end # def db_execute_sql_sentences_file
-
-      # Process one by one the `.sql` files inside the migration folders, 
-      # running one by one the SQL sentences inside each file.
-      def self.migrations(
-        node_name,
-        logger: nil
-      )
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
-
-        l.logs "Getting node #{node_name.blue}... "
-        n = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
-        l.done
-
-        # validate the node is also a host
-        raise "Node #{node_name} is hosting its DB into another node." if n[:db].to_s != n[:name].to_s
-
-# TODO: Validate that node has required parameters:
-# - ip, postgres_port, postgres_database, postgres_username, postgres_password
-#
-
-        # list all files in the folder
-        files = []
-        n[:migration_folders].each { |migrations_folder|
-          l.logs "Listing files in #{migrations_folder.blue}... "
-          files += Dir.glob("#{migrations_folder}/*.sql")
-          l.done(details: "#{files.size} files found")
-        }
-
-        # connect to the database
-        # DB ACCESS - KEEP IT SECRET
-        # Connection string to the demo database: export DATABASE_URL='postgresql://demo:<ENTER-SQL-USER-PASSWORD>@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/mysaas?sslmode=verify-full&options=--cluster%3Dmysaas-demo-6448'
-        l.logs "Connecting to the database... "
-        BlackStack::PostgreSQL::set_db_params({ 
-          :db_url => n[:ip],
-          :db_port => n[:postgres_port], # default postgres port
-          :db_name => n[:postgres_database], 
-          :db_user => n[:postgres_username], 
-          :db_password => n[:postgres_password],
-          :db_sslmode => 'disable',
-        })
-        @@db = BlackStack::PostgreSQL.connect
-        l.done
-
-        # execute the script sentence by sentence
-        files.each { |fullfilename|
-          l.logs "Running #{fullfilename.blue}... "
-          self.execute_sentences( 
-            File.open(fullfilename).read,
-            logger: nil #l
-          )
-          l.done
-        }
-
-        l.logs "Disconnecting from the database... "
-        @@db.disconnect
-        l.done
-      end # def self.migrations(node_name, logger: nil)
 =begin
       # Return the hash descriptor of a contabo instance from its IP address.
       def self.get_instance(
@@ -1142,6 +1055,257 @@ require 'contabo-client'
         end
       end # def self.standard_operation_bundle
 
+
+
+
+
+
+
+      # Method to process an `.sql` file with one sql sentence by line.
+      # This method is called by `migrations`. 
+      # This method should not be called directly by user code.
+      def self.execute_sentences(sql, 
+        chunk_size: 200, 
+        logger: nil
+      )      
+        l = logger || BlackStack::DummyLogger.new(nil)
+        
+        # Fix issue: Ruby `split': invalid byte sequence in UTF-8 (ArgumentError)
+        # Reference: https://stackoverflow.com/questions/11065962/ruby-split-invalid-byte-sequence-in-utf-8-argumenterror
+        #
+        # Fix issue: `PG::SyntaxError: ERROR:  at or near "��truncate": syntax error`
+        #
+        l.logs "Fixing invalid byte sequences... "
+        sql.encode!('UTF-8', :invalid => :replace, :replace => '')
+        l.done
+
+        # Remove null bytes to avoid error: `String contains null byte`
+        # Reference: https://stackoverflow.com/questions/29320369/coping-with-string-contains-null-byte-sent-from-users
+        l.logs "Removing null bytes... "
+        sql.gsub!("\u0000", "")
+        l.done
+
+        # Get the array of sentences
+        l.logs "Splitting the sql sentences... "
+        sentences = sql.split(/;/i) 
+        l.done(details: "#{sentences.size} sentences")
+
+        # Chunk the array into parts of chunk_size elements
+        # Reference: https://stackoverflow.com/questions/2699584/how-to-split-chunk-a-ruby-array-into-parts-of-x-elements
+        l.logs "Bunlding the array of sentences into chunks of #{chunk_size} each... "
+        chunks = sentences.each_slice(chunk_size).to_a
+        l.done(details: "#{chunks.size} chunks")
+
+        chunk_number = -1
+        chunks.each { |chunk|
+          chunk_number += 1
+          statement = chunk.join(";\n").to_s.strip
+          l.logs "lines #{(chunk_size*chunk_number+1).to_s.blue} to #{(chunk_size*chunk_number+chunk.size).to_s.blue} of #{sentences.size.to_s.blue}... "
+          begin
+            @@db.execute(statement) #if statement.to_s.strip.size > 0
+            l.done
+          rescue => e
+            l.log(e.to_console.red)
+            raise "Error executing statement: #{statement}\n#{e.message}"
+          end
+        }
+      end # def db_execute_sql_sentences_file
+
+      # Process one by one the `.sql` files inside the migration folders, 
+      # running one by one the SQL sentences inside each file.
+      def self.run_migrations(
+        node_name,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+        node_name = node_name.dup.to_s
+
+        l.logs "Getting node #{node_name.blue}... "
+        n = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        l.done
+
+        # validate the node is also a host
+        # 
+        # DEPRECATED
+        # 
+        #raise "Node #{node_name} is hosting its DB into another node." if n[:db].to_s != n[:name].to_s
+
+# TODO: Validate that node has required parameters:
+# - ip, postgres_port, postgres_database, postgres_username, postgres_password
+#
+
+        # list all files in the folder
+        files = []
+        n[:migration_folders].each { |migrations_folder|
+          l.logs "Listing files in #{migrations_folder.blue}... "
+          files += Dir.glob("#{migrations_folder}/*.sql")
+          l.done(details: "#{files.size} files found")
+        }
+
+        # connect to the database
+        # DB ACCESS - KEEP IT SECRET
+        # Connection string to the demo database: export DATABASE_URL='postgresql://demo:<ENTER-SQL-USER-PASSWORD>@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/mysaas?sslmode=verify-full&options=--cluster%3Dmysaas-demo-6448'
+        l.logs "Connecting to the database... "
+        BlackStack::PostgreSQL::set_db_params({ 
+          :db_url => n[:ip],
+          :db_port => n[:postgres_port].to_i, # default postgres port
+          :db_name => n[:postgres_database], 
+          :db_user => n[:postgres_username], 
+          :db_password => n[:postgres_password],
+          :db_sslmode => 'disable',
+        })
+        @@db = BlackStack::PostgreSQL.connect
+        l.done
+
+        # execute the script sentence by sentence
+        files.each { |fullfilename|
+          l.logs "Running #{fullfilename.blue}... "
+          self.execute_sentences( 
+            File.open(fullfilename).read,
+            logger: nil #l
+          )
+          l.done
+        }
+
+        l.logs "Disconnecting from the database... "
+        @@db.disconnect
+        l.done
+      end # def self.run_migrations(node_name, logger: nil)
+
+
+      # Static method to handle migration operations
+      def self.standard_migrations_processing(
+        arguments:,
+        logger: nil
+      )
+        l = logger || BlackStack::DummyLogger.new(nil)
+
+        # Initialize variables
+        config_file = nil
+        node_pattern = nil
+        migration_folders = nil
+        postgres = nil
+        node_names = []
+
+        # Process command-line arguments
+        arguments.each do |arg|
+          case arg
+          when /^--config=(.+)$/
+            config_file = Regexp.last_match(1)
+          when /^--node=(.+)$/
+            node_pattern = Regexp.last_match(1)
+          when /^--migration_folders=(.+)$/
+            migration_folders = Regexp.last_match(1).split(',').map(&:strip)
+          when /^--postgres=(.+)$/
+            postgres = Regexp.last_match(1)
+          when '--help', '-h'
+            display_help(operation: 'migrate')
+            exit 0
+          else
+            puts "Unknown argument: #{arg}"
+            puts "Usage: migrate.rb [--config=<config_file>] [--node=<node_pattern>] [--migration_folders=folder1,folder2,...] [--postgres=username:password@address:port/database] [--param1=value1] [--param2=value2] ..."
+            exit 1
+          end
+        end
+
+        # Validate required arguments
+        if node_pattern.nil? && (migration_folders.nil? || postgres.nil?)
+          puts "Error: When --node is not specified, --migration_folders and --postgres are required."
+          puts "Usage: migrate.rb [--config=<config_file>] [--node=<node_pattern>] [--migration_folders=folder1,folder2,...] [--postgres=username:password@address:port/database] [--param1=value1] [--param2=value2] ..."
+          exit 1
+        end
+
+        # Load the configuration file
+        if config_file
+          unless File.exist?(config_file)
+            raise "Configuration file not found: #{config_file}"
+          end
+          l.logs "Loading configuration from #{config_file}..."
+          load config_file
+          l.done
+        else
+          # Look for BlackOpsFile in any of the paths defined in the environment variable $OPSLIB
+          BlackOps.load_blackopsfile(logger: l)
+        end
+
+        # Determine target nodes or set up database connection
+        if node_pattern
+          # Node-based migration
+          # Determine if the node_pattern contains wildcards
+          if node_pattern.include?('*') || node_pattern.include?('?') || node_pattern.include?('[')
+            # Use File.fnmatch to match node names
+            matched_nodes = BlackOps.nodes.select { |node| File.fnmatch(node_pattern, node[:name]) }
+
+            if matched_nodes.empty?
+              raise "No nodes match the pattern '#{node_pattern}'."
+            end
+          else
+            # No wildcard, process a single node
+            matched_nodes = BlackOps.nodes.select { |node| node[:name] == node_pattern }
+            if matched_nodes.empty?
+              raise "Node not found: #{node_pattern}"
+            end
+          end
+
+          # Extract node names
+          node_names = matched_nodes.map { |node| node[:name] }
+
+          # Run migrations on each node
+          node_names.each do |node_name|
+            l.logs "Running migrations on node #{node_name.blue}... "
+            BlackOps.run_migrations(node_name, logger: l)
+            l.done
+          end
+
+        else
+          # Database-based migration
+          # Validate migration_folders and postgres are provided
+          if migration_folders.nil? || postgres.nil?
+            puts "Error: --migration_folders and --postgres are required for database migrations."
+            puts "Usage: migrate.rb [--config=<config_file>] [--node=<node_pattern>] [--migration_folders=folder1,folder2,...] [--postgres=username:password@address:port/database] [--param1=value1] [--param2=value2] ..."
+            exit 1
+          end
+
+          #postgres_connection = "username:password@192.168.1.100:5432/blackstack"
+          match = postgres.match(/^([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/) or raise "Invalid PostgreSQL format. Expected username:password@address:port/database"
+          postgres_username, postgres_password, postgres_address, postgres_port, postgres_database = match.captures
+          postgres_port = postgres_port.to_i
+
+          # Create a temporary node with migration_folders and postgres
+          temp_node_name = '__temp_migration_node__'
+
+          node_hash = {
+            name: temp_node_name,
+            migration_folders: migration_folders,
+            ip: postgres_address,
+            postgres_database: postgres_database,
+            postgres_username: postgres_username,
+            postgres_password: postgres_password,
+            postgres_port: postgres_port,
+          }
+
+          # Add the temporary node to BlackOps nodes
+          BlackOps.add_node(node_hash)
+
+          # Retrieve the temporary node
+          temp_node = BlackOps.get_node(temp_node_name)
+
+          if temp_node.nil?
+            raise "Failed to create temporary migration node."
+          end
+
+          l.logs "Running migrations on temporary node #{temp_node[:name].to_s.blue}... "
+          begin
+            # Call the existing BlackOps.migrate method for the temporary node
+            BlackOps.run_migrations(temp_node[:name], logger: l)
+            l.done
+          rescue => e
+            l.log("Migration failed on temporary node #{temp_node[:name].to_s.red}: #{e.message}".red)
+            exit 1
+          end
+        end
+      end # def self.standard_migrations_processing
     end # BlackOps
 #end # BlackStack
     
