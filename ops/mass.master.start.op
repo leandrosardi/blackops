@@ -3,8 +3,8 @@
 # 
 
 # kill existing processes
-RUN ps ax | grep "ruby" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
-RUN ps ax | grep "puma" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
+RUN ps ax | grep "ruby" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9 >>nil 2>&1
+RUN ps ax | grep "puma" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9 >>nil 2>&1
 #RUN ps ax | grep "adspower" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
 
 # start sinatra webserver in background
