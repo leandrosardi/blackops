@@ -1283,6 +1283,12 @@ require 'contabo-client'
             postgres_username: postgres_username,
             postgres_password: postgres_password,
             postgres_port: postgres_port,
+
+            # dummy values for parameters required by blackstack-nodes
+            ssh_port: 22,
+            ssh_username: 'foo',
+            ssh_password: 'foo',
+            ssh_root_password: 'foo',
           }
 
           # Add the temporary node to BlackOps nodes

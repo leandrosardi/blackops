@@ -3,13 +3,14 @@ require_relative '../lib/blackops.rb'
 l = BlackStack::LocalLogger.new('blackops.log')
 
 begin
+=begin
   # operations
   BlackOps.standard_operation_bundle(
     arguments: ARGV,
     operation_bundle_name: 'deploy',
     logger: l  
   )
-  
+=end
   # migrations
   BlackOps.standard_migrations_processing(
     arguments: ARGV,
