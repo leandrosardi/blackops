@@ -1,3 +1,5 @@
+.sandbox
+
 # ignore config.rb file in any directory
 config.rb
 BlackOpsFile
