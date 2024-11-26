@@ -593,11 +593,11 @@ require 'contabo-client'
               break
             end
           end
-          unless found
-            raise "No configuration file found in $OPSLIB directories. Please provide a --config option or set up $OPSLIB environment variable correctly."
-          end
-        else
-          raise "No configuration file specified and $OPSLIB environment variable is not set. Please provide a --config option or set up $OPSLIB."
+          #unless found
+          #  raise "No configuration file found in $OPSLIB directories. Please provide a --config option or set up $OPSLIB environment variable correctly."
+          #end
+        #else
+        #  raise "No configuration file specified and $OPSLIB environment variable is not set. Please provide a --config option or set up $OPSLIB."
         end
       end
 
@@ -674,6 +674,7 @@ require 'contabo-client'
       
           # Prepare the execution lambda
           execute_fragment_proc = Proc.new { |fragment|
+binding.pry
             res = node.exec(fragment)
           }
       
