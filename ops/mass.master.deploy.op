@@ -152,7 +152,7 @@ RUN sed -i "s/!!dropbox_refresh_token/$$dropbox_refresh_token/g" "/home/$$ssh_us
 RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 14. Replace !!adspower_api_key with $$adspower_api_key
-RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$adspower_api_key/config.rb"
+RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 15. Replace !!domain with $$domain
-RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$domain/config.rb"
+RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
