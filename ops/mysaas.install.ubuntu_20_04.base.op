@@ -20,7 +20,8 @@ RUN echo "$$ssh_username:$$ssh_password" | chpasswd
 RUN usermod -aG sudo $$ssh_username
 
 # Change hostname
-RUN hostnamectl set-hostname "$$name"
+# DEPRECATED - Moved to `hostname.op`
+#RUN hostnamectl set-hostname "$$name"
 
 # Enable PasswordAuthentication in SSH config
 RUN sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
