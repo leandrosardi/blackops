@@ -1,9 +1,9 @@
 # Download service files
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.service
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.sh
+RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.service
+RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.sh
 
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.service
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.sh
+RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.service
+RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.sh
 
 # Service configuration file.
 RUN cp "/tmp/mass_master_app.service" "/etc/systemd/system/mass_master_app.service"
