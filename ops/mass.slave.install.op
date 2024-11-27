@@ -18,53 +18,53 @@ RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackop
 RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_timeline.sh
 
 # Service configuration file.
-RUN cp "/tmp/mass_slave_app.service" "/etc/systemd/system/mass_slave_app.service"
+RUN cp -f "/tmp/mass_slave_app.service" "/etc/systemd/system/mass_slave_app.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_app.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_app.service"
 
-RUN cp "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_import.service"
+RUN cp -f "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_import.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_import.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_import.service"
 
-RUN cp "/tmp/mass_slave_ingest.service" "/etc/systemd/system/mass_slave_ingest.service"
+RUN cp -f "/tmp/mass_slave_ingest.service" "/etc/systemd/system/mass_slave_ingest.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_ingest.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_ingest.service"
 
-RUN cp "/tmp/mass_slave_plan.service" "/etc/systemd/system/mass_slave_plan.service"
+RUN cp -f "/tmp/mass_slave_plan.service" "/etc/systemd/system/mass_slave_plan.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_plan.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_plan.service"
 
-RUN cp "/tmp/mass_slave_rule.service" "/etc/systemd/system/mass_slave_rule.service"
+RUN cp -f "/tmp/mass_slave_rule.service" "/etc/systemd/system/mass_slave_rule.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_rule.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_rule.service"
 
-RUN cp "/tmp/mass_slave_timeline.service" "/etc/systemd/system/mass_slave_timeline.service"
+RUN cp -f "/tmp/mass_slave_timeline.service" "/etc/systemd/system/mass_slave_timeline.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_timeline.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_timeline.service"
 
 # Service starting wrapper
-RUN cp "/tmp/mass_slave_app.sh" "/home/$$ssh_username/mass_slave_app.sh"
+RUN cp -f "/tmp/mass_slave_app.sh" "/home/$$ssh_username/mass_slave_app.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_app.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_app.sh"
 RUN sed -i "s/!!port/$$port/g" "/home/$$ssh_username/mass_slave_app.sh"
 
-RUN cp "/tmp/mass_slave_import.sh" "/home/$$ssh_username/mass_slave_import.sh"
+RUN cp -f "/tmp/mass_slave_import.sh" "/home/$$ssh_username/mass_slave_import.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_import.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_import.sh"
 
-RUN cp "/tmp/mass_slave_ingest.sh" "/home/$$ssh_username/mass_slave_ingest.sh"
+RUN cp -f "/tmp/mass_slave_ingest.sh" "/home/$$ssh_username/mass_slave_ingest.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_ingest.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_ingest.sh"
 
-RUN cp "/tmp/mass_slave_plan.sh" "/home/$$ssh_username/mass_slave_plan.sh"
+RUN cp -f "/tmp/mass_slave_plan.sh" "/home/$$ssh_username/mass_slave_plan.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_plan.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_plan.sh"
 
-RUN cp "/tmp/mass_slave_rule.sh" "/home/$$ssh_username/mass_slave_rule.sh"
+RUN cp -f "/tmp/mass_slave_rule.sh" "/home/$$ssh_username/mass_slave_rule.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_rule.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_rule.sh"
 
-RUN cp "/tmp/mass_slave_timeline.sh" "/home/$$ssh_username/mass_slave_timeline.sh"
+RUN cp -f "/tmp/mass_slave_timeline.sh" "/home/$$ssh_username/mass_slave_timeline.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_timeline.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_timeline.sh"
 

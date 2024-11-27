@@ -12,36 +12,36 @@ RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackop
 RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_movement.sh
 
 # Service configuration file.
-RUN cp "/tmp/i2p_baddebt.service" "/etc/systemd/system/i2p_baddebt.service"
+RUN cp -f "/tmp/i2p_baddebt.service" "/etc/systemd/system/i2p_baddebt.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_baddebt.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_baddebt.service"
 
-RUN cp "/tmp/i2p_expire.service" "/etc/systemd/system/i2p_expire.service"
+RUN cp -f "/tmp/i2p_expire.service" "/etc/systemd/system/i2p_expire.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_expire.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_expire.service"
 
-RUN cp "/tmp/i2p_ipn.service" "/etc/systemd/system/i2p_ipn.service"
+RUN cp -f "/tmp/i2p_ipn.service" "/etc/systemd/system/i2p_ipn.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_ipn.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_ipn.service"
 
-RUN cp "/tmp/i2p_movement.service" "/etc/systemd/system/i2p_movement.service"
+RUN cp -f "/tmp/i2p_movement.service" "/etc/systemd/system/i2p_movement.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_movement.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_movement.service"
 
 # Service starting wrapper
-RUN cp "/tmp/i2p_baddebt.sh" "/home/$$ssh_username/i2p_baddebt.sh"
+RUN cp -f "/tmp/i2p_baddebt.sh" "/home/$$ssh_username/i2p_baddebt.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_baddebt.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_baddebt.sh"
 
-RUN cp "/tmp/i2p_expire.sh" "/home/$$ssh_username/i2p_expire.sh"
+RUN cp -f "/tmp/i2p_expire.sh" "/home/$$ssh_username/i2p_expire.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_expire.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_expire.sh"
 
-RUN cp "/tmp/i2p_ipn.sh" "/home/$$ssh_username/i2p_ipn.sh"
+RUN cp -f "/tmp/i2p_ipn.sh" "/home/$$ssh_username/i2p_ipn.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_ipn.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_ipn.sh"
 
-RUN cp "/tmp/i2p_movement.sh" "/home/$$ssh_username/i2p_movement.sh"
+RUN cp -f "/tmp/i2p_movement.sh" "/home/$$ssh_username/i2p_movement.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_movement.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_movement.sh"
 
