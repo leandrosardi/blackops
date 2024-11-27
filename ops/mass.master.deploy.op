@@ -100,15 +100,18 @@ RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder 
 # 2. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!ip by $$ip
 # 3. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_port by $$postgres_port
 # 4. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_database by $$postgres_database
-# 5. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!ip by $$ip
-# 6. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_username by $$postgres_username
-# 7. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_password by $$postgres_password
-# 8. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!su_api_key by $$su_api_key
-# 9. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!tinymce_api_key by $$tinymce_api_key
-# 10. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!vymeco_api_key by $$vymeco_api_key
-# 11. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!dropbox_refresh_token by $$dropbox_refresh_token
-# 12. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postmark_api_key by $$postmark_api_key
+# 5. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_username by $$postgres_username
+# 6. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_password by $$postgres_password
+# 7. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!smtp_user by $$smtp_user
+# 8. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!smtp_password by $$smtp_password
+# 9. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!su_api_key by $$su_api_key
+# 10. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!tinymce_api_key by $$tinymce_api_key
+# 11. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!vymeco_api_key by $$vymeco_api_key
+# 12. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!dropbox_refresh_token by $$dropbox_refresh_token
 # 13. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postmark_api_key by $$postmark_api_key
+# 14. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!master_domain by $$master_domain
+# 15. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!adspower_api_key by $$adspower_api_key
+# 16. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!domain by $$domain
 
 # 1. Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
@@ -122,29 +125,38 @@ RUN sed -i "s/!!postgres_port/$$postgres_port/g" "/home/$$ssh_username/code1/$$c
 # 4. Replace !!postgres_database with $$postgres_database
 RUN sed -i "s/!!postgres_database/$$postgres_database/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 5. Replace !!ip with $$ip
-RUN sed -i "s/!!ip/$$ip/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 6. Replace !!postgres_username with $$postgres_username
+# 5. Replace !!postgres_username with $$postgres_username
 RUN sed -i "s/!!postgres_username/$$postgres_username/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 7. Replace !!postgres_password with $$postgres_password
+# 6. Replace !!postgres_password with $$postgres_password
 RUN sed -i "s/!!postgres_password/$$postgres_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 8. Replace !!su_api_key with $$su_api_key
+# 7. Replace !!smtp_user with $$smtp_user
+RUN sed -i "s/!!smtp_user/$$smtp_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 8. Replace !!smtp_password with $$smtp_password
+RUN sed -i "s/!!smtp_password/$$smtp_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 9. Replace !!su_api_key with $$su_api_key
 RUN sed -i "s/!!su_api_key/$$su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 9. Replace !!tinymce_api_key with $$tinymce_api_key
+# 10. Replace !!tinymce_api_key with $$tinymce_api_key
 RUN sed -i "s/!!tinymce_api_key/$$tinymce_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 10. Replace !!vymeco_api_key with $$vymeco_api_key
+# 11. Replace !!vymeco_api_key with $$vymeco_api_key
 RUN sed -i "s/!!vymeco_api_key/$$vymeco_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 11. Replace !!dropbox_refresh_token with $$dropbox_refresh_token
+# 12. Replace !!dropbox_refresh_token with $$dropbox_refresh_token
 RUN sed -i "s/!!dropbox_refresh_token/$$dropbox_refresh_token/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 12. Replace !!postmark_api_key with $$postmark_api_key
-RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 13. Replace !!postmark_api_key with $$postmark_api_key
 RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 14. Replace !!master_domain with $$master_domain
+RUN sed -i "s/!!master_domain/$$master_domain/g" "/home/$$ssh_username/code1/$$master_domain/config.rb"
+
+# 15. Replace !!adspower_api_key with $$adspower_api_key
+RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$adspower_api_key/config.rb"
+
+# 16. Replace !!domain with $$domain
+RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$domain/config.rb"

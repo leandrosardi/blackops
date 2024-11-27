@@ -8,48 +8,115 @@ RUN mkdir -p /home/$$ssh_username/code1
 
 # Cloning and updating code of my.saas in the ~/code/slave folder.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$slave_code_folder ]; then
-    git clone https://$$git_username:$$git_password@github.com/$$slave_git_repository /home/$$ssh_username/code1/$$slave_code_folder
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then
+    git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder fetch --all
+RUN git -C /home/$$ssh_username/code1/$$code_folder fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder reset --hard origin/$$slave_git_branch
+RUN git -C /home/$$ssh_username/code1/$$code_folder reset --hard origin/$$git_branch
 
-# Configuration file
-# 
-# 1. Delete existing file /home/$$ssh_username/code1/$$slave_code_folder/conf.rb
-# 2. Delete existing folder /home/$$ssh_username/code1/secret
-# 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
-# 4. Copy the file /home/$$ssh_username/code1/secret/config-slave.rb into folder /home/$$ssh_username/code1/$$slave_code_folder/config.rb
-# 
-RUN rm -f /home/$$ssh_username/code1/$$slave_code_folder/conf.rb
-RUN rm -rf /home/$$ssh_username/code1/secret
-RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
-RUN cp /home/$$ssh_username/code1/secret/config-slave.rb /home/$$ssh_username/code1/$$slave_code_folder/config.rb
+## DEPRECATED
+##
+## Configuration file
+## 
+## 1. Delete existing file /home/$$ssh_username/code1/$$code_folder/conf.rb
+## 2. Delete existing folder /home/$$ssh_username/code1/secret
+## 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+## 4. Copy the file /home/$$ssh_username/code1/secret/config-slave.rb into folder /home/$$ssh_username/code1/$$code_folder/config.rb
+## 
+#RUN rm -f /home/$$ssh_username/code1/$$code_folder/conf.rb
+#RUN rm -rf /home/$$ssh_username/code1/secret
+#RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
+#RUN cp /home/$$ssh_username/code1/secret/config-slave.rb /home/$$ssh_username/code1/$$code_folder/config.rb
 
 # Cloning and updating code of mass.commons extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.commons ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.commons /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.commons
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons ]; then
+    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.commons /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.commons fetch --all
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.commons reset --hard origin/$$slave_git_branch
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons reset --hard origin/$$git_branch
 
 # Cloning and updating code of mass.subaccount extension.
 #
-RUN if [ ! -d /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.subaccount ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.subaccount /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.subaccount
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount ]; then
+    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.subaccount /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.subaccount fetch --all
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount fetch --all
 
-RUN git -C /home/$$ssh_username/code1/$$slave_code_folder/extensions/mass.subaccount reset --hard origin/$$slave_git_branch
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount reset --hard origin/$$git_branch
 
 # Bundler
 # Glitch: https://github.com/MassProspecting/deployment/issues/38
 #
-RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$slave_code_folder && bundler update
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
+# Configuration
+# 1. Copy /home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile to /home/$$ssh_username/code1/$$code_folder/config.rb
+# 2. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!ip by $$ip
+# 3. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_port by $$postgres_port
+# 4. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_database by $$postgres_database
+# 5. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_username by $$postgres_username
+# 6. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_password by $$postgres_password
+# 7. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!smtp_user by $$smtp_user
+# 8. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!smtp_password by $$smtp_password
+# 9. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!su_api_key by $$su_api_key
+# 10. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!tinymce_api_key by $$tinymce_api_key
+# 11. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!vymeco_api_key by $$vymeco_api_key
+# 12. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!dropbox_refresh_token by $$dropbox_refresh_token
+# 13. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postmark_api_key by $$postmark_api_key
+# 14. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!master_domain by $$master_domain
+# 15. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!adspower_api_key by $$adspower_api_key
+# 16. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!domain by $$domain
+
+# 1. Copy MySaaSFile to config.rb
+RUN cp "/home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 2. Replace !!ip with $$ip
+RUN sed -i "s/!!ip/$$ip/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 3. Replace !!postgres_port with $$postgres_port
+RUN sed -i "s/!!postgres_port/$$postgres_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 4. Replace !!postgres_database with $$postgres_database
+RUN sed -i "s/!!postgres_database/$$postgres_database/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 5. Replace !!postgres_username with $$postgres_username
+RUN sed -i "s/!!postgres_username/$$postgres_username/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 6. Replace !!postgres_password with $$postgres_password
+RUN sed -i "s/!!postgres_password/$$postgres_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 7. Replace !!smtp_user with $$smtp_user
+RUN sed -i "s/!!smtp_user/$$smtp_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 8. Replace !!smtp_password with $$smtp_password
+RUN sed -i "s/!!smtp_password/$$smtp_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 9. Replace !!su_api_key with $$su_api_key
+RUN sed -i "s/!!su_api_key/$$su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 10. Replace !!tinymce_api_key with $$tinymce_api_key
+RUN sed -i "s/!!tinymce_api_key/$$tinymce_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 11. Replace !!vymeco_api_key with $$vymeco_api_key
+RUN sed -i "s/!!vymeco_api_key/$$vymeco_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 12. Replace !!dropbox_refresh_token with $$dropbox_refresh_token
+RUN sed -i "s/!!dropbox_refresh_token/$$dropbox_refresh_token/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 13. Replace !!postmark_api_key with $$postmark_api_key
+RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 14. Replace !!master_domain with $$master_domain
+RUN sed -i "s/!!master_domain/$$master_domain/g" "/home/$$ssh_username/code1/$$master_domain/config.rb"
+
+# 15. Replace !!adspower_api_key with $$adspower_api_key
+RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$adspower_api_key/config.rb"
+
+# 16. Replace !!domain with $$domain
+RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$domain/config.rb"
