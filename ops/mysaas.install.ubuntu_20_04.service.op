@@ -12,5 +12,9 @@ RUN cp "/tmp/mysaas_app.sh" "/home/$$ssh_username/mysaas_app.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_app.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_app.sh"
 
+# Grant the $$ssh_username user to run 
+sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mysaas_app.sh
+sudo chmod +x /home/$$ssh_username/mysaas_app.sh
+
 # Reload daemons
 RUN sudo systemctl daemon-reload

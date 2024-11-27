@@ -2,3 +2,4 @@
 # - This script is used to stop the Sinatra webserver and other processes in the master node.
 # 
 
+RUN sudo systemctl stop mysaas_app.service

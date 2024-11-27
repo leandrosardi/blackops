@@ -2,3 +2,4 @@
 # - This script is used to start the Sinatra webserver.
 # 
 
+RUN sudo systemctl start mysaas_app.service
