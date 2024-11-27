@@ -19,7 +19,7 @@ begin
             node_pattern = $1
         else
             puts "Unknown argument: #{arg}"
-            puts "Usage: list.rb [--config=<config_file>] [--node=<node_pattern>] [--interval=<nodes poll seconds>]"
+            puts "Usage: list.rb [--config=<config_file>] [--node=<node_pattern>] [--interval=<poll seconds>]"
             exit 1
         end
     end
@@ -169,7 +169,7 @@ begin
         # Display the table in the terminal
         system('clear')
         puts table
-        sleep(1) if !one_node_connected
+        sleep(interval) if !one_node_connected
     end # while (true)
 
 rescue => e
