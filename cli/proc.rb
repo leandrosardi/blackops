@@ -1,6 +1,6 @@
 require_relative '../lib/blackops.rb'
-#require 'terminal-table'
-#require 'colorize'
+require 'terminal-table'
+require 'colorize'
 
 l = BlackStack::LocalLogger.new('blackops.log')
 
@@ -70,16 +70,16 @@ begin
       node = nodes[node_ip]
       if n && !node && !one_node_connected && iteration > 1
         one_node_connected = true
-        l.logs "Connecting to node #{node_name.blue}... "
+        #l.logs "Connecting to node #{node_name.blue}... "
         begin
           node = BlackStack::Infrastructure::Node.new(n)
           node.connect
           nodes[node_ip] = node
           node_status = 'connected'.green
-          l.done
+          #l.done
         rescue => e
           node_status = 'failed'.red
-          l.logf "Error: #{e.message}"
+          #l.logf "Error: #{e.message}"
           next
         end
       elsif node
@@ -101,29 +101,24 @@ begin
         n[:procs].each do |process|
           process_status = '-'
           if node
-            # Check if the process is running using `pgrep`
-            cmd = "pgrep -f '#{process}'"
+            # Check if the process is running using a command that always exits with code 0
+            escaped_process = Shellwords.escape(process)
+            cmd = "ps aux | grep -v '[p]grep' | grep -v '[g]rep' | grep -F -- #{escaped_process} >/dev/null 2>&1 && echo '__PROCESS_IS_RUNNING__' || echo '__PROCESS_NOT_RUNNING__'"
+
             begin
-                output = node.exec(cmd)
-                # If the command succeeds, the process is online
+              output = node.exec(cmd)
+              # Parse the output to determine if the process is running
+              if output.include?('__PROCESS_IS_RUNNING__') || output == ''
                 process_status = 'online'.green
+              elsif output.include?('__PROCESS_NOT_RUNNING__')
+                process_status = 'offline'.red
+              else
+                process_status = 'error'.red
+                #l.log "Unexpected output when checking process #{process} on node #{node_name}: #{output}"
+              end
             rescue => e
-                # Parse the exit code from the exception message
-                if e.message =~ /exit code (\d+)/
-                    exit_code = $1.to_i
-                    if exit_code == 1
-                        # Exit code 1 means no processes matched; process is offline
-                        process_status = 'offline'.red
-                    else
-                        # Other exit codes indicate an error
-                        process_status = 'error'.red
-                        l.log "Error checking process #{process} on node #{node_name}: #{e.message}"
-                    end
-                else
-                  # Could not parse exit code; treat as error
-                  process_status = 'error'.red
-                  l.log "Error checking process #{process} on node #{node_name}: #{e.message}"
-                end
+              process_status = 'error'.red
+              #l.log "Error checking process #{process} on node #{node_name}: #{e.message}"
             end
           else
             process_status = '-'
