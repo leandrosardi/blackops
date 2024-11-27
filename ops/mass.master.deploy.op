@@ -109,9 +109,8 @@ RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder 
 # 11. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!vymeco_api_key by $$vymeco_api_key
 # 12. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!dropbox_refresh_token by $$dropbox_refresh_token
 # 13. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postmark_api_key by $$postmark_api_key
-# 14. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!master_domain by $$master_domain
-# 15. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!adspower_api_key by $$adspower_api_key
-# 16. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!domain by $$domain
+# 14. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!adspower_api_key by $$adspower_api_key
+# 15. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!domain by $$domain
 
 # 1. Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
@@ -152,11 +151,8 @@ RUN sed -i "s/!!dropbox_refresh_token/$$dropbox_refresh_token/g" "/home/$$ssh_us
 # 13. Replace !!postmark_api_key with $$postmark_api_key
 RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 14. Replace !!master_domain with $$master_domain
-RUN sed -i "s/!!master_domain/$$master_domain/g" "/home/$$ssh_username/code1/$$master_domain/config.rb"
-
-# 15. Replace !!adspower_api_key with $$adspower_api_key
+# 14. Replace !!adspower_api_key with $$adspower_api_key
 RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$adspower_api_key/config.rb"
 
-# 16. Replace !!domain with $$domain
+# 15. Replace !!domain with $$domain
 RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$domain/config.rb"
