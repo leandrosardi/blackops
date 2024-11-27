@@ -5,7 +5,8 @@ l = BlackStack::LocalLogger.new('blackops.log')
 begin
     config_file = nil
     node_pattern = nil
-  
+    nodes = {} # blackstack-node instances with ssh connection
+
     # Process the rest of the arguments
     ARGV.each do |arg|
         case arg
@@ -41,7 +42,6 @@ begin
     )
     
     # ssh connections to each IP
-    sshs = {}
     iteration = 0 
     while (true)
         # don't try to connect anything at the first iteration
@@ -69,14 +69,14 @@ begin
         all.each { |j|
             ip = j[:node][:ip] if j[:node]
             ip = j[:instance].dig('ipConfig', 'v4', 'ip') if ip.nil? && j[:instance]
-    
-            ssh = sshs[ip]
-            if j[:node] && !ssh && !one_node_connected && iteration>1
+
+            node = nodes[ip]
+            if j[:node] && !node && !one_node_connected && iteration>1
                 one_node_connected = true
                 n = j[:node]
                 node = BlackStack::Infrastructure::Node.new(n)          
                 ssh = node.connect
-                sshs[ip] = ssh
+                nodes[ip] = node
             end
 
             branch = j[:node] ? j[:node][:git_branch] : '-'
@@ -84,25 +84,45 @@ begin
 
             status = 'unknown'.red
             if j[:node]
-                if ssh
+                if node
                     status = 'online'.green
                 else
                     status = 'connecting...'.yellow
                 end
             end # if j[:node]
 
-            if j[:node]
-                ram = "#{rand(50)}%".green
-                cpu = "#{rand(50)}%".green
-                dsk = "#{rand(50)}%".green
+            if node
+                # get usage
+                usage = node.usage
+
+                # calculate usage rates
+                cpu_usage_percent = usage[:cpu_load_average].chomp.gsub('%', '').to_f
+                cpu = format('%.2f%%', cpu_usage_percent)
+
+                used_ram_mb = usage[:mb_total_memory] - usage[:mb_free_memory]
+                ram_usage_percent = (used_ram_mb / usage[:mb_total_memory].to_f) * 100
+                ram = format('%.2f%%', ram_usage_percent)
+
+                used_disk_mb = usage[:mb_total_disk] - usage[:mb_free_disk]
+                disk_usage_percent = (used_disk_mb / usage[:mb_total_disk].to_f) * 100
+                dsk = format('%.2f%%', disk_usage_percent)
+
+                # apply colorization
+                cpu_threshold = j[:node][:cpu_threshold]
+                ram_threshold = j[:node][:ram_threshold]
+                disk_threshold = j[:node][:disk_threshold]
+
+                cpu = cpu_usage_percent >= cpu_threshold ? cpu.red : cpu.green if cpu_threshold
+                ram = ram_usage_percent >= ram_threshold ? ram.red : ram.green if ram_threshold
+                dsk = disk_usage_percent >= disk_threshold ? dsk.red : dsk.green if disk_threshold
+
+                # custom alerts
                 alerts = '0'.green
-                status = 'online'.green
             else
                 ram = "-"
                 cpu = "-"
                 dsk = "-"
                 alerts = "-"
-                status = 'unknown'.yellow
             end
 
             rows << [
