@@ -104,15 +104,26 @@ begin
             # Check if the process is running using `pgrep`
             cmd = "pgrep -f '#{process}'"
             begin
-              output = node.ssh.exec(cmd)
-              if output.strip.empty?
-                process_status = 'offline'.yellow
-              else
+                output = node.exec(cmd)
+                # If the command succeeds, the process is online
                 process_status = 'online'.green
-              end
             rescue => e
-              process_status = 'error'.red
-              l.log "Error checking process #{process} on node #{node_name}: #{e.message}"
+                # Parse the exit code from the exception message
+                if e.message =~ /exit code (\d+)/
+                    exit_code = $1.to_i
+                    if exit_code == 1
+                        # Exit code 1 means no processes matched; process is offline
+                        process_status = 'offline'.red
+                    else
+                        # Other exit codes indicate an error
+                        process_status = 'error'.red
+                        l.log "Error checking process #{process} on node #{node_name}: #{e.message}"
+                    end
+                else
+                  # Could not parse exit code; treat as error
+                  process_status = 'error'.red
+                  l.log "Error checking process #{process} on node #{node_name}: #{e.message}"
+                end
             end
           else
             process_status = '-'
