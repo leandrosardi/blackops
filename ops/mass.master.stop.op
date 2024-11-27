@@ -2,9 +2,4 @@
 # - This script is used to stop the Sinatra webserver and other processes in the master node.
 # 
 
-RUN sudo systemctl stop mysaas_app.service
 RUN sudo systemctl stop mass_master_allocate.service
-RUN sudo systemctl stop i2p_baddebt.service
-RUN sudo systemctl stop i2p_expire.service
-RUN sudo systemctl stop i2p_ipn.service
-RUN sudo systemctl stop i2p_movement.service

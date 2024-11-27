@@ -104,7 +104,8 @@ begin
             # Check if the process is running using a command that always exits with code 0
             escaped_process = Shellwords.escape(process)
             cmd = "ps aux | grep -v '[p]grep' | grep -v '[g]rep' | grep -F -- #{escaped_process} >/dev/null 2>&1 && echo '__PROCESS_IS_RUNNING__' || echo '__PROCESS_NOT_RUNNING__'"
-
+            #cmd = "ps aux | grep '#{escaped_process}' | grep -v postgres | grep -v grep | awk '{print $2}'"
+#binding.pry if node_name == 'test2' && process =~ /ipn\.rb/
             begin
               output = node.exec(cmd)
               # Parse the output to determine if the process is running

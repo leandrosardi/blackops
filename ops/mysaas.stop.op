@@ -1,0 +1,1 @@
+RUN sudo systemctl start mysaas_app.service

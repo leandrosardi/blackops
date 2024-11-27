@@ -1,0 +1,4 @@
+RUN sudo systemctl start i2p_baddebt.service
+RUN sudo systemctl start i2p_expire.service
+RUN sudo systemctl start i2p_ipn.service
+RUN sudo systemctl start i2p_movement.service
