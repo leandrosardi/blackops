@@ -46,8 +46,17 @@ RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_movemen
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_movement.sh"
 
 # Grant the $$ssh_username user to run 
-sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/i2p_baddebt.sh
-sudo chmod +x /home/$$ssh_username/i2p_baddebt.sh
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/i2p_baddebt.sh
+RUN sudo chmod +x /home/$$ssh_username/i2p_baddebt.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/i2p_expire.sh
+RUN sudo chmod +x /home/$$ssh_username/i2p_expire.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/i2p_ipn.sh
+RUN sudo chmod +x /home/$$ssh_username/i2p_ipn.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/i2p_movement.sh
+RUN sudo chmod +x /home/$$ssh_username/i2p_movement.sh
 
 # Reload daemons
 RUN sudo systemctl daemon-reload
