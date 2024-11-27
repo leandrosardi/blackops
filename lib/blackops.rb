@@ -364,7 +364,14 @@ require 'contabo-client'
         # list of nodes defined in the configuration file
         l.logs "Get nodes defined in configuration... "
         nodes = BlackOps.nodes
-        nodes.select! { |n| n[:name] =~ /#{x}/ } if x
+        if x
+          if x.include?('*') || x.include?('?') || x.include?('[')
+            # Use File.fnmatch to match node names
+            nodes.select! { |node| File.fnmatch(x, node[:name]) }
+          else
+            nodes.select! { |n| n[:name] == x }
+          end
+        end # if x
         l.done(details: 'total: ' + nodes.size.to_s.blue)
     
         # Example of an element into the `instances` array:

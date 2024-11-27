@@ -1,27 +1,42 @@
 require_relative '../lib/blackops.rb'
-load '/home/leandro/code1/secret/BlackOpsFile'
 
 l = BlackStack::LocalLogger.new('blackops.log')
 
-# Check if a script name is provided
-if ARGV[0] == '--help' || ARGV[0] == '--h' || ARGV[0] == '-h'
-    puts "This command merges the list of nodes in the configuration file with the nodes configured in Contabo, and show a list of nodes with infrastructure information."
-    puts "Usage: ops ssh <optional: pattern filter nodes>"
-    exit 1
-end
-  
-x = ARGV.shift # Get pattern
-
 begin
+    config_file = nil
+    node_pattern = nil
+  
+    # Process the rest of the arguments
+    ARGV.each do |arg|
+        case arg
+        when /^--config=(.+)$/
+            config_file = $1
+        when /^--node=(.+)$/
+            node_pattern = $1
+        else
+            puts "Unknown argument: #{arg}"
+            puts "Usage: list.rb [--config=<config_file>] [--node=<node_pattern>]"
+            exit 1
+        end
+    end
+
+    # Load the configuration file
+    if config_file
+        load config_file
+    else
+        # Look for BlackOpsFile in any of the paths defined in the environment variable $OPSLIB
+        BlackOps.load_blackopsfile
+    end
+
     l.logs "Pattern: " 
-    if x
-        l.logf x.blue
+    if node_pattern
+        l.logf node_pattern.blue
     else
         l.logf '(all)'.blue
     end
 
     all = BlackOps.merged(
-        name_search: x,
+        name_search: node_pattern,
         logger: l
     )
     
