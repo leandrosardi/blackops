@@ -2,19 +2,52 @@
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.sh
 
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_expire.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_expire.sh
+
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_ipn.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_ipn.sh
+
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_movement.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_movement.sh
+
 # Service configuration file.
-RUN cp "/tmp/mass_master_allocate.service" "/etc/systemd/system/mass_master_allocate.service"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_allocate.service"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_allocate.service"
+RUN cp "/tmp/i2p_baddebt.service" "/etc/systemd/system/i2p_baddebt.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_baddebt.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_baddebt.service"
+
+RUN cp "/tmp/i2p_expire.service" "/etc/systemd/system/i2p_expire.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_expire.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_expire.service"
+
+RUN cp "/tmp/i2p_ipn.service" "/etc/systemd/system/i2p_ipn.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_ipn.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_ipn.service"
+
+RUN cp "/tmp/i2p_movement.service" "/etc/systemd/system/i2p_movement.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/i2p_movement.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/i2p_movement.service"
 
 # Service starting wrapper
-RUN cp "/tmp/mass_master_allocate.sh" "/home/$$ssh_username/mass_master_allocate.sh"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_allocate.sh"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_allocate.sh"
+RUN cp "/tmp/i2p_baddebt.sh" "/home/$$ssh_username/i2p_baddebt.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_baddebt.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_baddebt.sh"
+
+RUN cp "/tmp/i2p_expire.sh" "/home/$$ssh_username/i2p_expire.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_expire.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_expire.sh"
+
+RUN cp "/tmp/i2p_ipn.sh" "/home/$$ssh_username/i2p_ipn.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_ipn.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_ipn.sh"
+
+RUN cp "/tmp/i2p_movement.sh" "/home/$$ssh_username/i2p_movement.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/i2p_movement.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/i2p_movement.sh"
 
 # Grant the $$ssh_username user to run 
-sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_allocate.sh
-sudo chmod +x /home/$$ssh_username/mass_master_allocate.sh
+sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/i2p_baddebt.sh
+sudo chmod +x /home/$$ssh_username/i2p_baddebt.sh
 
 # Reload daemons
 RUN sudo systemctl daemon-reload
