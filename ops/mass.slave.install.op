@@ -1,4 +1,7 @@
 # Download service files
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.sh
+
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.sh
 
@@ -15,6 +18,10 @@ RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/r
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_timeline.sh
 
 # Service configuration file.
+RUN cp "/tmp/mass_slave_app.service" "/etc/systemd/system/mass_slave_app.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_app.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_app.service"
+
 RUN cp "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_import.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_import.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_import.service"
@@ -36,6 +43,11 @@ RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_t
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_timeline.service"
 
 # Service starting wrapper
+RUN cp "/tmp/mass_slave_app.sh" "/home/$$ssh_username/mass_slave_app.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_app.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_app.sh"
+RUN sed -i "s/!!port/$$port/g" "/home/$$ssh_username/mass_slave_app.sh"
+
 RUN cp "/tmp/mass_slave_import.sh" "/home/$$ssh_username/mass_slave_import.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_import.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_import.sh"
@@ -57,6 +69,9 @@ RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_timeline.sh"
 
 # Grant the $$ssh_username user to run 
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_slave_app.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_slave_app.sh
+
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_slave_import.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_slave_import.sh
 
