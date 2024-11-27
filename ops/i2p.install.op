@@ -1,6 +1,6 @@
 # Download service files
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.service
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.sh
 
 # Service configuration file.
 RUN cp "/tmp/mass_master_allocate.service" "/etc/systemd/system/mass_master_allocate.service"
