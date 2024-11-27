@@ -1,0 +1,15 @@
+[Unit]
+Description=MassProspecting Slave Ingest Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=!!ssh_username
+# Environment variable is now set in the wrapper script
+# Environment=RUBYLIB=/home/!!ssh_username/code1/!!
+ExecStart=/home/!!ssh_username/mass_slave_plan.sh
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
