@@ -5,6 +5,7 @@ l = BlackStack::LocalLogger.new('blackops.log')
 begin
     config_file = nil
     node_pattern = nil
+    interval = 1
     nodes = {} # blackstack-node instances with ssh connection
 
     # Process the rest of the arguments
@@ -14,9 +15,11 @@ begin
             config_file = $1
         when /^--node=(.+)$/
             node_pattern = $1
+        when /^--interval=(.+)$/
+            node_pattern = $1
         else
             puts "Unknown argument: #{arg}"
-            puts "Usage: list.rb [--config=<config_file>] [--node=<node_pattern>]"
+            puts "Usage: list.rb [--config=<config_file>] [--node=<node_pattern>] [--interval=<nodes poll seconds>]"
             exit 1
         end
     end
@@ -82,7 +85,7 @@ begin
             branch = j[:node] ? j[:node][:git_branch] : '-'
             #ram = j[:node] ? 'connecting...'.yellow : '-'
 
-            status = 'unknown'.red
+            status = 'unknown'
             if j[:node]
                 if node
                     status = 'online'.green
@@ -111,7 +114,7 @@ begin
                 cpu_threshold = j[:node][:cpu_threshold]
                 ram_threshold = j[:node][:ram_threshold]
                 disk_threshold = j[:node][:disk_threshold]
-
+#binding.pry
                 cpu = cpu_usage_percent >= cpu_threshold ? cpu.red : cpu.green if cpu_threshold
                 ram = ram_usage_percent >= ram_threshold ? ram.red : ram.green if ram_threshold
                 dsk = disk_usage_percent >= disk_threshold ? dsk.red : dsk.green if disk_threshold
@@ -166,7 +169,7 @@ begin
         # Display the table in the terminal
         system('clear')
         puts table
-        sleep(10) if !one_node_connected
+        sleep(1) if !one_node_connected
     end # while (true)
 
 rescue => e
