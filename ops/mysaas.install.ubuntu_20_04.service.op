@@ -1,6 +1,6 @@
 # Download service files
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_app.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_app.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_app.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_app.sh
 
 # Service configuration file.
 RUN cp -f "/tmp/mysaas_app.service" "/etc/systemd/system/mysaas_app.service"

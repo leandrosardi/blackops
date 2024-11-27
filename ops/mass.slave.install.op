@@ -1,21 +1,21 @@
 # Download service files
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_ingest.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_ingest.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_ingest.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_ingest.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_plan.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_plan.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_plan.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_plan.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_rule.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_rule.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_rule.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_rule.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_timeline.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_timeline.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_timeline.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_timeline.sh
 
 # Service configuration file.
 RUN cp -f "/tmp/mass_slave_app.service" "/etc/systemd/system/mass_slave_app.service"

@@ -1,15 +1,15 @@
 # Download service files
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_baddebt.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_expire.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_expire.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_expire.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_expire.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_ipn.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_ipn.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_ipn.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_ipn.sh
 
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_movement.service
-RUN cd /tmp && wget -q -O https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_movement.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_movement.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/i2p_movement.sh
 
 # Service configuration file.
 RUN cp -f "/tmp/i2p_baddebt.service" "/etc/systemd/system/i2p_baddebt.service"
