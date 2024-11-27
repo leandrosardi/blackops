@@ -1,0 +1,10 @@
+# Description:
+# - This script is used to stop the Sinatra webserver and other processes in the master node.
+# 
+
+RUN sudo systemctl stop mysaas_app.service
+RUN sudo systemctl stop mass_slave_import.service
+RUN sudo systemctl stop mass_slave_ingest.service
+RUN sudo systemctl stop mass_slave_plan.service
+RUN sudo systemctl stop mass_slave_rule.service
+RUN sudo systemctl stop mass_slave_timeline.service
