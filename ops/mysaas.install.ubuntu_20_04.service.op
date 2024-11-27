@@ -1,14 +1,16 @@
 # Download service files
-RUN cd /tmp
-RUN wget -q https://raw.githubusercontent.com/leandrosardi/my.saas/refs/heads/main/service/mysaas_app.service
-RUN wget -q https://raw.githubusercontent.com/leandrosardi/my.saas/refs/heads/main/service/mysaas_app.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/my.saas/refs/heads/main/service/mysaas_app.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/my.saas/refs/heads/main/service/mysaas_app.sh
 
 # Service configuration file.
-RUN cp "/tmp/mysaas_app.service" "/home/$$ssh_username/mysaas_app.service"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_app.service"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_app.service"
+RUN cp "/tmp/mysaas_app.service" "/etc/systemd/system/mysaas_app.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mysaas_app.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mysaas_app.service"
 
 # Service starting wrapper
 RUN cp "/tmp/mysaas_app.sh" "/home/$$ssh_username/mysaas_app.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_app.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_app.sh"
+
+# Reload daemons
+RUN sudo systemctl daemon-reload

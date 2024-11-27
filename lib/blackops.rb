@@ -674,7 +674,6 @@ require 'contabo-client'
       
           # Prepare the execution lambda
           execute_fragment_proc = Proc.new { |fragment|
-binding.pry
             res = node.exec(fragment)
           }
       

@@ -60,7 +60,6 @@ begin
                 one_node_connected = true
                 n = j[:node]
                 node = BlackStack::Infrastructure::Node.new(n)          
-binding.pry
                 ssh = node.connect
                 sshs[ip] = ssh
             end
