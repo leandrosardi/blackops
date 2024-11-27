@@ -3,3 +3,4 @@
 # 
 
 RUN sudo systemctl start mysaas_app.service
+RUN sudo systemctl start mass_master_allocate.service

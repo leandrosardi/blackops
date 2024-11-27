@@ -3,3 +3,4 @@
 # 
 
 RUN sudo systemctl stop mysaas_app.service
+RUN sudo systemctl stop mass_master_allocate.service

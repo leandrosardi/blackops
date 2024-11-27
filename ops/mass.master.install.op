@@ -1,6 +1,6 @@
 # Download service files
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/MassProspecting/mass.account/refs/heads/main/service/mass_master_allocate.service
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/MassProspecting/mass.account/refs/heads/main/service/mass_master_allocate.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/MassProspecting/docs/refs/heads/main/assets/service/mass_master_allocate.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/MassProspecting/docs/refs/heads/main/assets/service/mass_master_allocate.sh
 
 # Service configuration file.
 RUN cp "/tmp/mass_master_allocate.service" "/etc/systemd/system/mass_master_allocate.service"
