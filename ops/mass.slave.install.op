@@ -19,19 +19,19 @@ RUN cp "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_import.s
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_import.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_import.service"
 
-RUN cp "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_ingest.service"
+RUN cp "/tmp/mass_slave_ingest.service" "/etc/systemd/system/mass_slave_ingest.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_ingest.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_ingest.service"
 
-RUN cp "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_plan.service"
+RUN cp "/tmp/mass_slave_plan.service" "/etc/systemd/system/mass_slave_plan.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_plan.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_plan.service"
 
-RUN cp "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_rule.service"
+RUN cp "/tmp/mass_slave_rule.service" "/etc/systemd/system/mass_slave_rule.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_rule.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_rule.service"
 
-RUN cp "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_timeline.service"
+RUN cp "/tmp/mass_slave_timeline.service" "/etc/systemd/system/mass_slave_timeline.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_timeline.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_timeline.service"
 
