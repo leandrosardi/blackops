@@ -1118,67 +1118,77 @@ require 'contabo-client'
         }
       end # def db_execute_sql_sentences_file
 
+
       # Process one by one the `.sql` files inside the migration folders, 
       # running one by one the SQL sentences inside each file.
-      def self.run_migrations(
-        node_name,
-        logger: nil
-      )
+      def self.run_migrations(node_name, logger: nil)
         l = logger || BlackStack::DummyLogger.new(nil)
         node_name = node_name.dup.to_s
 
         l.logs "Getting node #{node_name.blue}... "
-        n = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if n.nil?
+        node = get_node(node_name)
+        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
         l.done
 
-        # validate the node is also a host
-        # 
-        # DEPRECATED
-        # 
-        #raise "Node #{node_name} is hosting its DB into another node." if n[:db].to_s != n[:name].to_s
-
-# TODO: Validate that node has required parameters:
-# - ip, postgres_port, postgres_database, postgres_username, postgres_password
-#
-
-        # list all files in the folder
-        files = []
-        n[:migration_folders].each { |migrations_folder|
-          l.logs "Listing files in #{migrations_folder.blue}... "
-          files += Dir.glob("#{migrations_folder}/*.sql")
-          l.done(details: "#{files.size} files found")
-        }
-
-        # connect to the database
-        # DB ACCESS - KEEP IT SECRET
-        # Connection string to the demo database: export DATABASE_URL='postgresql://demo:<ENTER-SQL-USER-PASSWORD>@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/mysaas?sslmode=verify-full&options=--cluster%3Dmysaas-demo-6448'
-        l.logs "Connecting to the database... "
-        BlackStack::PostgreSQL::set_db_params({ 
-          :db_url => n[:ip],
-          :db_port => n[:postgres_port].to_i, # default postgres port
-          :db_name => n[:postgres_database], 
-          :db_user => n[:postgres_username], 
-          :db_password => n[:postgres_password],
-          :db_sslmode => 'disable',
-        })
-        @@db = BlackStack::PostgreSQL.connect
+        # Initialize SSH connection
+        l.logs "Establishing SSH connection to node #{node_name.blue}... "
+        infra_node = BlackStack::Infrastructure::Node.new(node)
+        infra_node.connect
         l.done
 
-        # execute the script sentence by sentence
-        files.each { |fullfilename|
-          l.logs "Running #{fullfilename.blue}... "
-          self.execute_sentences( 
-            File.open(fullfilename).read,
-            logger: nil #l
-          )
+        begin
+binding.pry
+          # Iterate over each migration folder
+          node[:migration_folders].each do |migrations_folder|
+            l.logs "Listing SQL files in remote folder #{migrations_folder.blue}... "
+
+            # List all .sql files in the remote migration folder
+            list_command = "find #{Shellwords.escape(migrations_folder)} -type f -name '*.sql' | sort"
+            remote_sql_files = infra_node.exec(list_command)
+
+            if remote_sql_files.nil? || remote_sql_files.empty?
+              l.logf "No SQL files found in #{migrations_folder.blue}."
+              next
+            end
+
+            # Split the output into an array of file paths
+            sql_files = remote_sql_files.split("\n").map(&:strip).reject(&:empty?)
+
+            l.done(details: "#{sql_files.size} SQL file(s) found.")
+
+            sql_files.each do |remote_file|
+              l.logs "Executing #{remote_file.blue} on node #{node_name.blue} via SSH... "
+
+              begin
+                # Construct the psql command
+                psql_command = "psql -U #{Shellwords.escape(node[:postgres_username])} -d #{Shellwords.escape(node[:postgres_database])} -f #{Shellwords.escape(remote_file)}"
+
+                # Execute the SQL script
+                infra_node.exec(psql_command)
+                l.done
+
+              rescue => e
+                l.log(e.to_console.red)
+                raise "Error executing migration file: #{remote_file}\n#{e.message}"
+              end
+            end
+          end
+
+          l.logs "Migrations completed on node #{node_name.blue}."
           l.done
-        }
 
-        l.logs "Disconnecting from the database... "
-        @@db.disconnect
-        l.done
-      end # def self.run_migrations(node_name, logger: nil)
+        rescue => e
+          l.log(e.to_console.red)
+          raise e
+        ensure
+          # Ensure SSH connection is closed
+          if infra_node && infra_node.connected?
+            l.logs "Closing SSH connection to node #{node_name.blue}... "
+            infra_node.disconnect
+            l.done
+          end
+        end
+      end
 
 
       # Static method to handle migration operations
