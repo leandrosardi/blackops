@@ -28,6 +28,9 @@ RUN update-locale LANG=en_US.UTF-8 LANGUAGE=en_US: LC_ALL=en_US.UTF-8 \
 # Install PostgreSQL and development libraries
 RUN apt-get install -y libpq-dev postgresql postgresql-contrib
 
+# Install psql for running migrations.
+RUN apt-get install -y postgresql-client
+
 # Start PostgreSQL service
 RUN systemctl start postgresql
 
