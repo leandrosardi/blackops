@@ -1063,133 +1063,119 @@ require 'contabo-client'
       end # def self.standard_operation_bundle
 
 
-
-
-
-
-
-      # Method to process an `.sql` file with one sql sentence by line.
-      # This method is called by `migrations`. 
-      # This method should not be called directly by user code.
-      def self.execute_sentences(sql, 
-        chunk_size: 200, 
-        logger: nil
-      )      
-        l = logger || BlackStack::DummyLogger.new(nil)
-        
-        # Fix issue: Ruby `split': invalid byte sequence in UTF-8 (ArgumentError)
-        # Reference: https://stackoverflow.com/questions/11065962/ruby-split-invalid-byte-sequence-in-utf-8-argumenterror
-        #
-        # Fix issue: `PG::SyntaxError: ERROR:  at or near "��truncate": syntax error`
-        #
-        l.logs "Fixing invalid byte sequences... "
-        sql.encode!('UTF-8', :invalid => :replace, :replace => '')
-        l.done
-
-        # Remove null bytes to avoid error: `String contains null byte`
-        # Reference: https://stackoverflow.com/questions/29320369/coping-with-string-contains-null-byte-sent-from-users
-        l.logs "Removing null bytes... "
-        sql.gsub!("\u0000", "")
-        l.done
-
-        # Get the array of sentences
-        l.logs "Splitting the sql sentences... "
-        sentences = sql.split(/;/i) 
-        l.done(details: "#{sentences.size} sentences")
-
-        # Chunk the array into parts of chunk_size elements
-        # Reference: https://stackoverflow.com/questions/2699584/how-to-split-chunk-a-ruby-array-into-parts-of-x-elements
-        l.logs "Bunlding the array of sentences into chunks of #{chunk_size} each... "
-        chunks = sentences.each_slice(chunk_size).to_a
-        l.done(details: "#{chunks.size} chunks")
-
-        chunk_number = -1
-        chunks.each { |chunk|
-          chunk_number += 1
-          statement = chunk.join(";\n").to_s.strip
-          l.logs "lines #{(chunk_size*chunk_number+1).to_s.blue} to #{(chunk_size*chunk_number+chunk.size).to_s.blue} of #{sentences.size.to_s.blue}... "
-          begin
-            @@db.execute(statement) #if statement.to_s.strip.size > 0
-            l.done
-          rescue => e
-            l.log(e.to_console.red)
-            raise "Error executing statement: #{statement}\n#{e.message}"
-          end
-        }
-      end # def db_execute_sql_sentences_file
-
-
       # Process one by one the `.sql` files inside the migration folders, 
       # running one by one the SQL sentences inside each file.
-      def self.run_migrations(node_name, logger: nil)
-        l = logger || BlackStack::DummyLogger.new(nil)
-        node_name = node_name.dup.to_s
+def self.run_migrations(node_name, logger: nil)
+  l = logger || BlackStack::DummyLogger.new(nil)
+  node_name = node_name.dup.to_s
 
-        l.logs "Getting node #{node_name.blue}... "
-        node = get_node(node_name)
-        raise ArgumentError, "Node not found: #{node_name}" if node.nil?
-        l.done
+  l.logs "Getting node #{node_name.blue}... "
+  node = get_node(node_name)
+  raise ArgumentError, "Node not found: #{node_name}" if node.nil?
+  l.done
 
-        # Initialize SSH connection
-        l.logs "Establishing SSH connection to node #{node_name.blue}... "
-        infra_node = BlackStack::Infrastructure::Node.new(node)
-        infra_node.connect
-        l.done
+  # Initialize SSH connection
+  l.logs "Establishing SSH connection to node #{node_name.blue}... "
+  infra_node = BlackStack::Infrastructure::Node.new(node)
+  infra_node.connect
+  l.done
+
+  begin
+    # Iterate over each migration folder
+    node[:migration_folders].each do |migrations_folder|
+      l.logs "Listing SQL files in remote folder #{migrations_folder.blue}... "
+
+      # List all .sql files in the remote migration folder
+      list_command = "find #{Shellwords.escape(migrations_folder)} -type f -name '*.sql' | sort"
+      remote_sql_files = infra_node.exec(list_command)
+
+      if remote_sql_files.nil? || remote_sql_files.empty?
+        l.logf "No SQL files found in #{migrations_folder.blue}."
+        next
+      end
+
+      # Split the output into an array of file paths
+      sql_files = remote_sql_files.split("\n").map(&:strip).reject(&:empty?)
+
+      l.done(details: "#{sql_files.size} SQL file(s) found.")
+
+      sql_files.each do |remote_file|
+        l.logs "Processing #{remote_file.blue} on node #{node_name.blue}... "
 
         begin
-binding.pry
-          # Iterate over each migration folder
-          node[:migration_folders].each do |migrations_folder|
-            l.logs "Listing SQL files in remote folder #{migrations_folder.blue}... "
+          # Read the content of the SQL file remotely
+          l.logs "Reading SQL file #{remote_file.blue}... "
+          sql_content = infra_node.exec("cat #{Shellwords.escape(remote_file)}")
+          l.done
 
-            # List all .sql files in the remote migration folder
-            list_command = "find #{Shellwords.escape(migrations_folder)} -type f -name '*.sql' | sort"
-            remote_sql_files = infra_node.exec(list_command)
+          # Split the SQL content into individual statements
+          l.logs "Splitting SQL statements... "
+          statements = sql_content.split(/;/).map(&:strip).reject { |stmt| stmt.empty? || stmt.start_with?('--') }
+          l.done(details: "#{statements.size} statement(s) found.")
 
-            if remote_sql_files.nil? || remote_sql_files.empty?
-              l.logf "No SQL files found in #{migrations_folder.blue}."
-              next
-            end
+          # Execute statements in batches of 25
+          statements.each_slice(25).with_index do |batch, batch_index|
+            # Calculate the range of statements in the current batch
+            start_index = batch_index * 25 + 1
+            end_index = start_index + batch.size - 1
 
-            # Split the output into an array of file paths
-            sql_files = remote_sql_files.split("\n").map(&:strip).reject(&:empty?)
+            l.logs "Executing statements #{start_index} to #{end_index}/#{statements.size} in batch #{batch_index + 1}... "
 
-            l.done(details: "#{sql_files.size} SQL file(s) found.")
+            begin
+              # Concatenate the batch of statements with semicolons and newlines
+              batch_sql = batch.join(";\n")
 
-            sql_files.each do |remote_file|
-              l.logs "Executing #{remote_file.blue} on node #{node_name.blue} via SSH... "
+              # Escape single quotes in the batch_sql to prevent syntax errors
+              escaped_batch_sql = batch_sql.gsub("'", "'\\''")
 
-              begin
-                # Construct the psql command
-                psql_command = "psql -U #{Shellwords.escape(node[:postgres_username])} -d #{Shellwords.escape(node[:postgres_database])} -f #{Shellwords.escape(remote_file)}"
+              # Retrieve PostgreSQL credentials
+              postgres_username = Shellwords.escape(node[:postgres_username])
+              postgres_password = Shellwords.escape(node[:postgres_password])
+              postgres_database = Shellwords.escape(node[:postgres_database])
 
-                # Execute the SQL script
-                infra_node.exec(psql_command)
-                l.done
+              # Construct the psql command with PGPASSWORD and proper quoting
+              psql_command = "export PGPASSWORD=#{postgres_password} && psql -U #{postgres_username} -d #{postgres_database} -c '#{escaped_batch_sql}'"
 
-              rescue => e
-                l.log(e.to_console.red)
-                raise "Error executing migration file: #{remote_file}\n#{e.message}"
-              end
+              # Optional: Log the psql command for debugging (ensure passwords are not logged in production)
+              # l.log "Executing command: #{psql_command}"
+
+              # Execute the SQL batch
+              ret = infra_node.exec(psql_command)
+              l.done #(details: "Batch #{batch_index + 1} executed successfully.")
+
+            rescue => e
+              # Log the error with batch details
+              l.logf "Error executing batch #{batch_index + 1} (statements #{start_index} to #{end_index}): #{e.message}".red
+
+              # Raise an exception to halt the migration process
+              raise "Error executing migration batch #{batch_index + 1}: #{e.message}"
             end
           end
-
-          l.logs "Migrations completed on node #{node_name.blue}."
-          l.done
 
         rescue => e
           l.log(e.to_console.red)
-          raise e
-        ensure
-          # Ensure SSH connection is closed
-          if infra_node && infra_node.connected?
-            l.logs "Closing SSH connection to node #{node_name.blue}... "
-            infra_node.disconnect
-            l.done
-          end
+          raise "Error processing migration file: #{remote_file}\n#{e.message}"
         end
-      end
 
+        l.done
+      end
+    end
+
+    l.logs "Migrations completed on node #{node_name.blue}."
+    l.done
+
+  rescue => e
+    l.log(e.to_console.red)
+    raise e
+  ensure
+    # Ensure SSH connection is closed
+    if infra_node #&& infra_node.connected?
+      l.logs "Closing SSH connection to node #{node_name.blue}... "
+      infra_node.disconnect
+      l.done
+    end
+  end
+end
 
       # Static method to handle migration operations
       def self.standard_migrations_processing(
