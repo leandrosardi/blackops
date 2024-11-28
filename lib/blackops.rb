@@ -1120,28 +1120,38 @@ def self.run_migrations(node_name, logger: nil)
             end_index = start_index + batch.size - 1
 
             l.logs "Executing statements #{start_index} to #{end_index}/#{statements.size} in batch #{batch_index + 1}... "
-
             begin
               # Concatenate the batch of statements with semicolons and newlines
-              batch_sql = batch.join(";\n")
+              batch_sql = batch.join(";\n") + ";" # Ensure the last statement ends with a semicolon
 
-              # Escape single quotes in the batch_sql to prevent syntax errors
-              escaped_batch_sql = batch_sql.gsub("'", "'\\''")
+              # Create a unique temporary file name
+              temp_file = "/tmp/migration_batch_#{batch_index + 1}_#{Time.now.to_i}.sql"
+
+              # Upload the batch_sql to the temporary file on the remote server
+              #l.logs "Uploading batch SQL to #{temp_file}... "
+              upload_command = "echo -e #{Shellwords.escape(batch_sql)} > #{temp_file}"
+              infra_node.exec(upload_command)
+              #l.done
 
               # Retrieve PostgreSQL credentials
               postgres_username = Shellwords.escape(node[:postgres_username])
               postgres_password = Shellwords.escape(node[:postgres_password])
               postgres_database = Shellwords.escape(node[:postgres_database])
 
-              # Construct the psql command with PGPASSWORD and proper quoting
-              psql_command = "export PGPASSWORD=#{postgres_password} && psql -U #{postgres_username} -d #{postgres_database} -c '#{escaped_batch_sql}'"
-
-              # Optional: Log the psql command for debugging (ensure passwords are not logged in production)
-              # l.log "Executing command: #{psql_command}"
-
+              # Construct the psql command with PGPASSWORD and execute the temporary SQL file
+              psql_command = "export PGPASSWORD=#{postgres_password} && psql -U #{postgres_username} -d #{postgres_database} -f #{Shellwords.escape(temp_file)}"
+              
               # Execute the SQL batch
+              #l.logs "Executing batch #{batch_index + 1}... "
               ret = infra_node.exec(psql_command)
-              l.done #(details: "Batch #{batch_index + 1} executed successfully.")
+              #l.done(details: "Batch #{batch_index + 1} executed successfully.")
+
+              # Remove the temporary SQL file
+              #l.logs "Removing temporary file #{temp_file}... "
+              infra_node.exec("rm #{Shellwords.escape(temp_file)}")
+              #l.done
+
+              l.done
 
             rescue => e
               # Log the error with batch details
@@ -1153,7 +1163,7 @@ def self.run_migrations(node_name, logger: nil)
           end
 
         rescue => e
-          l.log(e.to_console.red)
+          l.logf(e.to_console.red)
           raise "Error processing migration file: #{remote_file}\n#{e.message}"
         end
 
@@ -1161,7 +1171,7 @@ def self.run_migrations(node_name, logger: nil)
       end
     end
 
-    l.logs "Migrations completed on node #{node_name.blue}."
+    l.log "Migrations completed on node #{node_name.blue}."
     l.done
 
   rescue => e
@@ -1169,7 +1179,7 @@ def self.run_migrations(node_name, logger: nil)
     raise e
   ensure
     # Ensure SSH connection is closed
-    if infra_node #&& infra_node.connected?
+    if infra_node && infra_node.connected?
       l.logs "Closing SSH connection to node #{node_name.blue}... "
       infra_node.disconnect
       l.done
