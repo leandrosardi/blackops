@@ -1131,7 +1131,8 @@ def self.run_migrations(node_name, logger: nil)
               # Upload the batch_sql to the temporary file on the remote server
               #l.logs "Uploading batch SQL to #{temp_file}... "
               upload_command = "echo -e #{Shellwords.escape(batch_sql)} > #{temp_file}"
-              infra_node.exec(upload_command)
+              #infra_node.exec(upload_command)
+              infra_node.ssh.exec!(upload_command) # IMPORTANT: BlackStack::Infrastructure::exec desn't support commands with `>`
               #l.done
 
               # Retrieve PostgreSQL credentials
@@ -1141,7 +1142,7 @@ def self.run_migrations(node_name, logger: nil)
 
               # Construct the psql command with PGPASSWORD and execute the temporary SQL file
               psql_command = "export PGPASSWORD=#{postgres_password} && psql -U #{postgres_username} -d #{postgres_database} -f #{Shellwords.escape(temp_file)}"
-              
+
               # Execute the SQL batch
               #l.logs "Executing batch #{batch_index + 1}... "
               ret = infra_node.exec(psql_command)
