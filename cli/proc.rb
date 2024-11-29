@@ -55,9 +55,9 @@ begin
     # Define the table header
     rows << [
       'Node'.bold,
-      'Process'.ljust(68).bold,
-      'Process Status'.ljust(15).bold,
-      'Node Status'.ljust(15).bold,
+      'Process'.ljust(55).bold,
+      'Process'.ljust(8).bold,
+      'Node'.ljust(15).bold,
     ]
 
     all.each do |j|
