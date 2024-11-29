@@ -1083,35 +1083,31 @@ def self.run_migrations(node_name, logger: nil)
   begin
     # Iterate over each migration folder
     node[:migration_folders].each do |migrations_folder|
-      l.logs "Listing SQL files in remote folder #{migrations_folder.blue}... "
-
+      l.logs "Listing #{migrations_folder.blue}... "
       # List all .sql files in the remote migration folder
       list_command = "find #{Shellwords.escape(migrations_folder)} -type f -name '*.sql' | sort"
       remote_sql_files = infra_node.exec(list_command)
-
       if remote_sql_files.nil? || remote_sql_files.empty?
         l.logf "No SQL files found in #{migrations_folder.blue}."
         next
       end
-
       # Split the output into an array of file paths
       sql_files = remote_sql_files.split("\n").map(&:strip).reject(&:empty?)
-
       l.done(details: "#{sql_files.size} SQL file(s) found.")
 
       sql_files.each do |remote_file|
-        l.logs "Processing #{remote_file.blue} on node #{node_name.blue}... "
+        l.logs "#{remote_file.blue}... "
 
         begin
           # Read the content of the SQL file remotely
-          l.logs "Reading SQL file #{remote_file.blue}... "
+          #l.logs "Reading SQL file #{remote_file.blue}... "
           sql_content = infra_node.exec("cat #{Shellwords.escape(remote_file)}")
-          l.done
+          #l.done
 
           # Split the SQL content into individual statements
-          l.logs "Splitting SQL statements... "
+          #l.logs "Splitting SQL statements... "
           statements = sql_content.split(/;/).map(&:strip).reject { |stmt| stmt.empty? || stmt.start_with?('--') }
-          l.done(details: "#{statements.size} statement(s) found.")
+          #l.done(details: "#{statements.size} statement(s) found.")
 
           # Execute statements in batches of batch_size
           batch_size = 200
@@ -1120,7 +1116,7 @@ def self.run_migrations(node_name, logger: nil)
             start_index = batch_index * batch_size + 1
             end_index = start_index + batch.size - 1
 
-            l.logs "Executing statements #{start_index} to #{end_index}/#{statements.size} in batch #{batch_index + 1}... "
+            #l.logs "Executing statements #{start_index} to #{end_index}/#{statements.size} in batch #{batch_index + 1}... "
             begin
               # Concatenate the batch of statements with semicolons and newlines
               batch_sql = batch.join(";\n") + ";" # Ensure the last statement ends with a semicolon
@@ -1131,7 +1127,6 @@ def self.run_migrations(node_name, logger: nil)
               # Upload the batch_sql to the temporary file on the remote server
               #l.logs "Uploading batch SQL to #{temp_file}... "
               upload_command = "echo -e #{Shellwords.escape(batch_sql)} > #{temp_file}"
-              #infra_node.exec(upload_command)
               infra_node.ssh.exec!(upload_command) # IMPORTANT: BlackStack::Infrastructure::exec desn't support commands with `>`
               #l.done
 
@@ -1153,8 +1148,6 @@ def self.run_migrations(node_name, logger: nil)
               infra_node.exec("rm #{Shellwords.escape(temp_file)}")
               #l.done
 
-              l.done
-
             rescue => e
               # Log the error with batch details
               l.logf "Error executing batch #{batch_index + 1} (statements #{start_index} to #{end_index}): #{e.message}".red
@@ -1163,13 +1156,14 @@ def self.run_migrations(node_name, logger: nil)
               raise "Error executing migration batch #{batch_index + 1}: #{e.message}"
             end
           end
-
+        
         rescue => e
-          l.logf(e.to_console.red)
+          #l.logf(e.to_console.red)
           raise "Error processing migration file: #{remote_file}\n#{e.message}"
         end
 
         l.done
+
       end
     end
 
