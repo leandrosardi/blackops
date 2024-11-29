@@ -1155,7 +1155,7 @@ require 'contabo-client'
                 end
 
               rescue => e
-                #l.logf(e.to_console.red)
+                l.logf(e.to_console.red)
                 raise "Error processing migration file: #{remote_file}\n#{e.message}"
               end
 
