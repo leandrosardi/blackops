@@ -1092,27 +1092,26 @@ require 'contabo-client'
 
             sql_files.each do |remote_file|
               l.logs "#{remote_file.blue}... "
-#binding.pry if remote_file =~ /0\.schema\.ddl\.1\.sql/
               begin
                 # Read the content of the SQL file remotely
-                #l.logs "Reading SQL file #{remote_file.blue}... "
+                l.logs "Reading SQL file #{remote_file.blue}... "
                 sql_content = infra_node.exec("cat #{Shellwords.escape(remote_file)}")
-                #l.done
+                l.done
 
                 # Split the SQL content into individual statements
-                #l.logs "Splitting SQL statements... "
+                l.logs "Splitting SQL statements... "
                 statements = sql_content.split(/;/).map(&:strip).reject { |stmt| stmt.empty? } #|| stmt.start_with?('--') }
-                #l.done(details: "#{statements.size} statement(s) found.")
+                l.done(details: "#{statements.size} statement(s) found.")
 
                 # Execute statements in batches of batch_size
                 batch_size = 200
-                statements.each_slice(batch_size).with_index do |batch, batch_index|
-#binding.pry if batch =~ /CREATE TABLE IF NOT EXISTS public\.\"user\"/
+                batches = statements.each_slice(batch_size)
+                batches.with_index do |batch, batch_index|
                   # Calculate the range of statements in the current batch
                   start_index = batch_index * batch_size + 1
                   end_index = start_index + batch.size - 1
 
-                  #l.logs "Executing statements #{start_index} to #{end_index}/#{statements.size} in batch #{batch_index + 1}... "
+                  l.logs "Batch #{batch_index + 1}/#{batches.size}... "
                   begin
                     # Concatenate the batch of statements with semicolons and newlines
                     batch_sql = batch.join(";\n") + ";" # Ensure the last statement ends with a semicolon
@@ -1151,8 +1150,10 @@ require 'contabo-client'
                     # Raise an exception to halt the migration process
                     raise "Error executing migration batch #{batch_index + 1}: #{e.message}"
                   end
+
+                  l.done
                 end
-              
+
               rescue => e
                 #l.logf(e.to_console.red)
                 raise "Error processing migration file: #{remote_file}\n#{e.message}"
