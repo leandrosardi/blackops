@@ -11,8 +11,6 @@ require 'shellwords'
 require 'highline'
 require 'terminal-table'
 require 'blackstack-nodes' 
-#require_relative '/home/leandro/code1/blackstack-nodes/lib/blackstack-nodes.rb'
-#require 'blackstack-db'
 require 'contabo-client'
 
 #module BlackStack
