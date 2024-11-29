@@ -1113,10 +1113,11 @@ def self.run_migrations(node_name, logger: nil)
           statements = sql_content.split(/;/).map(&:strip).reject { |stmt| stmt.empty? || stmt.start_with?('--') }
           l.done(details: "#{statements.size} statement(s) found.")
 
-          # Execute statements in batches of 25
-          statements.each_slice(25).with_index do |batch, batch_index|
+          # Execute statements in batches of batch_size
+          batch_size = 200
+          statements.each_slice(batch_size).with_index do |batch, batch_index|
             # Calculate the range of statements in the current batch
-            start_index = batch_index * 25 + 1
+            start_index = batch_index * batch_size + 1
             end_index = start_index + batch.size - 1
 
             l.logs "Executing statements #{start_index} to #{end_index}/#{statements.size} in batch #{batch_index + 1}... "
@@ -1172,7 +1173,7 @@ def self.run_migrations(node_name, logger: nil)
     end
 
     l.log "Migrations completed on node #{node_name.blue}."
-    l.done
+    #l.done
 
   rescue => e
     l.log(e.to_console.red)
