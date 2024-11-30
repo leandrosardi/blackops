@@ -1,6 +1,6 @@
 # Description:
 # - This script is used to install the required source code for running massprospecting slave nodes.
-# 
+#
 
 # Dedicated code folder for MassProspecting code.
 #
@@ -12,19 +12,20 @@ RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then
     git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder
 fi
 
-RUN git -C /home/$$ssh_username/code1/$$code_folder fetch --all
-
-RUN git -C /home/$$ssh_username/code1/$$code_folder reset --hard origin/$$git_branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git fetch --all
+RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git_branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 
 ## DEPRECATED
 ##
 ## Configuration file
-## 
+##
 ## 1. Delete existing file /home/$$ssh_username/code1/$$code_folder/conf.rb
 ## 2. Delete existing folder /home/$$ssh_username/code1/secret
 ## 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
 ## 4. Copy the file /home/$$ssh_username/code1/secret/config-slave.rb into folder /home/$$ssh_username/code1/$$code_folder/config.rb
-## 
+##
 #RUN rm -f /home/$$ssh_username/code1/$$code_folder/conf.rb
 #RUN rm -rf /home/$$ssh_username/code1/secret
 #RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
