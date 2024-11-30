@@ -62,6 +62,9 @@ RUN ruby -v
 # Install bundler
 RUN gem install bundler
 
+# Change the ownership to your current user.
+RUN sudo chown -R $$ssh_username:$$ssh_username /usr/local/rvm
+
 # Create code directory for '$$ssh_username' user
 #RUN mkdir -p /home/$$ssh_username/code
 #RUN chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/code
