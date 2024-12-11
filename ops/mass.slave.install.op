@@ -1,4 +1,3 @@
-# Download service files
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.sh
 
@@ -68,7 +67,7 @@ RUN cp -f "/tmp/mass_slave_timeline.sh" "/home/$$ssh_username/mass_slave_timelin
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_timeline.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_timeline.sh"
 
-# Grant the $$ssh_username user to run 
+# Grant the $$ssh_username user to run
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_slave_app.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_slave_app.sh
 

@@ -6,12 +6,27 @@
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
-# Cloning and updating code of my.saas in the ~/code/sdk folder.
+## Cloning and updating code of mass-sdk in the ~/code/sdk folder.
+##
+#RUN if [ ! -d /home/$$ssh_username/code1/$$slave_code_folder ]; then
+#    git clone https://$$git_username:$$git_password@github.com/massprospecting/$$slave_git_repository /home/$$ssh_username/code1/$$slave_code_folder
+#fi
+
+# Cloning and updating code of mass-sdk in the ~/code/sdk folder.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then
     git clone https://$$git_username:$$git_password@github.com/$$sdk_git_repository /home/$$ssh_username/code1/$$code_folder
 fi
 
+## Pull last version of source code
+##
+#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git fetch --all
+#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git reset --hard origin/$$slave_git_branch
+#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git switch $$slave_git_branch
+#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git origin $$slave_git_branch
+
+# Pull last version of source code
+#
 RUN cd /home/$$ssh_username/code1/$$code_folder && git fetch --all
 RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git_branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
