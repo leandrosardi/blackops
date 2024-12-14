@@ -112,7 +112,7 @@ RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder 
 # 13. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postmark_api_key by $$postmark_api_key
 # 14. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!adspower_api_key by $$adspower_api_key
 # 15. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!domain by $$domain
-# 16. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!free_slave_nodes by $$free_slave_nodes
+
 # 17. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!slaves with $$slaves
 # 18. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!workers with $$workers
 
@@ -161,11 +161,9 @@ RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/cod
 # 15. Replace !!domain with $$domain
 RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 16. Replace !!free_slave_nodes with $$free_slave_nodes
-RUN sed -i "s/!!free_slave_nodes/$$free_slave_nodes/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 17. Replace !!slaves with $$slaves
 RUN sed -i "s/!!slaves/$$slaves/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 18. Replace !!workers with $$workers
-#RUN sed -i "s/!!workers/$$workers/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!workers/$$workers/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"

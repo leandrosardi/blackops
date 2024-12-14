@@ -569,7 +569,15 @@ require 'contabo-client'
           # Replace parameters in the fragment
           params.each do |key|
             value = param_values[key.to_sym] || param_values[key.to_s]
-            fragment.gsub!("$$#{key.to_s}", value.to_s)
+            replacement = value
+            if replacement.is_a?(Array) || replacement.is_a?(Hash)
+              replacement = JSON.pretty_generate(replacement) 
+            end
+            if replacement.is_a?(String)
+              replacement = replacement.gsub("\n", "\\n")   # Replace actual newlines with \n literal
+              replacement = replacement.gsub("/", "\\/")    # Escape forward slashes for sed
+            end
+            fragment.gsub!("$$#{key.to_s}", Shellwords.escape(replacement.to_s))
           end
 
           # Execute the fragment using the provided execute_fragment_proc
