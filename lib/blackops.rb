@@ -572,10 +572,13 @@ require 'contabo-client'
             replacement = value
             if replacement.is_a?(Array) || replacement.is_a?(Hash)
               replacement = JSON.pretty_generate(replacement) 
-            end
-            if replacement.is_a?(String)
               replacement = replacement.gsub("\n", "\\n")   # Replace actual newlines with \n literal
               replacement = replacement.gsub("/", "\\/")    # Escape forward slashes for sed
+            elsif replacement.is_a?(String)
+              replacement = replacement.gsub("\n", "\\n")   # Replace actual newlines with \n literal
+              replacement = replacement.gsub("/", "\\/")    # Escape forward slashes for sed
+            else 
+              raise "replacement must be array, hash, string, int, float, or bool" unless [TrueClass, FalseClass, Integer, Float].any? { |c| replacement.is_a?(c) }
             end
             fragment.gsub!("$$#{key.to_s}", Shellwords.escape(replacement.to_s))
           end
