@@ -40,3 +40,12 @@ RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder 
 
 # 1. Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$code_folder/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!vymeco_api_key/$$vymeco_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!mass_api_key/$$mass_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!mass_api_url/$$mass_api_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!mass_api_port/$$mass_api_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!aws_s3_region/$$aws_s3_region/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!aws_s3_access_key_id/$$aws_s3_access_key_id/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!aws_s3_secret_access_key/$$aws_s3_secret_access_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!aws_s3_bucket_name/$$aws_s3_bucket_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
