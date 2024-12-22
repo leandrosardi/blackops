@@ -6,24 +6,11 @@
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
-## Cloning and updating code of mass-sdk in the ~/code/sdk folder.
-##
-#RUN if [ ! -d /home/$$ssh_username/code1/$$slave_code_folder ]; then
-#    git clone https://$$git_username:$$git_password@github.com/massprospecting/$$slave_git_repository /home/$$ssh_username/code1/$$slave_code_folder
-#fi
-
 # Cloning and updating code of mass-sdk in the ~/code/sdk folder.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then
-    git clone https://$$git_username:$$git_password@github.com/$$sdk_git_repository /home/$$ssh_username/code1/$$code_folder
+    git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder
 fi
-
-## Pull last version of source code
-##
-#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git fetch --all
-#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git reset --hard origin/$$slave_git_branch
-#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git switch $$slave_git_branch
-#RUN cd /home/$$ssh_username/code1/$$slave_code_folder && git origin $$slave_git_branch
 
 # Pull last version of source code
 #
@@ -32,19 +19,24 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git
 RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 
-# Configuration file
-#
-# 1. Delete existing file /home/$$ssh_username/code1/$$code_folder/conf.rb
-# 2. Delete existing folder /home/$$ssh_username/code1/secret
-# 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
-# 4. Copy the file /home/$$ssh_username/code1/secret/config-sdk.rb into folder /home/$$ssh_username/code1/$$code_folder/config.rb
-#
-RUN rm -f /home/$$ssh_username/code1/$$code_folder/conf.rb
-RUN rm -rf /home/$$ssh_username/code1/secret
-RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
-RUN cp /home/$$ssh_username/code1/secret/config-sdk.rb /home/$$ssh_username/code1/$$code_folder/config.rb
+## DEPRECATED
+##
+## Configuration file
+##
+## 1. Delete existing file /home/$$ssh_username/code1/$$code_folder/conf.rb
+## 2. Delete existing folder /home/$$ssh_username/code1/secret
+## 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+## 4. Copy the file /home/$$ssh_username/code1/secret/config-sdk.rb into folder /home/$$ssh_username/code1/$$code_folder/config.rb
+##
+#RUN rm -f /home/$$ssh_username/code1/$$code_folder/conf.rb
+#RUN rm -rf /home/$$ssh_username/code1/secret
+#RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
+#RUN cp /home/$$ssh_username/code1/secret/config-sdk.rb /home/$$ssh_username/code1/$$code_folder/config.rb
 
 # Bundler
 # Glitch: https://github.com/MassProspecting/deployment/issues/38
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
+
+# 1. Copy MySaaSFile to config.rb
+RUN cp "/home/$$ssh_username/code1/$$code_folder/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
