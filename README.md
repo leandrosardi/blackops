@@ -233,7 +233,7 @@ There are some considerations about the repositories.
 The argument `--name` is not really necessary in the command line, 
 
 ```
-ops source hostname.op --node=prod1 --name=prod1
+ruby source.rb hostname --node=prod1 --name=prod1
 ```
 
 because it is already defined in the hash descriptor of the node (`:name`).
@@ -278,17 +278,17 @@ E.g.:
 The `--rubylib` argument in the command line is not longer needed:
 
 ```
-ops source set-rubylib.op --node=prod1
+ruby source.rb set-rubylib --node=prod1
 ```
 
 ## 8. Connecting
 
-You can access any node via SSH using the `ops ssh` command and the credentials defined in `BlackOpsFile`.
+You can access any node via SSH using the `ssh.rb` script and the credentials defined in `BlackOpsFile`.
 
-The goal of the `ops ssh` command is that you can access any node easily, writing short commands.
+The goal of the `ssh.rb` script is that you can access any node easily, writing short commands.
 
 ```
-ops ssh prod1
+ruby ssh.rb prod1
 ```
 
 **Notes:**
@@ -298,28 +298,17 @@ ops ssh prod1
 E.g.:
 
 ```
-ops ssh prod1 --root
-```
-
-- You can do the same from Ruby code.
-
-E.g.:
-
-```ruby
-BlackOps.ssh( :prod1,
-    connect_as_root: true,
-    logger: l
-)
+ruby ssh.rb prod1 --root
 ```
 
 ## 9. Installing
 
-The `ops install` executes one or more `.op` scripts, like the `ops source` does.
+The `ruby install.rb` executes one or more `.op` scripts, like `ruby source.rb` does.
 
 E.g.:
 
 ```
-ops install worker*
+ruby install.rb --node=worker*
 ```
 
 **Notes:**
@@ -350,88 +339,7 @@ BlackOps.add_node({
 E.g.:
 
 ```
-ops install worker* --root
-```
-
-- You can do the same from Ruby code.
-
-E.g.:
-
-```ruby
-# Get hash descriptor of the node.
-h = BlackOps.get_node(:worker06)
-# Create instance of node.
-n = BlackStack::Infrastructure::Node.new(h)
-
-BlackOps.install_remote(
-    node: n,
-    connect_as_root: true,
-    logger: l
-)
-```
-
-- Internally, the `BlackOps.install_remote` method calls `BlackOps.source_remote`.
-
-- The `ops install` command supports all the same arguments than `ops source`, except the `op` argument:
-
-    1. `--local`.
-    2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
-    3. `--root`
-    4. `--config`
-    5. `--ssh`
-
-- The `BlackOps.install_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
-
-```ruby
-# Get hash descriptor of the node.
-h = BlackOps.get_node(:worker06)
-# Create instance of node.
-n = BlackStack::Infrastructure::Node.new(h)
-
-BlackOps.install_remote(
-        node: n,
-        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
-        parameters: => {
-            'name' => 'dev1',
-        },
-        logger: l   
-)
-```
-
-- There is a `BlackOps.install_local` method too.
-
-```ruby
-BlackOps.install_local(
-        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
-        parameters: => {
-            'name' => 'dev1',
-        },
-        logger: l   
-)
-```
-
-- When running `ops install` in your local computer, use the `--local` argument, and don't forget the `--install_ops` argument too.
-
-```
-ops install --local \
-    --install_ops "mysaas.install.ubuntu_20_04.base,mysaas.install.ubuntu_20_04.postgresql,mysaas.install.ubuntu_20_04.nginx,mysaas.install.ubuntu_20_04.adspower" \
-```
-
-```ruby
-BlackOps.install_local(
-        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
-        parameters: => {
-            'name' => 'dev1',
-            ...
-            'install_ops' => [ # <===
-                'mysaas.install.ubuntu_20_04.base',
-                'mysaas.install.ubuntu_20_04.postgresql',
-                'mysaas.install.ubuntu_20_04.nginx',
-                'mysaas.install.ubuntu_20_04.adspower',
-            ],
-        },
-        logger: l   
-)
+ruby install.rb --node=worker* --root
 ```
 
 **Pre-Built Install Operations:**
