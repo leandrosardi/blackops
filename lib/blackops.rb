@@ -2,15 +2,16 @@ BLACKOPS_VERSION = '0.1'
 
 require 'pry'
 require 'blackstack-core'
+require 'blackstack-nodes' 
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
+
 require 'resolv'
 require 'public_suffix'
 require 'open3'
 require 'shellwords'
 require 'highline'
 require 'terminal-table'
-require 'blackstack-nodes' 
 require 'contabo-client'
 
 #module BlackStack

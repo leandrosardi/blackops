@@ -13,3 +13,7 @@ Gemfile.lock
 
 # dummy output file
 /cli/dummy.txt
+
+# dummy output file
+/cli/*.op
+!/cli/dummy.op

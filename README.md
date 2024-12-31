@@ -1,21 +1,21 @@
-**THIS PROJECT IS UNDER CONSTRUCTION**
-
-**Just a VERY SIMPLE library to manage your DevOps.**
-
 # BlackOps
 
 The **BlackOps** library makes it easy to manage your DevOps.
 
-Once installed, BlackOps gives you an `ops` tool to perform your deployments and monitor your nodes from the comfort of your command line.
+BlackOps gives you an script series to perform your deployments and monitor your nodes from the comfort of your command line.
 
-The `ops` command provides the following features: 
+BlackOps provides the following features: 
 
 1. **Continious Deployment**,
 2. **Logs Monitoring**, 
 3. **Processes Monitoring**; and
 4. **Infrastructure Monitoring**.
 
-**Note:** The `ops` command has been tested on Ubuntu 20.04.
+**Note:** BlackOps has been tested on the following stack:
+
+- Ubuntu 20.04,
+- Ruby 3.1.2; and
+- Bundler 2.3.7.
 
 **Table of Contents**
 
@@ -40,55 +40,40 @@ The `ops` command provides the following features:
 
 ## 1. Getting Started
 
-1. Install the `ops` command.
+1. Clone the project.
 
 ```
-sudo apt-get update
-sudo apt-get install blackops
+mkdir -p ~/code1
+cd ~/code1
+git clone https://github.com/leandrosardi/blackops
 ```
 
-2. Run an operation.
+2. Install gems.
+
+```
+cd ~/code1/blackops
+bundler update
+```
+
+3. Run an operation.
 
 The code below will download and execute a `.ops` script that sets the hostname of your computer. 
 
 ```
+cd ~/code1/blackops/cli
+
 wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op
 
-ops source ./hostname.op --local --name=dev1
+ruby source.rb ./hostname.op --local --name=dev1
 ```
 
 **Notes:**
 
-Here are some other considerations about the `ops` command.
+Here are some other considerations about the `source.rb` script:
 
 - You can write `./hostname` instead of `./hostname.op`.
 
 The `source` command will look for the `./hostname` file. And if `./hostname` doesn't exists, then the `source` command will try with `./hostname.op`
-
-- If you are writing Ruby code, you can install the `blackops` gem. Such a gem allows you to perform all the same operations from Ruby code.
-
-First, install the gem.
-
-```
-gem install blackops
-```
-
-Then, execute your ops from a Ruby script using the `source_local` method:
-
-```ruby
-require 'simple_cloud_logging'
-require 'blackops'
-
-l = BlackStack::LocalLogger.new('./example.log')
-
-BlackOps.source_local(
-        op: './hostname.op',
-        parameters: => {
-            'name' => 'dev1',
-        },
-        logger: l   
-)
-```
 
 - The content of `hostname.op` looks like this:
 
@@ -104,7 +89,7 @@ BlackOps.source_local(
 RUN hostnamectl set-hostname "$$name"
 ```
 
-- The argument `--name` in the `ops` command is to replace the `$$name` variable into the `.ops` file.
+- The argument `--name` in the `source.rb` script is to replace the `$$name` variable into the `.ops` file.
 
 - You can define any variable into your `.ops` file, and you can set its value into a command argument. 
 
@@ -116,7 +101,7 @@ E.g.:
 RUN export RUBYLIB=$$rubylib
 ```
 
-- All the variables defined into the `.ops` file must be present into the list of arguments of the `ops` command. Or, if you are using the `blackops` gem, all the variables must be present into the `parameters` hash.
+- All the variables defined into the `.ops` file must be present into the list of arguments of the `source.rb` script.
 
 ## 2. Remote Operations
 
