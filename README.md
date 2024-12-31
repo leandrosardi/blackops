@@ -110,33 +110,7 @@ You can also run operations on a remote node through SSH.
 Use the `--ssh` arguments instead of `--local`.
 
 ```
-ops source ./hostname.op --ssh=username:password@ip:port --name=prod1
-```
-
-If you are coding with Ruby, call to the `source_remote` method.
-
-```ruby
-require 'simple_cloud_logging'
-require 'blackstack-nodes'
-require 'blackops'
-
-l = BlackStack::LocalLogger.new('./example.log')
-
-n = BlackStack::Infrastructure::Node.new({
-    :ip => '81.28.96.103',  
-    :ssh_username => 'root',
-    :ssh_port => 22,
-    :ssh_password => '****',
-})
-
-BlackOps.source_remote(
-        node: n,
-        op: './hostname.op',
-        parameters: => {
-            'name' => 'dev1',
-        },
-        logger: l   
-)
+ruby source.rb ./hostname.op --ssh=username:password@ip:port --name=prod1
 ```
 
 ## 3. Configuration Files
@@ -144,8 +118,6 @@ BlackOps.source_remote(
 You can define nodes into a **configuration file**.
 
 Such a configuration file is written with Ruby syntax.
-
-The `ops` command has a Ruby interpreter enbedded, so you don't need to have Ruby installed in your computer.
 
 **BlackOpsFile**
 
@@ -160,7 +132,7 @@ BlackOps.add_node({
 })
 ```
 
-Then you can run the `ops` command referencing to 
+Then you can run the `source.rb` command referencing to 
 
 1. such a configuration file;
 
@@ -171,29 +143,7 @@ and
 3. the `--root` flag to use `root` user for this operation.
 
 ```
-ops source ./hostname.ops --config=./BlackOpsFile --node=prod1 --root --name=prod1 
-```
-
-You can do the same from Ruby code by **including** the `BlackOpsFile` and calling the `source_remote` method:
-
-```ruby
-require 'simple_cloud_logging'
-require 'blackstack-nodes'
-require 'blackops'
-
-l = BlackStack::LocalLogger.new('./example.log')
-
-include './BlackOpsFile' # <===
-
-BlackOps.source_remote(
-        'prod1', # name of node defined in `BlackOpsFile`
-        op: './hostname.op',
-        parameters: => {
-            'name' => 'dev1',
-        },
-        connect_as_root: true,
-        logger: l
-)
+ruby source.rb ./hostname.ops --config=./BlackOpsFile --node=prod1 --root --name=prod1 
 ```
 
 **Note:** 
@@ -204,7 +154,7 @@ BlackOps.source_remote(
 
 Additionally, you can store one or more paths into the environment variable `$OPSLIB`. 
 
-The `ops source` command will look for `BlackOpsFile` there.
+The `source.rb` script will look for `BlackOpsFile` there.
 
 Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `ops source` command.
 
@@ -213,7 +163,7 @@ E.g.:
 ```
 export OPSLIB=~/
 
-ops source ./hostname.ops --node=prod1 --name=prod1
+ruby source.rb hostname --node=prod1 --name=prod1
 ```
 
 The environment variable `$OPSLIB` can include a list of folders separated by `:`. 
@@ -223,14 +173,14 @@ E.g.:
 ```
 export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
 
-ops source ./hostname.ops --node=prod1 --name=prod1
+ruby source,rb hostname --node=prod1 --name=prod1
 ```
 
 **Notes:**
 
 There are some considerations about the `$OPSLIB` variable:
 
-- If the file `BlackOpsFile` file is present into more than one path, then the `ops` command with show an error message: `Configuration file is present in more than one path: <list of paths.>`.
+- If the file `BlackOpsFile` file is present into more than one path, then the `source.rb` script will show an error message: `Configuration file is present in more than one path: <list of paths.>`.
 
 ## 5. Remote `.op` Files
 
@@ -239,7 +189,7 @@ You can refer to `.op` files hosted in the web.
 E.g.:
 
 ```
-ops source https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --name=prod1
+ruby source.rb https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --name=prod1
 ```
 
 ## 6. Repositories
