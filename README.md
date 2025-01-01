@@ -332,7 +332,32 @@ There are some pre-built install operations that you can use:
 
 ## 10. Migrations
 
-_pending_
+The `migrations.rb` script connect to the database into a node and executes a series of SQL files.
+
+```
+ruby migrations.rb --node=prod1
+```
+
+You have to define the list of folders here to find such SQL files.
+
+```ruby
+BlackOps.add_node({
+    :name => 'prod1',         
+    ...
+    :migration_folders => [
+        '/home/blackstack/code1/master/sql',
+        ...
+    ],
+})
+```
+
+**Notes:** 
+
+- The list of folders are not referencing to paths in your local computer, but paths into the node.
+
+- The ist of migrations folders will be processed ony by one, in the same order they are listed. 
+
+- The files into each folder will be processed one by one too, sorted by name.
 
 ## 11. Deploying
 
