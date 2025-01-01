@@ -28,15 +28,16 @@ BlackOps provides the following features:
 7. [Custom Parameters](#7-custom-parameters)
 8. [Connecting](#8-connecting)
 9. [Installing](#9-installing)
-10. [Deploying](#10-deploying)
-11. [Starting and Stopping Nodes](#11-starting-and-stopping-nodes)
-12. [Configuration Templates](#12-configuration-templates)
-13. [Monitoring](#13-monitoring)
-14. [Infrastructure Managing](#14-infrastructure-managing)
-15. [Custom Alerts](#15-custom-alerts)
-16. [Processes Watching](#16-processes-watching)
-17. [Logs Watching](#17-logs-watching)
-18. [Further Work](#18-further-work)
+10. [Migrations](#10-migration)
+11. [Deploying](#11-deploying)
+12. [Starting and Stopping Nodes](#12-starting-and-stopping-nodes)
+13. [Configuration Templates](#13-configuration-templates)
+14. [Monitoring](#14-monitoring)
+15. [Infrastructure Managing](#15-infrastructure-managing)
+16. [Custom Alerts](#16-custom-alerts)
+17. [Processes Watching](#17-processes-watching)
+18. [Logs Watching](#18-logs-watching)
+19. [Further Work](#19-further-work)
 
 ## 1. Getting Started
 
@@ -329,7 +330,11 @@ There are some pre-built install operations that you can use:
 - [Install Nginx on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.nginx.op).
 - [Install AdsPower on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.adspower.op).
 
-## 10. Deploying
+## 10. Migrations
+
+_pending_
+
+## 11. Deploying
 
 The `ops deploy` executes one or more `.op` scripts (like the `ops source` does), and it also connects a **PostgreSQL database** for running SQL migrations.
 
@@ -536,7 +541,7 @@ There are some pre-built deploy operations that you can use:
 - [Deploy source code of slave node of MassProspsecting](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.slave.deploy.op).
 - [Deploy source code of MassProspsecting SDK](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.sdk.deploy.op).
 
-## 11. Starting and Stopping Nodes
+## 12. Starting and Stopping Nodes
 
 You can define a list of operations for:
 
@@ -756,11 +761,11 @@ There are some pre-built operations for starting or stopping your software:
 - [Start processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op).
 - [Stop processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op)
 
-## 12. Configuration Templates
+## 13. Configuration Templates
 
 _pending_
 
-## 13. Monitoring
+## 14. Monitoring
 
 Your can list your nodes and monitor the usage of CPU, RAM and disk space.
 
@@ -829,7 +834,7 @@ ops list worker*
 
 - If you press `CTRL+C`, the `ops list` command will terminate.
 
-## 14. Infrastructure Managing
+## 15. Infrastructure Managing
 
 You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
 
@@ -872,7 +877,7 @@ E.g.: You developed a scalable SAAS that creates a dedicated instance on Contabo
 
 To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too, by editing your `BlackOpsFile`
 
-## 15. Custom Alerts
+## 16. Custom Alerts
 
 You can write code snipets of monitoring of your nodes:
 
@@ -910,7 +915,7 @@ Using the `ops alerts` command, you can get a report of the alerts raised by eac
 ops alerts s*
 ```
 
-## 16. Processes Watching
+## 17. Processes Watching
 
 When you define a node, you can specify what are the processes that will be running there.
 
@@ -953,7 +958,7 @@ ops proc worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-## 17. Logs Watching
+## 18. Logs Watching
 
 When you define a node, you can specify what are the log files that you may want to watch.
 
@@ -1039,7 +1044,7 @@ ops keywords worker* --filename=*dispatch.log
 
 - The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
 
-## 18. Further Work
+## 19. Further Work
 
 ### Email Notifications
 
