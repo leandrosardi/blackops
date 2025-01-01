@@ -473,7 +473,58 @@ There are some pre-built operations for starting or stopping your software:
 
 ## 13. Configuration Templates
 
-_pending_
+Use tempaltes to avoid code duplication in your configuration file.
+
+**BlackOpsFile**
+
+```ruby
+# Re-usabeTemplates for Node-Descriptions
+#
+@t = {
+    # SSH common parameters
+    :ssh => {
+        :ssh_username => 'blackstack',
+        :ssh_port => 22,
+    },
+    # PostgreSQL commons parameters.
+    :postgres => {
+        :postgres_port => 5432,
+        :postgres_username => 'blackstack',
+    },
+    # git credentials
+    :git => {
+        :git_username => 'leandrosardi',
+        :git_password => GIT_PASSWORD,
+    },
+}
+
+...
+
+BlackOps.add_node({
+    :name => 'worker01',
+    :ip => '123.123.123.1',
+    # it is recommended to manage one different SSH password for each node
+    :ssh_password => 'foo-worker01-password123',
+    :ssh_root_password => 'foo-worker01-root-password123',
+}.merge(
+    @t[:ssh],
+    @t[:git],
+))
+
+BlackOps.add_node({
+    :name => 'worker02',
+    :ip => '123.123.123.2',
+    # it is recommended to manage one different SSH password for each node
+    :ssh_password => 'foo-worker02-password456',
+    :ssh_root_password => 'foo-worker02-root-password456',
+}.merge(
+    @t[:ssh],
+    @t[:git],
+))
+
+...
+
+```
 
 ## 14. Monitoring
 
