@@ -57,7 +57,7 @@ bundler update
 
 3. Run an operation.
 
-The code below will download and execute a `.ops` script that sets the hostname of your computer. 
+The code below will download and execute a very simple `.op` script that sets the hostname of your computer. 
 
 ```
 cd ~/code1/blackops/cli
@@ -89,11 +89,11 @@ The `source` command will look for the `./hostname` file. And if `./hostname` do
 RUN hostnamectl set-hostname "$$name"
 ```
 
-- The argument `--name` in the `source.rb` script is to replace the `$$name` variable into the `.ops` file.
+- The argument `--name` is to replace the `$$name` variable into the `.op` file.
 
-- You can define any variable into your `.ops` file, and you can set its value into a command argument. 
+- You can define any variable into your `.op` file, and you can set its value into a command argument. 
 
-E.g.: 
+E.g.: The operaton below requires you to define a `--rubylib` argument in your command line.
 
 **set-rubylib.op**
 
@@ -101,7 +101,7 @@ E.g.:
 RUN export RUBYLIB=$$rubylib
 ```
 
-- All the variables defined into the `.ops` file must be present into the list of arguments of the `source.rb` script.
+- All the variables defined into the `.op` file must be present into the list of arguments of the `source.rb` script.
 
 ## 2. Remote Operations
 
@@ -117,7 +117,7 @@ ruby source.rb ./hostname.op --ssh=username:password@ip:port --name=prod1
 
 You can define nodes into a **configuration file**.
 
-Such a configuration file is written with Ruby syntax.
+Such a configuration file is called **BlackOpsFile** and it is written with Ruby syntax.
 
 **BlackOpsFile**
 
@@ -132,23 +132,15 @@ BlackOps.add_node({
 })
 ```
 
-Then you can run the `source.rb` command referencing to 
-
-1. such a configuration file;
-
-2. the node defined in such a configuration file;
-
-and
-
-3. the `--root` flag to use `root` user for this operation.
+Then you can run the `source.rb` command referencing to such a configuration file,
 
 ```
-ruby source.rb ./hostname.ops --config=./BlackOpsFile --node=prod1 --root --name=prod1 
+ruby source.rb ./hostname.op --config=./BlackOpsFile --node=prod1 --root
 ```
 
 **Note:** 
 
-- In the example above, if the `--root` flag is disabled, then BlackOps will access the node with the `blackstack` user. Otherwise, it will access with the `root` user.
+- In the example above, if the `--root` flag is not present, then BlackOps will access the node with the `blackstack` user.
 
 ## 4. Environment Variable `$OPSLIB`
 
@@ -163,7 +155,7 @@ E.g.:
 ```
 export OPSLIB=~/
 
-ruby source.rb hostname --node=prod1 --name=prod1
+ruby source.rb hostname --node=prod1 --root
 ```
 
 The environment variable `$OPSLIB` can include a list of folders separated by `:`. 
@@ -173,14 +165,10 @@ E.g.:
 ```
 export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
 
-ruby source,rb hostname --node=prod1 --name=prod1
+ruby source.rb hostname --node=prod1 --root
 ```
 
-**Notes:**
-
-There are some considerations about the `$OPSLIB` variable:
-
-- If the file `BlackOpsFile` file is present into more than one path, then the `source.rb` script will show an error message: `Configuration file is present in more than one path: <list of paths.>`.
+**Note:** If the file `BlackOpsFile` file is present into more than one path, then the `source.rb` script will show an error message: `Configuration file is present in more than one path: <list of paths.>`.
 
 ## 5. Remote `.op` Files
 
@@ -189,7 +177,7 @@ You can refer to `.op` files hosted in the web.
 E.g.:
 
 ```
-ruby source.rb https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --name=prod1
+ruby source.rb https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --root
 ```
 
 ## 6. Repositories
@@ -216,7 +204,7 @@ BlackOps.set(
 ...
 ```
 
-Any call to the `ops` command gets simplified, because you don't need to write the full path to the `.ops` file.
+Any call to the `ops` command gets simplified, because you don't need to write the full path to the `.op` file.
 
 ```
 ops source hostname.op --node=prod1 --name=prod1
