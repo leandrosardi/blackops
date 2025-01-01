@@ -332,7 +332,7 @@ There are some pre-built install operations that you can use:
 
 ## 10. Migrations
 
-The `migrations.rb` script connect to the database into a node and executes a series of SQL files.
+The `migrations.rb` script connects to the database into a node and executes a series of SQL files.
 
 ```
 ruby migrations.rb --node=prod1
@@ -359,14 +359,19 @@ BlackOps.add_node({
 
 - The files into each folder will be processed one by one too, sorted by name.
 
+- Each `.sql` file, will be executed sentence by sentence. Each sentence must to finish whith a semicolon (`;`).
+
+
 ## 11. Deploying
 
-The `ops deploy` executes one or more `.op` scripts (like the `ops source` does), and it also connects a **PostgreSQL database** for running SQL migrations.
+The `deploy.rb` is for updating source code, installing or updating libraries, and setup configuration files. 
+
+The `deploy.rb` script processes one or more `.op` scripts (like the `ops source` does).
 
 E.g.:
 
 ```
-ops deploy worker*
+ruby deploy.rb --node=worker*
 ```
 
 **Notes:**
@@ -395,168 +400,8 @@ BlackOps.add_node({
 E.g.:
 
 ```
-ops deploy worker* --root
+ruby deploy.rb --node=worker* --root
 ```
-
-- You can do the same from Ruby code.
-
-E.g.:
-
-```ruby
-# Get hash descriptor of the node.
-h = BlackOps.get_node(:worker06)
-# Create instance of node.
-n = BlackStack::Infrastructure::Node.new(h)
-
-BlackOps.deploy_remote( 
-    node: n,
-    connect_as_root: true,
-    logger: l
-)
-```
-
-- To execute migrations, your node must to define both: the **connection parameters** and the **migration folders**:
-
-**BlackOpsFile**
-
-```ruby
-BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
-    ...
-    :migrations => {
-        # db connection parameters 
-        'postgres_port' => 5432, # <===
-        'postgres_database' => 'blackstack',
-        'postgres_username' => 'blackstack',
-        'postgres_password' => 'MyFooPassword123', 
-        ...
-        # migration folders
-        'migration_folders' => [ # <===
-            '/home/leandro/code1/sql',
-            '/home/leandro/code2/sql',
-        ],
-    },
-    ...
-    # deployment operations
-    :deploy_ops => [ 
-        'mass.slave.deploy',
-        'mass.sdk.deploy',
-    ]
-})
-```
-
-- When running migrations, BlackOps will execute every `.sql` file into the migration folders. 
-
-BlackOps will iterate the folders in the same order they are listed.
-
-At each folder, BlackOps will execute the `.sql` scripts sorted by their filenames.
-
-For each `.sql` file, BlackOps will execute sentence by sentence. Where each sentence finishes whith a semicolon (`;`).
-
-- You can execute a deployment from Ruby code too:
-
-```ruby
-# Get hash descriptor of the node.
-h = BlackOps.get_node(:worker06)
-# Create instance of node.
-n = BlackStack::Infrastructure::Node.new(h)
-
-BlackOps.deploy_remote(
-    node: n,
-    logger: l
-)
-```
-
-- Internally, the `BlackOps.deploy_remote` method calls `BlackOps.source_remote`.
-
-- The `ops deploy` command supports all the same arguments than `ops source`, except the `op` argument:
-
-    1. `--local`.
-    2. `--foo=xx` where `foo` is a paremeter to be replaced in the `.op` file.
-    3. `--root`
-    4. `--config`
-    5. `--ssh`
-
-- The `BlackOps.deploy_remote` method also supports all the same parameters than `BlackStack.source_remote`, except the `op` parameter:
-
-```ruby
-# Get hash descriptor of the node.
-h = BlackOps.get_node(:worker06)
-# Create instance of node.
-n = BlackStack::Infrastructure::Node.new(h)
-
-BlackOps.deploy_remote(
-        node: n,
-        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
-        parameters: => {
-            'name' => 'dev1',
-        },
-        logger: l   
-)
-```
-
-- There is a `BlackOps.deploy_local` method too.
-
-```ruby
-BlackOps.deploy_local(
-        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
-        parameters: => {
-            'name' => 'dev1',
-        },
-        logger: l   
-)
-```
-
-- When running `ops deploy` in your local computer, don't forget to define the `--local` argument, the **list of operations**, the **connection parameters** and **migration folders** into your command line:
-
-```
-ops deploy --local \
-    --deploy_ops "./hostname.op,./rubylib.op" \
-    --postgres_port 5432
-    --postgres_database blackstack \
-    --postgres_username blackstack \
-    --postgres_password MyFooPassword123 \
-    --migration_folders="/home/leandro/code1/sql,/home/leandro/code2.sql" \
-```
-
-and you can do the same from Ruby code:
-
-```ruby
-BlackOps.deploy_local(
-        #op: './hostname.op', <== Ignore. Operations are defined in the hash descriptor of the node.
-        parameters: => {
-            'name' => 'dev1',
-            ...
-            'deploy_ops' => [ # <===
-                'mass.slave.deploy',
-                'mass.sdk.deploy',
-            ],
-            ...
-            # db connection parameters 
-            'postgres_port' => 5432, # <===
-            'postgres_database' => 'blackstack',
-            'postgres_username' => 'blackstack',
-            'postgres_password' => 'MyFooPassword123',
-            ...
-            # migration folders
-            'migration_folders' => [ # <===
-                '/home/leandro/code1/sql',
-            ],
-        },
-        logger: l   
-)
-```
-
-- The parameters below are not mandatory, but if one of them is defined, all the others must be defined too:
-
-    1. `postgres_port`,
-    2. `postgres_database`,
-    3. `postgres_username`,
-    4. `postgres_password`,
-    5. `migration_folders`.
-
-Otherwise, `BlackOps.deploy` will raise an exception:
 
 **Pre-Built Deploy Operations:**
 
