@@ -646,15 +646,16 @@ BlackOps.add_node({
     :alerts => { # <=== 
 
         # this function calls the REST-API of a MassProspecting Slave Node, 
-        # and returns true if there are one or more `job` record with failed status  
+        # and returns true if there are no `job` records with failed status  
         #
         # Arguments:
         # - node: Instance of a node object.
-        # - ssh: Already opened SSH connection with the node.
-        :massprospecting_failed_jobs => Proc.new do |node, ssh, *args|
+        # 
+        :massprospecting_failed_jobs => lambda do |node, *args|
             # ...
             # source code to call the REST-API of the slave node
             # ...
+            return true
         end,
         ...
     },
@@ -664,10 +665,10 @@ BlackOps.add_node({
 })
 ```
 
-Using the `ops alerts` command, you can get a report of the alerts raised by each node.
+Using the `alerts.rb` script, you can get a report of the alerts raised by each node.
 
 ```
-ops alerts s*
+ruby alerts.rb --node=worker*
 ```
 
 ## 17. Processes Watching
