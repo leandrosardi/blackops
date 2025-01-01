@@ -801,7 +801,7 @@ ops keywords worker* --filename=*dispatch.log
 
 ## 19. Further Work
 
-### Email Notifications
+### a. Email Notifications
 
 You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
 
@@ -846,14 +846,14 @@ ops list --background
 
 - Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
 
-### Scalability
+### b. Scalability
 
 - Scalable Monitoring
 - Scalable Processes Watching
 - Scalable Log Watching
 - Scalable Deployment
 
-### Directives
+### c. Directives
 
 E.g.:
 
@@ -864,7 +864,7 @@ E.g.:
 #!root
 ```
 
-### Requires
+### d. Requires
 
 E.g.:
 
