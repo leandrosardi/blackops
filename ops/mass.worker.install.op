@@ -1,15 +1,20 @@
-# Description:
-# - This script is used to install the required packages for the BlackStack project on Ubuntu 20-04.
-# - Source this op as root.
-# 
+# Download service files
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_worker_launch2.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_worker_launch2.sh
 
-# TODO: Implementing directives like the ones below
-# This directive validates you are connecting the node as root.
-#!root
+# Service configuration file.
+RUN cp -f "/tmp/mass_worker_launch2.service" "/etc/systemd/system/mass_worker_launch2.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_worker_launch2.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_worker_launch2.service"
 
-# TODO: Implementing requires
-# This requires execute another op at this point.
-#require mysaas.install.ubuntu_20_04.base.op
-#require mysaas.install.ubuntu_20_04.adspower.op
+# Service starting wrapper
+RUN cp -f "/tmp/mass_worker_launch2.sh" "/home/$$ssh_username/mass_worker_launch2.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_worker_launch2.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_worker_launch2.sh"
 
- 
+# Grant the $$ssh_username user to run 
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_worker_launch2.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_worker_launch2.sh
+
+# Reload daemons
+RUN sudo systemctl daemon-reload

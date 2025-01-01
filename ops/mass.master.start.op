@@ -1,5 +1,5 @@
 # Description:
-# - This script is used to start the Sinatra webserver.
+# - This script is used to start the Sinatra webserver and master processes.
 # 
 
 RUN sudo systemctl start mass_master_app.service

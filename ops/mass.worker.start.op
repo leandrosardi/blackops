@@ -1,30 +1,5 @@
 # Description:
-# - This script is used to start the Sinatra webserver.
+# - This script is used to start the worker processes.
 # 
 
-# kill existing processes
-#RUN ps ax | grep "ruby" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
-#RUN ps ax | grep "adspower" | grep -v postgres | grep -v grep | cut -b1-7 | xargs -t kill -9
-
-RUN pids=$(ps aux | grep 'adspower' | grep -v postgres | grep -v grep | awk '{print $2}') && \
-    if [ -n "$pids" ]; then
-        kill $pids
-    fi
-
-RUN pids=$(ps aux | grep 'ruby' | grep -v postgres | grep -v grep | awk '{print $2}') && \
-    if [ -n "$pids" ]; then
-        kill $pids
-    fi
-
-# start the launch1 process
-RUN source /etc/profile.d/rvm.sh 1>>/home/$$ssh_username/start.out 2>>/home/$$ssh_username/start.err && \
-    rvm --default use 3.1.2 1>>/home/$$ssh_username/start.out 2>>/home/$$ssh_username/start.err && \
-    export RUBYLIB=/home/$$ssh_username/code1/slave 1>>/home/$$ssh_username/start.out 2>>/home/$$ssh_username/start.err && \
-    cd /home/$$ssh_username/code1/slave 1>>/home/$$ssh_username/start.out 2>>/home/$$ssh_username/start.err && \
-    ruby /home/$$ssh_username/code1/slave/extensions/mass.subaccount/p/launch1.rb 1>>/home/$$ssh_username/start.out 2>>/home/$$ssh_username/start.err &
-
-# start the launch2 process
-#RUN export RUBYLIB=/home/$$ssh_username/code1/slave && \
-#    cd /home/$$ssh_username/code1/slave && \
-#    source /etc/profile.d/rvm.sh && \
-#    ruby /home/$$ssh_username/code1/slave/extensions/mass.subaccount/p/launch2.rb 1>>/home/$$ssh_username/start.out 2>>/home/$$ssh_username/start.err &
+RUN sudo systemctl start mass_worker_launch2.service
