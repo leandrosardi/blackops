@@ -531,12 +531,12 @@ BlackOps.add_node({
 Your can list your nodes and monitor the usage of CPU, RAM and disk space.
 
 ```
-ops list
+ruby list.rb
 ```
 
 ![blackops list of nodes](/assets/list01.png)
 
-The `ops list` command will:
+The `list.rb` script will:
 
 1. show all the nodes defined in your configuration file;
 
@@ -551,7 +551,7 @@ The `ops list` command will:
 - You can define a custom number of seconds to update each row:
 
 ```
-ops list --interval 15
+ops list --interval=15
 ```
 
 - The SSH connection to a node may fail.
@@ -561,12 +561,6 @@ ops list --interval 15
 - By default; the usage of RAM, CPU or disk must be under 50% or it will be shown in red.
 
 ![blackops list of nodes](/assets/list04.png)
-
-- You can define custom thresholds for RAM, CPU and disk usage.
-
-```
-ops list --cpu-threshold 75 --ram-threshold 80 --disk-threshold 40 
-```
 
 - You can define the thresholds of each node in your configuration file, so you don't need write them in the command line:
 
@@ -614,12 +608,12 @@ BlackOps.set(
 ...
 ```
 
-The `ops list` command will **merge** the nodes defined in your configuration file with the list of instances in your Contabo account.
+The `list.rb` script will **merge** the nodes defined in your configuration file with the list of instances in your Contabo account.
 
 Such a merging is performed using the public IPv4 addess of **Contabo instances** and **nodes** defined in the configuration file.
 
 ```
-ops list
+ruby list.rb
 ```
 
 ![blackops infrastructure management](/assets/contabo01.png)
@@ -695,14 +689,14 @@ BlackOps.add_node({
 })
 ```
 
-Then, call the `proc` command to watch 
+Then, call the `proc.rb` script to watch 
 
 1. if they are running or not,
 2. the RAM consumed by each one of the processes; and 
 3. the CPU consumed by each one of the processes.
 
 ```
-ops proc
+ruby proc.rb
 ```
 
 _picture pending_
