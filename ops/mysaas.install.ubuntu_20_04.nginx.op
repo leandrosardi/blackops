@@ -29,7 +29,8 @@ RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot g
 # Reference: https://github.com/leandrosardi/my.saas/discussions/40
 #
 RUN service nginx stop
-RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email
+RUN rm -rf /etc/letsencrypt/live
+RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email --force-renewal --config-dir /etc/letsencrypt
 RUN mkdir -p /home/$$ssh_username/ssl
 RUN rm -f /home/$$ssh_username/ssl/dev.crt
 RUN rm -f /home/$$ssh_username/ssl/dev.key 
