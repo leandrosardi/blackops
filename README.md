@@ -551,7 +551,7 @@ The `list.rb` script will:
 - You can define a custom number of seconds to update each row:
 
 ```
-ops list --interval=15
+ruby list.rb --interval=15
 ```
 
 - The SSH connection to a node may fail.
@@ -584,7 +584,7 @@ BlackOps.add_node({
 - You can use wildcard to choose the list of nodes you want to see.
 
 ```
-ops list worker*
+ruby list.rb --node=worker*
 ```
 
 - If you press `CTRL+C`, the `ops list` command will terminate.
@@ -704,7 +704,7 @@ _picture pending_
 You can also use wildcards with specify the nodes you want to watch:
 
 ```
-ops proc worker*
+ruby proc.rb --node=worker*
 ```
 
 **Notes:**
