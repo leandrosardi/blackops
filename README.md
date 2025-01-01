@@ -6,10 +6,9 @@ BlackOps gives you an script series to perform your deployments and monitor your
 
 BlackOps provides the following features: 
 
-1. **Continious Deployment**,
-2. **Logs Monitoring**, 
-3. **Processes Monitoring**; and
-4. **Infrastructure Monitoring**.
+1. **Continious Deployment**.
+2. **Processes Monitoring**.
+3. **Infrastructure Monitoring**.
 
 **Note:** BlackOps has been tested on the following stack:
 
