@@ -210,18 +210,14 @@ Any call to the `ops` command gets simplified, because you don't need to write t
 ops source hostname.op --node=prod1 --name=prod1
 ```
 
-**Notes:**
-
-There are some considerations about the repositories.
-
-- If the file `hostname.op` is present into more than one repository, then the `ops` command with show an error message: `Operation hostname.op is present in more than one repository: <list of repositories.>`.
+**Note:** If the file `hostname.op` is present into more than one repository, then the `ops` command with show an error message: `Operation hostname.op is present in more than one repository: <list of repositories.>`.
 
 ## 7. Custom Parameters
 
-The argument `--name` is not really necessary in the command line, 
+The argument `--name` was not necessary in the command line below, 
 
 ```
-ruby source.rb hostname --node=prod1 --name=prod1
+ruby source.rb hostname --node=prod1 --root
 ```
 
 because it is already defined in the hash descriptor of the node (`:name`).
@@ -259,7 +255,7 @@ BlackOps.add_node({
 ...
 ```
 
-So the execution of any operation gets simplified even more.
+So the execution of any operation gets simplified.
 
 E.g.:
 
@@ -296,7 +292,7 @@ The `ruby install.rb` executes one or more `.op` scripts, like `ruby source.rb` 
 E.g.:
 
 ```
-ruby install.rb --node=worker*
+ruby install.rb --node=worker* --root
 ```
 
 **Notes:**
@@ -322,13 +318,7 @@ BlackOps.add_node({
 })
 ```
 
-- You can also require to connect as `root`.
-
-E.g.:
-
-```
-ruby install.rb --node=worker* --root
-```
+- The `--root` argument may be not present, but in most cases you will require to connect as `root` to perform installations.
 
 **Pre-Built Install Operations:**
 
