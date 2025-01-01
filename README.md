@@ -36,8 +36,7 @@ BlackOps provides the following features:
 15. [Infrastructure Managing](#15-infrastructure-managing)
 16. [Custom Alerts](#16-custom-alerts)
 17. [Processes Watching](#17-processes-watching)
-18. [Logs Watching](#18-logs-watching)
-19. [Further Work](#19-further-work)
+18. [Further Work](#19-further-work)
 
 ## 1. Getting Started
 
@@ -714,95 +713,15 @@ ruby proc.rb --node=worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-## 18. Logs Watching
+## 18. Further Work
 
-When you define a node, you can specify what are the log files that you may want to watch.
+### a. Logs Watching and Alerts
 
-E.g.:
+Log watching & error keywords monitoring. 
 
-**BlackOpsFile**
+https://github.com/leandrosardi/blackops/issues/48
 
-```ruby
-BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
-    ...
-    :logs => [
-        '/home/blackstack/code1/master/ipn.log',
-        '/home/blackstack/code1/master/dispatch.log',
-        '/home/blackstack/code1/master/allocate.log',
-    ]
-})
-```
-
-Then, you can run the `ops logs` command that is a kinda `ls` of all the files into a node that matches with the list of files defined in its hash descriptor.
-
-```
-ops logs worker*
-```
-
-![BlackOps Logfiles Watching](/assets/logfiles01.png)
-
-**Notes:**
-
-- In the list of logfiles shown by the command `ops logs`, you can choose one of then and start watching it online.
-
-This feature simply does a `tail -f` of such a logfile.
-
-_picture pending_
-
-- You can also define a pattern of log files using wildcards.
-
-E.g.:
-
-**BlackOpsFile**
-
-```ruby
-BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
-    ...
-    :logs => [
-        '/home/blackstack/code1/master/*.log',
-    ]
-})
-```
-
-- You can define a list of keywords into log files that can be indicating that an error happened.
-
-E.g.:
-
-**BlackOpsFile**
-
-```ruby
-BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
-    ...
-    :logs => [
-        '/home/blackstack/code1/master/*.log',
-    ],
-    :keywords => [
-        'error', 'failure', 'failed',
-    ] 
-})
-```
-
-![BlackOps Logfiles Watching](/assets/logfiles02.png)
-
-- You can run the command `ops keywords` for listing the lines with **error keywords** into some logfiles, into some nodes.
-
-E.g.:
-
-```
-ops keywords worker* --filename=*dispatch.log 
-```
-
-- The `keywords` command simply connect the node via SSH and perform a `cat <logfilename> | grep "keyword"` command.
-
-## 19. Further Work
-
-### a. Email Notifications
+### b. Email Notifications
 
 You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
 
@@ -847,14 +766,14 @@ ops list --background
 
 - Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
 
-### b. Scalability
+### c. Scalability
 
 - Scalable Monitoring
 - Scalable Processes Watching
 - Scalable Log Watching
 - Scalable Deployment
 
-### c. Directives
+### d. Directives
 
 E.g.:
 
@@ -865,7 +784,7 @@ E.g.:
 #!root
 ```
 
-### d. Requires
+### e. Requires
 
 E.g.:
 
