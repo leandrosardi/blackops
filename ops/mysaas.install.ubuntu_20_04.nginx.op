@@ -30,7 +30,11 @@ RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot g
 #
 RUN service nginx stop
 RUN rm -rf /etc/letsencrypt/live
-RUN certbot delete --cert-name $$domain
+RUN if certbot certificates | grep -q "Certificate Name: $domain"; then
+    certbot delete --cert-name "$domain" --non-interactive --quiet
+else
+    echo "Certificate for $domain does not exist. Skipping deletion."
+fi
 RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email --force-renewal --config-dir /etc/letsencrypt --cert-name $$domain
 RUN mkdir -p /home/$$ssh_username/ssl
 RUN rm -f /home/$$ssh_username/ssl/dev.crt
