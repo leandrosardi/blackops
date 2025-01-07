@@ -12,6 +12,9 @@ RUN cp -f "/tmp/mass_worker_launch2.sh" "/home/$$ssh_username/mass_worker_launch
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_worker_launch2.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_worker_launch2.sh"
 
+# AdsPower-Client requires access to the tmp folder
+RUN sudo chmod 777 /tmp
+
 # Grant the $$ssh_username user to run 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_worker_launch2.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_worker_launch2.sh
