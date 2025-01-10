@@ -1,8 +1,8 @@
 source "https://rubygems.org"
 
 gem 'blackstack-core', '>= 1.2.28'
-gem 'blackstack-nodes', '>= 1.2.17' # required in Ubuntu 20.04 
-#gem 'blackstack-nodes', '>= 1.3.1' # required in Ubuntu 22.04
+#gem 'blackstack-nodes', '>= 1.2.17' # required in Ubuntu 20.04 
+gem 'blackstack-nodes', '>= 1.3.1' # required in Ubuntu 22.04
 gem 'simple_cloud_logging', '>= 1.2.7'
 gem 'simple_command_line_parser', '>= 1.1.2'
 
