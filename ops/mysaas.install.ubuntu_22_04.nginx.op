@@ -1,0 +1,57 @@
+# Description:
+# - This script is used to install the required packages for the BlackStack project on Ubuntu 22-04.
+# - Source this op as root.
+# 
+
+# TODO: Implementing directives like the ones below
+# This directive validates you are connecting the node as root.
+#!root
+# 
+
+# TODO: Implementing requires
+# This requires execute another op at this point.
+#require mysaas.install.ubuntu_22_04.base.op
+
+# Install required packages
+RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
+
+# Grant '$$ssh_username' user passwordless sudo access for managing Nginx and nginx.conf
+# Grant '$$ssh_username' user passwordless sudo access for managing Nginx and nginx.conf
+#RUN echo "$$ssh_username ALL=(ALL) NOPASSWD: /bin/systemctl start nginx, /bin/systemctl stop nginx, /bin/systemctl restart nginx, /bin/rm /etc/nginx/nginx.conf, /bin/cp /home/$$ssh_username/code1/$$code_folder/nginx.conf /etc/nginx/nginx.conf" | tee /etc/sudoers.d/$$ssh_username-nginx && \
+#    chmod 0440 /etc/sudoers.d/$$ssh_username-nginx && \
+#    visudo -cf /etc/sudoers.d/$$ssh_username-nginx
+
+# Set Correct Permissions for the Sudoers File:
+#RUN chown root:root /etc/nginx/nginx.conf
+#RUN chmod 644 /etc/nginx/nginx.conf
+
+# Install SSL Certificate
+# Reference: https://github.com/leandrosardi/my.saas/discussions/40
+#
+RUN service nginx stop
+RUN rm -rf /etc/letsencrypt/live
+RUN if certbot certificates | grep -q "Certificate Name: $domain"; then
+    certbot delete --cert-name "$domain" --non-interactive --quiet
+else
+    echo "Certificate for $domain does not exist. Skipping deletion."
+fi
+RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email --force-renewal --config-dir /etc/letsencrypt --cert-name $$domain
+RUN mkdir -p /home/$$ssh_username/ssl
+RUN rm -f /home/$$ssh_username/ssl/dev.crt
+RUN rm -f /home/$$ssh_username/ssl/dev.key 
+RUN chown -R $$ssh_username:$$ssh_username /etc/letsencrypt/live/$$domain
+RUN cp /etc/letsencrypt/live/$$domain/fullchain.pem /home/$$ssh_username/ssl/
+RUN cp /etc/letsencrypt/live/$$domain/privkey.pem /home/$$ssh_username/ssl/
+RUN mv /home/$$ssh_username/ssl/fullchain.pem /home/$$ssh_username/ssl/dev.crt
+RUN mv /home/$$ssh_username/ssl/privkey.pem /home/$$ssh_username/ssl/dev.key
+
+# Nginx configuration file
+#
+# 1. Delete existing file /etc/nginx/nginx.conf
+# 2. Download nginx.conf from https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf into folder /etc/nginx/
+# 3. Start Nginx again. 
+#
+RUN rm -f /etc/nginx/nginx.conf
+RUN curl -sSL https://raw.githubusercontent.com/leandrosardi/my.saas/main/nginx.conf -o /etc/nginx/nginx.conf
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/nginx/nginx.conf"
+RUN service nginx start
