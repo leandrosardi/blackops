@@ -1,0 +1,83 @@
+# Description:
+# - This script is used to install the required packages for the BlackStack project on Ubuntu 22-04.
+# - Source this op as root.
+# 
+
+# TODO: Implementing directives like the ones below
+# This directive validates you are connecting the node as root.
+#!root
+
+# Set timezone to America/Argentina/Buenos_Aires
+RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
+
+# Add user '$$ssh_username' with home directory and bash shell
+RUN useradd -m -s /bin/bash $$ssh_username
+
+# Set password for '$$ssh_username' user
+RUN echo "$$ssh_username:$$ssh_password" | chpasswd
+
+# Add '$$ssh_username' to sudoers
+RUN usermod -aG sudo $$ssh_username
+
+# Change hostname
+# DEPRECATED - Moved to `hostname.op`
+#RUN hostnamectl set-hostname "$$name"
+
+# Enable PasswordAuthentication in SSH config
+RUN sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+RUN sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+# Restart SSH service
+RUN systemctl restart ssh
+
+# Update and upgrade packages
+RUN apt-get update -y
+RUN apt-get upgrade -y
+
+# Install required packages
+RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot git xvfb
+
+# Import the necessary GPG keys:
+gpg2 --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+#If the keyserver command fails, import the keys directly from the RVM site:
+#curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
+#curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -
+
+# Install RVM
+RUN curl -sSL https://get.rvm.io | bash -s stable
+
+# Add '$$ssh_username' user to 'rvm' group
+RUN usermod -aG rvm $$ssh_username
+
+# Suppress rvmsudo warnings
+RUN sed -i '$ a export rvmsudo_secure_path=1' /etc/profile.d/rvm.sh
+
+# Source RVM scripts
+# Install Ruby 3.1.2 and set it as default
+RUN source /etc/profile.d/rvm.sh && rvm use 3.1.2 --default --install
+
+# Verify Ruby installation
+RUN ruby -v
+
+# Install bundler
+RUN gem install bundler
+
+# Change the ownership to your current user.
+RUN sudo chown -R $$ssh_username:$$ssh_username /usr/local/rvm
+
+# Create code directory for '$$ssh_username' user
+#RUN mkdir -p /home/$$ssh_username/code
+#RUN chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/code
+
+# Add Ubuntu focal-updates repository if not present
+RUN if ! grep -q "focal-updates main" /etc/apt/sources.list; then
+    sed -i '$ a deb http://archive.ubuntu.com/ubuntu focal-updates main' /etc/apt/sources.list
+    apt-get update -y
+fi
+
+# Create a flag file for '$$ssh_username' user
+#
+# DEPRECATED: I don't what it is for!
+#
+#RUN touch /home/$$ssh_username/.pampa
+#RUN chown $$ssh_username:$$ssh_username /home/$$ssh_username/.pampa

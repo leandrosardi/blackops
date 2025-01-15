@@ -1,0 +1,66 @@
+# Description:
+# - This script is used to install the required packages for the BlackStack project on Ubuntu 22-04.
+# - Source this op as root.
+# 
+
+# TODO: Implementing directives like the ones below
+# This directive validates you are connecting the node as root.
+#!root
+# 
+
+# TODO: Implementing requires
+# This requires execute another op at this point.
+#require mysaas.install.ubuntu_22_04.base.op
+
+# Backup old .postgresql folder if it exists
+RUN if [ -d ~/.postgresql ]; then
+    mv ~/.postgresql ~/.postgresql.$(date +%s)
+fi
+RUN mkdir -p ~/.postgresql
+
+# Ensure the locale is correctly set
+RUN locale-gen en_US.UTF-8
+RUN update-locale LANG=en_US.UTF-8 LANGUAGE=en_US: LC_ALL=en_US.UTF-8 \
+    LC_TIME=en_US.UTF-8 LC_MONETARY=en_US.UTF-8 LC_ADDRESS=en_US.UTF-8 \
+    LC_TELEPHONE=en_US.UTF-8 LC_NAME=en_US.UTF-8 LC_MEASUREMENT=en_US.UTF-8 \
+    LC_IDENTIFICATION=en_US.UTF-8 LC_NUMERIC=en_US.UTF-8 LC_PAPER=en_US.UTF-8
+
+# Install PostgreSQL and development libraries
+RUN apt-get install -y libpq-dev postgresql postgresql-contrib
+
+# Install psql for running migrations.
+RUN apt-get install -y postgresql-client
+
+# Start PostgreSQL service
+RUN systemctl start postgresql
+
+# Configure PostgreSQL to listen on all addresses
+RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/14/main/postgresql.conf
+
+# Create PostgreSQL user '$$postgres_username' with superuser privileges
+RUN sudo -u postgres createuser -s $$postgres_username
+
+# Set password for PostgreSQL user '$$postgres_username'
+RUN cd /tmp && sudo -u postgres psql -c "ALTER USER $$postgres_username WITH PASSWORD '$$postgres_password';"
+
+# Allow connections with no SSL certificates from any location
+RUN sudo grep -Fxq "host    all             all             0.0.0.0/0               md5" /etc/postgresql/14/main/pg_hba.conf || echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/14/main/pg_hba.conf
+RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/14/main/postgresql.conf
+
+# Restart PostgreSQL service
+RUN systemctl restart postgresql
+
+# Check if a database '$$postgres_database' exists.
+# If it doesn't, create new database '$$postgres_database' owned by user 
+# '$$postgres_username'.
+#
+# Note: Prevent PostgreSQL tries to access the current working directory 
+# (/root), because the postgres user doesn’t have permission to do so. 
+# 
+# This warning is benign and doesn’t prevent the command from working. 
+# However, to avoid it, you can change to a directory accessible to the 
+# postgres user before running the command.
+#
+RUN cd /tmp && sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$$postgres_database'" | grep -q 1 || sudo -u postgres createdb -O $$postgres_username $$postgres_database
+#              sudo -u postgres createdb -O $$postgres_username $$postgres_database
+

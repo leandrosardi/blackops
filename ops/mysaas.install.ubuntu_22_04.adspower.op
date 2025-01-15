@@ -1,0 +1,26 @@
+# Description:
+# - This script is used to install the required packages for the BlackStack project on Ubuntu 22-04.
+# - Source this op as root.
+# 
+
+# TODO: Implementing directives like the ones below
+# This directive validates you are connecting the node as root.
+#!root
+
+# TODO: Implementing requires
+# This requires execute another op at this point.
+#require mysaas.install.ubuntu_22_04.base.op
+
+# Install AdsPower
+RUN cd /tmp
+RUN wget -q https://version.adspower.net/software/linux-x64-global/AdsPower-Global-5.9.14-x64.deb
+RUN DEBIAN_FRONTEND=noninteractive LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 apt-get install -y ./AdsPower-Global-5.9.14-x64.deb
+RUN rm -f AdsPower-Global-5.9.14-x64.deb
+
+# Install ChromeDriver
+RUN cd /tmp
+RUN wget -q https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/116.0.5845.96/linux64/chromedriver-linux64.zip
+RUN unzip -q chromedriver-linux64.zip
+RUN mv chromedriver-linux64/chromedriver /usr/bin/
+RUN chmod +x /usr/bin/chromedriver
+RUN rm -rf chromedriver-linux64*
