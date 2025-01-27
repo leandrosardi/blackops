@@ -13,4 +13,4 @@ export RUBYLIB=/home/!!ssh_username/code1/!!code_folder
 cd /home/!!ssh_username/code1/!!code_folder
 
 # Execute the Ruby application
-exec ruby ./extensions/mass.subaccount/p/bulk.rb
+exec ruby ./extensions/mass.subaccount/p/cancel.rb
