@@ -47,11 +47,11 @@ RUN cp -f "/tmp/mass_slave_timeline.service" "/etc/systemd/system/mass_slave_tim
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_timeline.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_timeline.service"
 
-RUN cp -f "/tmp/mass_slave_timeline.service" "/etc/systemd/system/mass_slave_bulk.service"
+RUN cp -f "/tmp/mass_slave_bulk.service" "/etc/systemd/system/mass_slave_bulk.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_bulk.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_bulk.service"
 
-RUN cp -f "/tmp/mass_slave_timeline.service" "/etc/systemd/system/mass_slave_cancel.service"
+RUN cp -f "/tmp/mass_slave_cancel.service" "/etc/systemd/system/mass_slave_cancel.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_cancel.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_cancel.service"
 
