@@ -1,0 +1,11 @@
+[Unit]
+Description=Mass Slave Bulk Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/leandro/blackops/service/mass_slave_bulk.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
