@@ -25,3 +25,7 @@ RUN sudo chmod +x /home/$$ssh_username/mass_worker_launch2.sh
 
 # Reload daemons
 RUN sudo systemctl daemon-reload
+
+# Reference: https://github.com/MassProspecting/docs/issues/458
+RUN sudo apt-get update
+RUN sudo apt-get install libpq-dev
