@@ -167,3 +167,21 @@ RUN sed -i "s/!!slaves/$$slaves/g" "/home/$$ssh_username/code1/$$code_folder/con
 
 # 18. Replace !!workers with $$workers
 RUN sed -i "s/!!workers/$$workers/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# Ruby’s tmpdir library is refusing to pick any temporary directory because it sees that both /tmp and 
+# the current directory `.` are world-writable and not fully secured with the “sticky bit.”. 
+#
+# By default, Ruby checks whether the system’s temp path is in a directory path that is world-writable 
+# without a sticky bit—if so, it bails out with:
+# - could not find a temporary directory (ArgumentError)
+# - `.` is world-writable: /home/blackstack/code1/sdk/p
+# means your current working directory is 0777 (or similar). This also triggers Ruby’s security check.
+#
+# This command will apply 755 permissions (owner read/write/execute, group and others read/execute) to 
+# every item—both directories and files—inside that path, including subdirectories and their contents.
+#
+# References: 
+# - https://github.com/MassProspecting/docs/issues/458
+# - https://github.com/MassProspecting/docs/issues/460
+#
+RUN chmod -R 755 /home/blackstack/code1
