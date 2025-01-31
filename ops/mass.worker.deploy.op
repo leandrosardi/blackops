@@ -62,8 +62,16 @@ RUN sed -i "s/!!aws_s3_bucket_name/$$aws_s3_bucket_name/g" "/home/$$ssh_username
 # This command will apply 755 permissions (owner read/write/execute, group and others read/execute) to 
 # every item—both directories and files—inside that path, including subdirectories and their contents.
 #
+# ```
+# chmod -R 755 /home/blackstack/code1
+# ```
+#
+# Also, this command avoid the `.git` folders because `blackops` doesn't has permission on them.
+#
+#
+#
 # References: 
 # - https://github.com/MassProspecting/docs/issues/458
 # - https://github.com/MassProspecting/docs/issues/460
 #
-RUN chmod -R 755 /home/blackstack/code1
+RUN find /home/blackstack/code1 -name .git -prune -o -exec chmod 755 {} +
