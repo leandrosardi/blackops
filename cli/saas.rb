@@ -26,4 +26,4 @@ end
 
 # Now delegate to that script by spinning up a new Ruby process
 # The remaining command-line arguments (ARGV) are passed through unmodified.
-exec "ruby", script_file.to_s, *ARGV
+load script_file
