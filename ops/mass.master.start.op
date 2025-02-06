@@ -2,5 +2,10 @@
 # - This script is used to start the Sinatra webserver and master processes.
 # 
 
+# restart postgres in order to refresh performance
+# reference: https://github.com/MassProspecting/docs/issues/468
+# 
+RUN sudo systemctl start postgresql
+
 RUN sudo systemctl start mass_master_app.service
 RUN sudo systemctl start mass_master_allocate.service
