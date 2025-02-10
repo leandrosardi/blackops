@@ -2,7 +2,7 @@ BLACKOPS_VERSION = '0.1'
 
 require 'pry'
 require 'blackstack-core'
-require 'blackstack-nodes' 
+require 'blackstack-nodes'
 require 'simple_cloud_logging'
 require 'simple_command_line_parser'
 
@@ -30,7 +30,7 @@ require 'contabo-client'
         when 'migrate'
           puts <<~HELP
             Usage: migrate.rb [--config=<config_file>] [--node=<node_pattern>] [--migration_folders=folder1,folder2,...] [--postgres=username:password@address:port/database] [--param1=value1] [--param2=value2] ...
-            
+
             Options:
               --config=<config_file>             Path to the configuration file.
               --node=<node_pattern>              Pattern to match target nodes (supports wildcards).
@@ -54,7 +54,7 @@ require 'contabo-client'
         begin
           # Parse the domain using PublicSuffix
           parsed_domain = PublicSuffix.parse(domain)
-          
+
           # Extract the registrable domain (e.g., 'example.com.ar' from 'sub.example.com.ar')
           registrable_domain = parsed_domain.sld + "." + parsed_domain.tld
 
@@ -102,16 +102,16 @@ require 'contabo-client'
         begin
           # Normalize the domain by removing any trailing dot and converting to lowercase
           normalized_domain = domain.strip.downcase.chomp('.')
-      
+
           # Parse the domain using PublicSuffix
           parsed_domain = PublicSuffix.parse(normalized_domain)
-      
+
           # Construct the registrable domain (sld + tld)
           registrable_domain = "#{parsed_domain.sld}.#{parsed_domain.tld}"
-      
+
           # If the normalized domain is the same as the registrable domain, there's no subdomain
           return nil if normalized_domain == registrable_domain
-      
+
           # Ensure that the domain ends with the registrable domain
           unless normalized_domain.end_with?(registrable_domain)
             # The domain does not match the expected registrable domain structure
@@ -120,10 +120,10 @@ require 'contabo-client'
             subdomain_part = normalized_domain.split(registrable_domain).first.chomp('.')
             return subdomain_part.empty? ? nil : subdomain_part
           end
-      
+
           # Extract the subdomain by removing the registrable domain from the full domain
           subdomain_part = normalized_domain[0...-registrable_domain.length].chomp('.')
-      
+
           # Return the subdomain if it exists
           subdomain_part.empty? ? nil : subdomain_part
         rescue PublicSuffix::DomainInvalid => e
@@ -134,7 +134,7 @@ require 'contabo-client'
           raise "An error occurred: #{e.message}"
         end
       end
-      
+
       # Resolves the IP address of a given hostname.
       #
       # @param hostname [String] The subdomain or hostname to resolve (e.g., 'sub.example.com').
@@ -200,7 +200,7 @@ require 'contabo-client'
 
       def self.add_node(h)
         err = []
-  
+
         # Set default values for optional keys if they are missing
         h[:ip] ||= nil
         h[:procs] ||= []
@@ -210,12 +210,12 @@ require 'contabo-client'
         h[:stop_script] ||= []
         h[:logs] ||= []
         h[:webs] ||= []
-  
+
         # Validate the presence and format of the mandatory keys
         if h[:name].nil? || !h[:name].is_a?(String) || h[:name].strip.empty?
           err << "Invalid value for :name. Must be a non-empty string."
         end
-        
+
         if !h[:ip].nil?
           unless h[:ip] =~ /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/
             err << "Invalid value for :ip. Must be a valid IP address or nil."
@@ -292,18 +292,18 @@ require 'contabo-client'
             err << "Invalid value for :stop_ops. Must be an array of strings."
           end
         end # if h.key?(:stop_ops)
-  
+
         if h.key?(:logs)
           unless h[:logs].is_a?(Array) && h[:logs].all? { |log| log.is_a?(String) }
             err << "Invalid value for :logs. Must be an array of strings."
           end
         end
-  
+
         if h.key?(:webs)
           unless h[:webs].is_a?(Array)
             err << "Invalid value for :webs. Must be an array of websites."
           end
-  
+
           h[:webs].each do |web|
             unless web.is_a?(Hash) && web[:name].is_a?(String) && !web[:name].strip.empty? &&
                    web[:port].is_a?(Integer) && web[:port] > 0 && web[:port] < 65536 &&
@@ -312,14 +312,14 @@ require 'contabo-client'
             end
           end
         end
-  
+
         # Raise exception if any errors were found
         raise ArgumentError, "The following errors were found in node descriptor: \n#{err.map { |s| " - #{s}" }.join("\n")}" unless err.empty?
-  
+
         # Create and add the node
         @@nodes << h
       end # def self.add_node(h)
-  
+
       # Return a duplication of the hash descriptor of the node with the given name
       def self.get_node(node_name)
         @@nodes.find { |n| n[:name].to_s == node_name.to_s }.clone
@@ -338,25 +338,25 @@ require 'contabo-client'
             l.skip(details: 'connection not defined')
         else
             ret = contabo.get_instances #(search: x)
-            total_pages = ret['_pagination'] ? ret['_pagination']['totalPages'] : 0 
+            total_pages = ret['_pagination'] ? ret['_pagination']['totalPages'] : 0
             instances = ret['data']
             if instances.nil? || !instances.is_a?(Array)
                 l.logf("error (code: #{ret['statusCode'].to_s.red} - description: #{ret['message'].to_s.red})")
                 exit(1)
             else
                 l.done(details: 'total: ' + instances.size.to_s.blue)
-    
+
                 page = 1
                 while page < total_pages
                     page += 1
                     l.logs "Bring Contabo instances (page #{page})... "
                     ret = contabo.get_instances(page: page) #, search: x)
-                    instances += ret['data']        
+                    instances += ret['data']
                     l.done(details: 'total: ' + instances.size.to_s.blue)
                 end
             end
         end
-    
+
         # list of nodes defined in the configuration file
         l.logs "Get nodes defined in configuration... "
         nodes = BlackOps.nodes
@@ -369,7 +369,7 @@ require 'contabo-client'
           end
         end # if x
         l.done(details: 'total: ' + nodes.size.to_s.blue)
-    
+
         # Example of an element into the `instances` array:
         #
         # {"tenantId"=>"INT",
@@ -409,7 +409,7 @@ require 'contabo-client'
         # "defaultUser"=>"root"}
         #
         # Examples of an element into the `nodes` array:
-        # 
+        #
         # {:name=>"master",
         # :ip=>"91.230.110.43",
         # :db=>"master",
@@ -448,7 +448,7 @@ require 'contabo-client'
         # :deploy_script=>[],
         # :start_script=>[],
         # :stop_script=>[]}
-        #     
+        #
         all = nodes.map { |node| { :node => node } }
         if instances
           instances.each { |instance|
@@ -463,7 +463,7 @@ require 'contabo-client'
               end
           }
         end # if
-    
+
         all
       end
 
@@ -493,7 +493,7 @@ require 'contabo-client'
               l.logf("Error accessing #{url}: #{e.message}")
             end
           else
-            filename = File.join(rep, "#{op}.op")
+            filename = File.expand_path("#{op}.op", rep)
             l.logs "Getting bash script from #{filename.blue}... "
             if File.exist?(filename)
               bash_script = File.read(filename)
@@ -572,13 +572,13 @@ require 'contabo-client'
             value = param_values[key.to_sym] || param_values[key.to_s]
             replacement = value
             if replacement.is_a?(Array) || replacement.is_a?(Hash)
-              replacement = JSON.pretty_generate(replacement) 
+              replacement = JSON.pretty_generate(replacement)
               replacement = replacement.gsub("\n", "\\n")   # Replace actual newlines with \n literal
               replacement = replacement.gsub("/", "\\/")    # Escape forward slashes for sed
             elsif replacement.is_a?(String)
               replacement = replacement.gsub("\n", "\\n")   # Replace actual newlines with \n literal
               replacement = replacement.gsub("/", "\\/")    # Escape forward slashes for sed
-            else 
+            else
               raise "replacement must be array, hash, string, int, float, or bool" unless [TrueClass, FalseClass, Integer, Float].any? { |c| replacement.is_a?(c) }
             end
             fragment.gsub!("$$#{key.to_s}", Shellwords.escape(replacement.to_s))
@@ -598,7 +598,7 @@ require 'contabo-client'
         if opslib
           found = false
           opslib.split(':').each do |dir|
-            filename = File.join(dir, 'BlackOpsFile')
+            filename = File.expand_path('BlackOpsFile', dir)
             if File.exist?(filename)
               l.logs "Loading configuration from #{filename}..."
               load filename
@@ -627,41 +627,41 @@ require 'contabo-client'
         begin
           l = logger || BlackStack::DummyLogger.new(nil)
           node_name = node_name.dup.to_s
-      
+
           l.logs "Getting node #{node_name.blue}... "
           n0 = get_node(node_name)
           n = n0.clone
           raise ArgumentError, "Node not found: #{node_name}" if n.nil?
           l.done
-      
+
           # Remove :name from node descriptor if it's "__temp_node_unique_name__"
           if n[:name] == "__temp_node_unique_name__"
             n.delete(:name)
           end
-      
+
           # Validate that parameters is a hash
           raise ArgumentError, "Parameters must be a hash" unless parameters.is_a?(Hash)
-      
+
           # Check for overlapping keys between node parameters and provided parameters
           overlapping_keys = parameters.keys.map(&:to_s) & n.keys.map(&:to_s)
           if overlapping_keys.any?
             raise ArgumentError, "Parameters defined in both node and parameters argument: #{overlapping_keys.join(', ')}"
           end
-      
+
           # Merge parameters into node parameters
           parameters.each do |k, v|
             n[k.to_sym] = v
           end
-      
+
           # Download the `.op` file from the repository
           bash_script = download_op_file(op, l)
-      
+
           # Extract parameters used in the `.op` file (e.g., $$param)
           params = extract_parameters_from_script(bash_script)
-      
+
           # Check for missing parameters required by the `.op` file
           check_missing_parameters(params, n, "Missing parameters required by the op #{op.to_s}")
-      
+
           # Create the node object with the appropriate SSH credentials
           l.logs "Creating node object... "
           backup_ssh_username = nil
@@ -669,7 +669,7 @@ require 'contabo-client'
           if connect_as_root
             backup_ssh_username = n[:ssh_username]
             backup_ssh_password = n[:ssh_password]
-  
+
             n[:ssh_username] = 'root'
             n[:ssh_password] = n[:ssh_root_password]
 
@@ -678,22 +678,22 @@ require 'contabo-client'
             node = BlackStack::Infrastructure::Node.new(n)
           end
           l.done
-          
+
           # Connect to the remote node via SSH
           l.logs("Connect to node #{node_name.to_s.blue}... ")
           node.connect
           n[:ssh_username] = backup_ssh_username if backup_ssh_username
           n[:ssh_password] = backup_ssh_password if backup_ssh_password
           l.done
-      
+
           # Prepare the execution lambda
           execute_fragment_proc = Proc.new { |fragment|
             res = node.exec(fragment)
           }
-      
+
           # Execute the script fragment by fragment
           execute_script_fragments(bash_script, params, n, execute_fragment_proc, l)
-      
+
         rescue => e
           raise e
         ensure
@@ -716,24 +716,24 @@ require 'contabo-client'
         begin
           l = logger || BlackStack::DummyLogger.new(nil)
           op = op.to_s
-      
+
           # Validate that parameters is a hash
           raise ArgumentError, "Parameters must be a hash" unless parameters.is_a?(Hash)
-      
+
           # Download the `.op` file from the repositories
           bash_script = download_op_file(op, l)
-      
+
           # Extract parameters used in the `.op` file (e.g., $$param)
           params = extract_parameters_from_script(bash_script)
-      
+
           # Check for missing parameters required by the `.op` file
           check_missing_parameters(params, parameters, "Missing parameters required by the op #{op.to_s}")
-      
+
           # Prepare the execution lambda
           execute_fragment_proc = Proc.new { |fragment|
             require 'open3'
             stdout, stderr, status = Open3.capture3(fragment)
-      
+
             if status.success?
               # Do nothing; success is handled outside
             else
@@ -741,17 +741,17 @@ require 'contabo-client'
               raise "Command failed: #{fragment}"
             end
           }
-      
+
           # Execute the script fragment by fragment
           execute_script_fragments(bash_script, params, parameters, execute_fragment_proc, l)
-      
+
         rescue => e
           # l.error "An error occurred: #{e.message}".red
           raise e
         end
-      end      
+      end
 
-      # 
+      #
       def self.ssh(
         node_name,
         connect_as_root: false,
@@ -795,7 +795,7 @@ require 'contabo-client'
 
         l.log "Command: #{s.blue}"
         system(s)
-      end # def self.ssh(node_name, logger: nil)  
+      end # def self.ssh(node_name, logger: nil)
 
 =begin
       # Return the hash descriptor of a contabo instance from its IP address.
@@ -832,7 +832,7 @@ require 'contabo-client'
         l.done(details: total_pages.to_s.blue)
 
         while !ret && total_pages >= p
-          l.logs "Fetching page #{p.to_s.blue}/#{total_pages.to_s.blue}... "  
+          l.logs "Fetching page #{p.to_s.blue}/#{total_pages.to_s.blue}... "
           json = client.get_instances(page: p, size: z)
           if json['data'].nil? || !json['data'].is_a?(Array)
             raise "No instances returned or unexpected data format. Response: #{json.inspect}"
@@ -843,7 +843,7 @@ require 'contabo-client'
         end # while json['_pagination']['totalPages']
 
         ret
-      end # def self.get_instance(node_name, logger: nil)  
+      end # def self.get_instance(node_name, logger: nil)
 
       # Request the reinstallation of a node to Contabo.
       def self.reinstall(
@@ -870,13 +870,13 @@ require 'contabo-client'
         )
         raise "Instance not found." if inst.nil?
         l.done
-        
+
         instance_id = inst['instanceId']
 
         l.logs "Getting instance image... "
         image_id = inst['imageId']
         raise 'Image not found' if image_id.nil?
-        l.done 
+        l.done
 
         l.logs "Getting instance id... "
         instance_id = inst['instanceId']
@@ -890,7 +890,7 @@ require 'contabo-client'
             - systemctl stop cloud-init
             - systemctl disable cloud-init
         USER_DATA
-      
+
         # Request reinstallation
         ret = client.reinstall_instance(
           instance_id: instance_id,
@@ -954,7 +954,7 @@ require 'contabo-client'
 
 
         nodes_list = []
-        
+
         if local
           # Local execution
           if ops.nil?
@@ -1038,7 +1038,7 @@ require 'contabo-client'
 
           # Iterate over the list of .op files and execute them
           nodes_list.each do |node|
-              l.logs "Working on node #{node[:name].to_s.blue}... " 
+              l.logs "Working on node #{node[:name].to_s.blue}... "
 
               # Merge parameters into node parameters (parameters take precedence)
               parameters.each do |k, v|
@@ -1050,7 +1050,7 @@ require 'contabo-client'
               if ops_list.nil? || !ops_list.is_a?(Array) || ops_list.empty?
                   raise "No .op files specified in the node's :#{operation_bundle_name}_ops list."
               end
-          
+
               ops_list.each do |op_file|
                   l.logs "Executing #{op_file.blue} on node #{node[:name].blue}..."
                   BlackOps.source_remote(
@@ -1070,7 +1070,7 @@ require 'contabo-client'
       end # def self.standard_operation_bundle
 
 
-      # Process one by one the `.sql` files inside the migration folders, 
+      # Process one by one the `.sql` files inside the migration folders,
       # running one by one the SQL sentences inside each file.
       def self.run_migrations(node_name, logger: nil)
         l = logger || BlackStack::DummyLogger.new(nil)
@@ -1332,4 +1332,3 @@ require 'contabo-client'
       end # def self.standard_migrations_processing
     end # BlackOps
 #end # BlackStack
-    
