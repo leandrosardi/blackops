@@ -35,7 +35,9 @@ BlackOps provides the following features:
 15. [Infrastructure Managing](#15-infrastructure-managing)
 16. [Custom Alerts](#16-custom-alerts)
 17. [Processes Watching](#17-processes-watching)
-18. [Further Work](#19-further-work)
+18. [Command `saas`](#18-command-saas)
+19. [Releasing](#19-releasing)
+20. [Further Work](#20-further-work)
 
 ## 1. Getting Started
 
@@ -712,7 +714,44 @@ ruby proc.rb --node=worker*
 
 - If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
 
-## 18. Further Work
+## 18. Command `saas`
+
+If you are working on a fresh OS with not Ruby installed, you can use the `saas` command.
+The `saas` command is the same script series packed into an executable file.
+
+**Step 1:** Install the `saas` command.
+
+```
+wget https://github.com/leandrosardi/blackops/raw/refs/heads/main/releases/saas-1.2-ubuntu-20.04
+
+sudo mv saas-1.2-ubuntu-20.04 /usr/local/bin/saas
+
+sudo chmod 777 /usr/local/bin/saas
+```
+
+If you have not Ubuntu 20.04 but another version, find all available versions [here](https://github.com/leandrosardi/blackops/tree/main/releases).
+
+
+**Step 2:** Check if `saas` is working.
+
+```
+saas version
+```
+
+**Step 3:** Install your Ruby environment.
+
+```
+wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op
+
+saas source ./hostname.op --local --name=dev1
+```
+
+
+## 19. Releasing
+
+_pending_
+
+## 20. Further Work
 
 ### a. Logs Watching and Alerts
 
