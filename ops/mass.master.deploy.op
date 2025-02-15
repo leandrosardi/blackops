@@ -133,6 +133,12 @@ RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder 
 # signature_name
 # signature_position
 
+# PayPal
+#
+# paypal_ipn_listener
+# paypal_business_email
+# paypal_orders_url
+
 # 1. Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
@@ -210,6 +216,12 @@ RUN sed -i "s/!!signature_picture_url/$$signature_picture_url/g" "/home/$$ssh_us
 RUN sed -i "s/!!signature_name/$$signature_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # signature_position
 RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# PayPal
+#
+RUN sed -i "s/!!paypal_ipn_listener/$$paypal_ipn_listener/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!paypal_business_email/$$paypal_business_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!paypal_orders_url/$$paypal_orders_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # Ruby’s tmpdir library is refusing to pick any temporary directory because it sees that both /tmp and 
 # the current directory `.` are world-writable and not fully secured with the “sticky bit.”. 
