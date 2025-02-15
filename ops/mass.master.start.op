@@ -9,3 +9,4 @@ RUN sudo systemctl start postgresql
 
 RUN sudo systemctl start mass_master_app.service
 RUN sudo systemctl start mass_master_allocate.service
+RUN sudo systemctl start mysaas_notifier.service
