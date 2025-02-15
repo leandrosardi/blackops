@@ -25,48 +25,16 @@ RUN apt-get install -y jq net-tools gnupg2 nginx sshpass bc unzip curl certbot g
 #RUN chown root:root /etc/nginx/nginx.conf
 #RUN chmod 644 /etc/nginx/nginx.conf
 
+# Stop nginx
+RUN service nginx stop
+
 # Install SSL Certificate
 # Reference: https://github.com/leandrosardi/my.saas/discussions/40
 #
-RUN service nginx stop
-
-RUN rm -rf /etc/letsencrypt/live
-
-# 1. Check if the certificate exists
-RUN if certbot certificates 2>/dev/null | grep -q "Certificate Name: $$domain"; then
-    echo "Certificate for $$domain found. Deleting via certbot..."
-    certbot delete --cert-name "$$domain" --non-interactive --quiet
-else
-    echo "Certificate for $$domain does not exist in certbot. Skipping certbot delete."
-fi
-
-# 2. Clean up any leftover domain-specific folders
-#    This step is only needed if the certbot delete doesn't remove them or if the renewal config was broken.
-RUN if [ -d "/etc/letsencrypt/live/$$domain" ]; then
-    echo "Removing /etc/letsencrypt/live/$$domain"
-    rm -rf "/etc/letsencrypt/live/$$domain"
-fi
-
-RUN if [ -d "/etc/letsencrypt/archive/$$domain" ]; then
-    echo "Removing /etc/letsencrypt/archive/$$domain"
-    rm -rf "/etc/letsencrypt/archive/$$domain"
-fi
-
-RUN if [ -f "/etc/letsencrypt/renewal/$$domain.conf" ]; then
-    echo "Removing /etc/letsencrypt/renewal/$$domain.conf"
-    rm -f "/etc/letsencrypt/renewal/$$domain.conf"
-fi
-
-RUN if certbot certificates | grep -q "Certificate Name: $$domain"; then
-    certbot delete --cert-name "$$domain" --non-interactive --quiet
-else
-    echo "Certificate for $$domain does not exist. Skipping deletion."
-fi
-
 # If you're only testing issuance scripts, use the Let’s Encrypt Staging 
 # environment (by adding `--staging`) to avoid real-world rate limits.
 # 
-RUN certbot certonly -d $$domain --noninteractive --standalone --agree-tos --register-unsafely-without-email --force-renewal --config-dir /etc/letsencrypt --cert-name $$domain
+RUN certbot certonly -d $$domain --keep-until-expiring --non-interactive --standalone --agree-tos --register-unsafely-without-email --force-renewal --config-dir /etc/letsencrypt --cert-name $$domain
 
 RUN mkdir -p /home/$$ssh_username/ssl
 RUN rm -rf /etc/letsencrypt/archive/*
