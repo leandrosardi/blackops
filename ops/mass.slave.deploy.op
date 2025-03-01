@@ -122,6 +122,39 @@ RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/cod
 # 16. Replace !!domain with $$domain
 RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
+# Transactional emails
+# 
+# postmark_api_key
+RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# smtp_user
+RUN sed -i "s/!!smtp_user/$$smtp_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# smtp_password
+RUN sed -i "s/!!smtp_password/$$smtp_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# sender_email
+RUN sed -i "s/!!sender_email/$$sender_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# from_email
+RUN sed -i "s/!!from_email/$$from_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# from_name
+RUN sed -i "s/!!from_name/$$from_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# smtp_url
+RUN sed -i "s/!!smtp_url/$$smtp_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# smtp_port
+RUN sed -i "s/!!smtp_port/$$smtp_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# tracking_domain_protocol
+RUN sed -i "s/!!tracking_domain_protocol/$$tracking_domain_protocol/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# tracking_domain_tld
+RUN sed -i "s/!!tracking_domain_tld/$$tracking_domain_tld/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# tracking_domain_port
+RUN sed -i "s/!!tracking_domain_port/$$tracking_domain_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# logo_url
+RUN sed -i "s/!!logo_url/$$logo_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# signature_picture_url
+RUN sed -i "s/!!signature_picture_url/$$signature_picture_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# signature_name
+RUN sed -i "s/!!signature_name/$$signature_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# signature_position
+RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
 # Ruby’s tmpdir library is refusing to pick any temporary directory because it sees that both /tmp and 
 # the current directory `.` are world-writable and not fully secured with the “sticky bit.”. 
 #
