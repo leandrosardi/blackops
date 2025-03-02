@@ -10,6 +10,7 @@ RUN sudo systemctl stop mass_slave_rule.service
 RUN sudo systemctl stop mass_slave_timeline.service
 RUN sudo systemctl stop mass_slave_bulk.service
 RUN sudo systemctl stop mass_slave_cancel.service
+RUN sudo systemctl stop mysaas_notifier.service
 
 # restart postgres in order to refresh performance
 # reference: https://github.com/MassProspecting/docs/issues/468
