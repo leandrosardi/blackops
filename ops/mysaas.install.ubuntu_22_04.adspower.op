@@ -31,9 +31,8 @@ RUN rm -f AdsPower-Global-6.12.6-x64.deb
 # https://github.com/dreamshao/chromedriver
 #
 RUN cd /tmp
-#RUN wget -q https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/116.0.5845.96/linux64/chromedriver-linux64.zip
 RUN wget -q https://github.com/dreamshao/chromedriver/raw/refs/heads/main/131.0.6778.69%20chromedriver-linux64.zip
-RUN unzip -q "131.0.6778.69 chromedriver-linux64.zip"
+RUN unzip -q '131.0.6778.69 chromedriver-linux64.zip'
 RUN mv chromedriver-linux64/chromedriver /usr/bin/
 RUN chmod +x /usr/bin/chromedriver
-RUN rm -rf chromedriver-linux64*
+RUN rm -rf *chromedriver-linux64*
