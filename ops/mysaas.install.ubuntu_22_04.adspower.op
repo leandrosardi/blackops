@@ -11,6 +11,14 @@
 # This requires execute another op at this point.
 #require mysaas.install.ubuntu_22_04.base.op
 
+# required by AdsPower 6.12.6
+sudo apt-get update
+sudo apt-get install libgbm1
+
+# required by AdsPower 6.12.6
+sudo apt update
+sudo apt install libasound2
+
 # Install AdsPower
 RUN cd /tmp
 RUN wget -q https://version.adspower.net/software/linux-x64-global/AdsPower-Global-6.12.6-x64.deb
@@ -18,9 +26,14 @@ RUN DEBIAN_FRONTEND=noninteractive LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 apt-get i
 RUN rm -f AdsPower-Global-6.12.6-x64.deb
 
 # Install ChromeDriver
+#
+# Always get different versions of ChromeDriver from here:
+# https://github.com/dreamshao/chromedriver
+#
 RUN cd /tmp
-RUN wget -q https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/116.0.5845.96/linux64/chromedriver-linux64.zip
-RUN unzip -q chromedriver-linux64.zip
+#RUN wget -q https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/116.0.5845.96/linux64/chromedriver-linux64.zip
+RUN wget -q https://github.com/dreamshao/chromedriver/raw/refs/heads/main/131.0.6778.69%20chromedriver-linux64.zip
+RUN unzip -q "131.0.6778.69 chromedriver-linux64.zip"
 RUN mv chromedriver-linux64/chromedriver /usr/bin/
 RUN chmod +x /usr/bin/chromedriver
 RUN rm -rf chromedriver-linux64*
