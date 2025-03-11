@@ -12,12 +12,12 @@
 #require mysaas.install.ubuntu_22_04.base.op
 
 # required by AdsPower 6.12.6
-sudo apt-get update -y
-sudo apt-get install libgbm1 -y
+RUN sudo apt-get update -y
+RUN sudo apt-get install libgbm1 -y
 
 # required by AdsPower 6.12.6
-sudo apt update -y
-sudo apt install libasound2 -y
+RUN sudo apt update -y
+RUN sudo apt install libasound2 -y
 
 # Install AdsPower
 RUN cd /tmp
