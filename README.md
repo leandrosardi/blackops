@@ -16,11 +16,10 @@ BlackOps provides the following features:
 2. **Processes Monitoring**.
 3. **Infrastructure Monitoring**.
 
-**Note:** BlackOps has been tested on the following stack:
+**Note:** BlackOps has been tested on:
 
-- Ubuntu 20.04 and Ubuntu 22.04,
-- Ruby 3.1.2; and
-- Bundler 2.3.7.
+- Ubuntu 20.04,
+- Ubuntu 22.04.
 
 **Table of Contents**
 
