@@ -1,4 +1,4 @@
-BLACKOPS_VERSION = '0.1'
+BLACKOPS_VERSION = '1.2'
 
 require 'pry'
 require 'blackstack-core'
