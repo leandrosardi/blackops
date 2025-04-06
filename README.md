@@ -158,7 +158,7 @@ Additionally, you can store one or more paths into the environment variable `$OP
 
 The `saas source` command will look for `BlackOpsFile` there.
 
-Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `ops source` command.
+Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `saas source` command.
 
 E.g.:
 
@@ -217,7 +217,7 @@ BlackOps.set(
 Any call to the `saas` command gets simplified, because you don't need to write the full path to the `.op` file.
 
 ```
-ops source hostname --node=prod1 --name=prod1
+saas source hostname --node=prod1 --name=prod1
 ```
 
 **Note:** If the file `hostname.op` is present into more than one repository, then the `ops` command with show an error message: `Operation hostname.op is present in more than one repository: <list of repositories.>`.
@@ -382,14 +382,14 @@ BlackOps.add_node({
 
 ## 11. Deploying
 
-The `deploy.rb` is for updating source code, installing or updating libraries, and setup configuration files. 
+The `saas deploy` is for updating source code, installing or updating libraries, and setup configuration files. 
 
-The `deploy.rb` script processes one or more `.op` scripts (like the `ops source` does).
+The `saas deploy` command processes one or more `.op` scripts (like the `saas source` does).
 
 E.g.:
 
 ```
-ruby deploy.rb --node=worker*
+saas deploy --node=worker*
 ```
 
 **Notes:**
@@ -418,7 +418,7 @@ BlackOps.add_node({
 E.g.:
 
 ```
-ruby deploy.rb --node=worker* --root
+saas deploy --node=worker* --root
 ```
 
 **Pre-Built Deploy Operations:**
@@ -441,13 +441,13 @@ in any node.
 E.g.:
 
 ```
-ruby start.rb --node=worker* --root
+saas start --node=worker* --root
 ```
 
 and 
 
 ```
-ruby stop.rb --node=worker* --root
+saas stop --node=worker* --root
 ```
 
 **Notes:**
@@ -458,7 +458,7 @@ ruby stop.rb --node=worker* --root
 
 - The list of `.op` scripts to execute are defined in the keys `start_ops` and `stop_ops` of the node descriptor.
 
-- Both `ops start` and `ops stop` execute one or more `.op` scripts, like the `ops source` does. You can define such operations in your configuration file.
+- Both `saas start` and `saas stop` execute one or more `.op` scripts, like the `saas source` does. You can define such operations in your configuration file.
 
 E.g.:
 
@@ -605,7 +605,7 @@ BlackOps.add_node({
 ruby list.rb --node=worker*
 ```
 
-- If you press `CTRL+C`, the `ops list` command will terminate.
+- If you press `CTRL+C`, the `saas list` command will terminate.
 
 ## 15. Infrastructure Managing
 
@@ -804,10 +804,10 @@ BlackOps.set({
 
 **Notes:**
 
-- You can run the `ops list` command in background, keep it monitoring 24/7, and get notified when an error happens.
+- You can run the `saas list` command in background, keep it monitoring 24/7, and get notified when an error happens.
 
 ```
-ops list --background
+saas list --background
 ```
 
 - When CPU or RAM usage run over their threshold, no email will be delivered. This is because CPU and RAM usage may be very flutuating.
