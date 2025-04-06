@@ -214,10 +214,10 @@ BlackOps.set(
 ...
 ```
 
-Any call to the `ops` command gets simplified, because you don't need to write the full path to the `.op` file.
+Any call to the `saas` command gets simplified, because you don't need to write the full path to the `.op` file.
 
 ```
-ops source hostname.op --node=prod1 --name=prod1
+ops source hostname --node=prod1 --name=prod1
 ```
 
 **Note:** If the file `hostname.op` is present into more than one repository, then the `ops` command with show an error message: `Operation hostname.op is present in more than one repository: <list of repositories.>`.
@@ -277,12 +277,12 @@ saas source set-rubylib --node=prod1
 
 ## 8. Connecting
 
-You can access any node via SSH using the `ssh.rb` script and the credentials defined in `BlackOpsFile`.
+You can access any node via SSH using the `saas ssh` command and the credentials defined in `BlackOpsFile`.
 
-The goal of the `ssh.rb` script is that you can access any node easily, writing short commands.
+The goal of the `saas ssh` command is that you can access any node easily, writing short commands.
 
 ```
-ruby ssh.rb prod1
+saas ssh prod1
 ```
 
 **Notes:**
@@ -292,17 +292,17 @@ ruby ssh.rb prod1
 E.g.:
 
 ```
-ruby ssh.rb prod1 --root
+saas ssh prod1 --root
 ```
 
 ## 9. Installing
 
-The `ruby install.rb` executes one or more `.op` scripts, like `saas source` does.
+The `saas install` command one or more `.op` scripts, like `saas source` does.
 
 E.g.:
 
 ```
-ruby install.rb --node=worker* --root
+saas install --node=worker* --root
 ```
 
 **Notes:**
@@ -332,19 +332,28 @@ BlackOps.add_node({
 
 **Pre-Built Install Operations:**
 
-There are some pre-built install operations that you can use:
+There are some pre-built install operations that you can use.
+
+**Ubuntu 20.04:**
 
 - [Install base required packages on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.base.op).
 - [Install PostgreSQL on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.postgresql.op).
 - [Install Nginx on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.nginx.op).
 - [Install AdsPower on Ubuntu 20.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_20_04.adspower.op).
 
+**Ubuntu 22.04:**
+
+- [Install base required packages on Ubuntu 22.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_22_04.base.op).
+- [Install PostgreSQL on Ubuntu 22.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_22_04.postgresql.op).
+- [Install Nginx on Ubuntu 22.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_22_04.nginx.op).
+- [Install AdsPower on Ubuntu 22.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_22_04.adspower.op).
+
 ## 10. Migrations
 
-The `migrations.rb` script connects to the database into a node and executes a series of SQL files.
+The `saas migrations` command connects to the database into a node and executes a series of SQL files.
 
 ```
-ruby migrations.rb --node=prod1
+saas migrations --node=prod1
 ```
 
 You have to define the list of folders here to find such SQL files.
