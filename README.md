@@ -4,6 +4,12 @@ The **BlackOps** library makes it easy to manage your DevOps.
 
 BlackOps gives you command series to perform your deployments and monitor your nodes from the comfort of your command line.
 
+E.g.:
+
+```
+saas deploy --node=n01
+```
+
 BlackOps provides the following features: 
 
 1. **Continious Deployment**.
