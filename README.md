@@ -66,7 +66,7 @@ sudo mv ./saas--ubuntu-22.04 /usr/bin/saas
 sudo chmod 777 /usr/bin/saas
 ```
 
-## 1.2. Run an operation.
+### 1.2. Run an operation.
 
 The code below will download and execute a very simple `.op` script that sets the hostname of your computer. 
 
