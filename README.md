@@ -7,7 +7,7 @@ BlackOps gives you command series to perform your deployments and monitor your n
 E.g.:
 
 ```
-saas deploy --node=n01
+saas deploy --node=n01 --version=1.2
 ```
 
 BlackOps provides the following features: 
