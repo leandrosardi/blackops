@@ -2,7 +2,7 @@
 
 The **BlackOps** library makes it easy to manage your DevOps.
 
-BlackOps gives you an script series to perform your deployments and monitor your nodes from the comfort of your command line.
+BlackOps gives you command series to perform your deployments and monitor your nodes from the comfort of your command line.
 
 BlackOps provides the following features: 
 
@@ -12,7 +12,7 @@ BlackOps provides the following features:
 
 **Note:** BlackOps has been tested on the following stack:
 
-- Ubuntu 20.04,
+- Ubuntu 20.04 and Ubuntu 22.04,
 - Ruby 3.1.2; and
 - Bundler 2.3.7.
 
@@ -41,40 +41,47 @@ BlackOps provides the following features:
 
 ## 1. Getting Started
 
-1. Clone the project.
+Follow the steps below for running your first operation.
+
+### 1.1. Download the `saas` command:
+
+BlackOps works on 
+
+1. Ubuntu 20.04,
+2. Ubuntu 22.04.
+
+**Ubuntu 20.04**
 
 ```
-mkdir -p ~/code1
-cd ~/code1
-git clone https://github.com/leandrosardi/blackops
+wget https://github.com/leandrosardi/blackops/raw/refs/heads/main/bin/saas--ubuntu-20.04
+sudo mv ./saas--ubuntu-20.04 /usr/bin/saas
+sudo chmod 777 /usr/bin/saas
 ```
 
-2. Install gems.
+**Ubuntu 22.04**
 
 ```
-cd ~/code1/blackops
-bundler update
+wget https://github.com/leandrosardi/blackops/raw/refs/heads/main/bin/saas--ubuntu-22.04
+sudo mv ./saas--ubuntu-22.04 /usr/bin/saas
+sudo chmod 777 /usr/bin/saas
 ```
 
-3. Run an operation.
+## 1.2. Run an operation.
 
 The code below will download and execute a very simple `.op` script that sets the hostname of your computer. 
 
 ```
-cd ~/code1/blackops/cli
-
 wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op
-
-ruby source.rb ./hostname.op --local --name=dev1
+saas source ./hostname.op --local --name=dev1
 ```
 
 **Notes:**
 
-Here are some other considerations about the `source.rb` script:
+Here are some other considerations about the `saas source` command:
 
 - You can write `./hostname` instead of `./hostname.op`.
 
-The `source` command will look for the `./hostname` file. And if `./hostname` doesn't exists, then the `source` command will try with `./hostname.op`
+The `saas source` command will look for the `./hostname` file. And if `./hostname` doesn't exists, then the `source` command will try with `./hostname.op`
 
 - The content of `hostname.op` looks like this:
 
@@ -90,9 +97,9 @@ The `source` command will look for the `./hostname` file. And if `./hostname` do
 RUN hostnamectl set-hostname "$$name"
 ```
 
-- The argument `--name` is to replace the `$$name` variable into the `.op` file.
+- The argument `--name` in the command line is to replace the `$$name` variable into the `.op` file.
 
-- You can define any variable into your `.op` file, and you can set its value into a command argument. 
+- You can define any variable into your `.op` file, and you can set its value by command lines argument. 
 
 E.g.: The operaton below requires you to define a `--rubylib` argument in your command line.
 
@@ -102,7 +109,7 @@ E.g.: The operaton below requires you to define a `--rubylib` argument in your c
 RUN export RUBYLIB=$$rubylib
 ```
 
-- All the variables defined into the `.op` file must be present into the list of arguments of the `source.rb` script.
+- All the variables defined into the `.op` file must be present into the list of arguments of the `saas source` command.
 
 ## 2. Remote Operations
 
@@ -111,7 +118,7 @@ You can also run operations on a remote node through SSH.
 Use the `--ssh` arguments instead of `--local`.
 
 ```
-ruby source.rb ./hostname.op --ssh=username:password@ip:port --name=prod1
+saas source ./hostname.op --ssh=username:password@ip:port --name=prod1
 ```
 
 ## 3. Configuration Files
@@ -133,21 +140,23 @@ BlackOps.add_node({
 })
 ```
 
-Then you can run the `source.rb` command referencing to such a configuration file,
+Then you can run the `saas source` command referencing to such a configuration file, and the node (`--node`) you want to work with.
 
 ```
-ruby source.rb ./hostname.op --config=./BlackOpsFile --node=prod1 --root
+saas source ./hostname.op --config=./BlackOpsFile --node=prod1 --root
 ```
 
 **Note:** 
 
-- In the example above, if the `--root` flag is not present, then BlackOps will access the node with the `blackstack` user.
+- The command line argument `--name` is no longer need if it is defined into the **BlackOpsFile**.
+
+- In the command above, if the `--root` flag is not present, then BlackOps will access the node with the `blackstack` user.
 
 ## 4. Environment Variable `$OPSLIB`
 
 Additionally, you can store one or more paths into the environment variable `$OPSLIB`. 
 
-The `source.rb` script will look for `BlackOpsFile` there.
+The `saas source` command will look for `BlackOpsFile` there.
 
 Using `$OPSLIB` you don't need to write the `--config` argument every time you call the `ops source` command.
 
@@ -156,7 +165,7 @@ E.g.:
 ```
 export OPSLIB=~/
 
-ruby source.rb hostname --node=prod1 --root
+saas source hostname --node=prod1 --root
 ```
 
 The environment variable `$OPSLIB` can include a list of folders separated by `:`. 
@@ -166,10 +175,10 @@ E.g.:
 ```
 export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
 
-ruby source.rb hostname --node=prod1 --root
+saas source hostname --node=prod1 --root
 ```
 
-**Note:** If the file `BlackOpsFile` file is present into more than one path, then the `source.rb` script will show an error message: `Configuration file is present in more than one path: <list of paths.>`.
+**Note:** If the file `BlackOpsFile` file is present into more than one path, then the `saas source` command will show an error message: `Configuration file is present in more than one path: <list of paths.>`.
 
 ## 5. Remote `.op` Files
 
@@ -178,7 +187,7 @@ You can refer to `.op` files hosted in the web.
 E.g.:
 
 ```
-ruby source.rb https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --root
+saas source https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --root
 ```
 
 ## 6. Repositories
@@ -218,7 +227,7 @@ ops source hostname.op --node=prod1 --name=prod1
 The argument `--name` was not necessary in the command line below, 
 
 ```
-ruby source.rb hostname --node=prod1 --root
+saas source hostname --node=prod1 --root
 ```
 
 because it is already defined in the hash descriptor of the node (`:name`).
@@ -263,7 +272,7 @@ E.g.:
 The `--rubylib` argument in the command line is not longer needed:
 
 ```
-ruby source.rb set-rubylib --node=prod1
+saas source set-rubylib --node=prod1
 ```
 
 ## 8. Connecting
@@ -288,7 +297,7 @@ ruby ssh.rb prod1 --root
 
 ## 9. Installing
 
-The `ruby install.rb` executes one or more `.op` scripts, like `ruby source.rb` does.
+The `ruby install.rb` executes one or more `.op` scripts, like `saas source` does.
 
 E.g.:
 
