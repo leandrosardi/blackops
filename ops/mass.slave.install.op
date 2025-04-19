@@ -1,6 +1,9 @@
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_app.sh
 
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_export.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_export.sh
+
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_slave_import.sh
 
@@ -29,6 +32,10 @@ RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/r
 RUN cp -f "/tmp/mass_slave_app.service" "/etc/systemd/system/mass_slave_app.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_app.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_app.service"
+
+RUN cp -f "/tmp/mass_slave_export.service" "/etc/systemd/system/mass_slave_export.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_export.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_slave_export.service"
 
 RUN cp -f "/tmp/mass_slave_import.service" "/etc/systemd/system/mass_slave_import.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_slave_import.service"
@@ -68,6 +75,10 @@ RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_app.sh"
 RUN sed -i "s/!!port/$$port/g" "/home/$$ssh_username/mass_slave_app.sh"
 
+RUN cp -f "/tmp/mass_slave_export.sh" "/home/$$ssh_username/mass_slave_export.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_export.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_export.sh"
+
 RUN cp -f "/tmp/mass_slave_import.sh" "/home/$$ssh_username/mass_slave_import.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_slave_import.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_slave_import.sh"
@@ -103,6 +114,9 @@ RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_notifi
 # Grant the $$ssh_username user to run
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_slave_app.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_slave_app.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_slave_export.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_slave_export.sh
 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_slave_import.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_slave_import.sh
