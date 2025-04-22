@@ -5,8 +5,8 @@ RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/r
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.sh
 
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_export.service
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_export.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_orders.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_orders.sh
 
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_notifier.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_notifier.sh
@@ -20,9 +20,9 @@ RUN cp -f "/tmp/mass_master_allocate.service" "/etc/systemd/system/mass_master_a
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_allocate.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_allocate.service"
 
-RUN cp -f "/tmp/mass_master_export.service" "/etc/systemd/system/mass_master_export.service"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_export.service"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_export.service"
+RUN cp -f "/tmp/mass_master_orders.service" "/etc/systemd/system/mass_master_orders.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_orders.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_orders.service"
 
 RUN cp -f "/tmp/mysaas_notifier.service" "/etc/systemd/system/mysaas_notifier.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mysaas_notifier.service"
@@ -38,9 +38,9 @@ RUN cp -f "/tmp/mass_master_allocate.sh" "/home/$$ssh_username/mass_master_alloc
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_allocate.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_allocate.sh"
 
-RUN cp -f "/tmp/mass_master_export.sh" "/home/$$ssh_username/mass_master_export.sh"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_export.sh"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_export.sh"
+RUN cp -f "/tmp/mass_master_orders.sh" "/home/$$ssh_username/mass_master_orders.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_orders.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_orders.sh"
 
 RUN cp -f "/tmp/mysaas_notifier.sh" "/home/$$ssh_username/mysaas_notifier.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_notifier.sh"
@@ -53,8 +53,8 @@ RUN sudo chmod +x /home/$$ssh_username/mass_master_app.sh
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_allocate.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_master_allocate.sh
 
-RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_export.sh
-RUN sudo chmod +x /home/$$ssh_username/mass_master_export.sh
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_orders.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_master_orders.sh
 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mysaas_notifier.sh
 RUN sudo chmod +x /home/$$ssh_username/mysaas_notifier.sh
