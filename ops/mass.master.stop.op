@@ -4,7 +4,7 @@
 
 RUN sudo systemctl stop mass_master_app.service
 RUN sudo systemctl stop mass_master_allocate.service
-RUN sudo systemctl stop mass_master_export.service
+RUN sudo systemctl stop mass_master_orders.service
 RUN sudo systemctl stop mysaas_notifier.service
 
 # restart postgres in order to refresh performance
