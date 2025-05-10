@@ -219,6 +219,9 @@ RUN sed -i "s/!!signature_picture_url/$$signature_picture_url/g" "/home/$$ssh_us
 RUN sed -i "s/!!signature_name/$$signature_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # signature_position
 RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# massprospecting client credentials
+RUN sed -i "s/!!mass_api_key/$$mass_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!mass_subaccount/$$mass_subaccount/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # PayPal
 #
