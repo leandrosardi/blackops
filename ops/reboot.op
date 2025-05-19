@@ -1,0 +1,8 @@
+# Description:
+# - Very simple script that shows how to use an `.op` file to reboot a node.
+# - Run this op as root.
+# 
+
+# Change hostname
+RUN reboot
+
