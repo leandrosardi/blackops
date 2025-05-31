@@ -187,6 +187,9 @@ RUN sed -i "s/!!workers/$$workers/g" "/home/$$ssh_username/code1/$$code_folder/c
 # 19. Replace openai api key
 RUN sed -i "s/!!linkedin_feed_signals__openai_apikey/$$linkedin_feed_signals__openai_apikey/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
+# 20. Replace openai api key
+RUN sed -i "s/!!session_secret/$$session_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
 # Transactional emails
 # 
 # postmark_api_key
