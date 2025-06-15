@@ -1,8 +1,8 @@
 # BlackOps
 
-The **BlackOps** library makes it easy to manage your DevOps.
+The **BlackOps** tool makes it easy to manage your DevOps.
 
-BlackOps gives you command series to perform your deployments and monitor your nodes from the comfort of your command line.
+BlackOps gives you a command series to perform your deployments.
 
 E.g.:
 
@@ -16,22 +16,14 @@ saas deploy --node=n01 --version=1.2
 2. [Remote Operations](#2-remote-operations)
 3. [Configuration Files](#3-configuration-files)
 4. [Environment Variable `$OPSLIB`](#4-environment-variable-opslib)
-5. [Remote `.op` Files](#5-remote-op-files)
-6. [Repositories](#6-repositories)
-7. [Custom Parameters](#7-custom-parameters)
-8. [Connecting](#8-connecting)
-9. [Installing](#9-installing)
-10. [Migrations](#10-migration)
-11. [Deploying](#11-deploying)
-12. [Starting and Stopping Nodes](#12-starting-and-stopping-nodes)
-13. [Configuration Templates](#13-configuration-templates)
-14. [Monitoring](#14-monitoring)
-15. [Infrastructure Managing](#15-infrastructure-managing)
-16. [Custom Alerts](#16-custom-alerts)
-17. [Processes Watching](#17-processes-watching)
-18. [Command `saas`](#18-command-saas)
-19. [Releasing](#19-releasing)
-20. [Further Work](#20-further-work)
+5. [Repositories](#5-repositories)
+6. [Custom Parameters](#6-custom-parameters)
+7. [Connecting](#7-connecting)
+8. [Installing](#8-installing)
+9. [Migrations](#9-migration)
+10. [Deploying](#10-deploying)
+11. [Starting and Stopping Nodes](#11-starting-and-stopping-nodes)
+12. [Configuration Templates](#12-configuration-templates)
 
 ## 1. Getting Started
 
@@ -44,9 +36,7 @@ BlackOps works on
 1. Ubuntu 20.04,
 2. Ubuntu 22.04.
 
-Follow the steps below to download and install the `saas` command:
-
-**Ubuntu 20.04**
+**Installing on Ubuntu 20.04**
 
 ```
 wget https://github.com/leandrosardi/blackops/raw/refs/heads/main/bin/saas--ubuntu-20.04
@@ -54,7 +44,7 @@ sudo mv ./saas--ubuntu-20.04 /usr/bin/saas
 sudo chmod 777 /usr/bin/saas
 ```
 
-**Ubuntu 22.04**
+**Installing on Ubuntu 22.04**
 
 ```
 wget https://github.com/leandrosardi/blackops/raw/refs/heads/main/bin/saas--ubuntu-22.04
@@ -161,7 +151,7 @@ E.g.:
 ```
 export OPSLIB=~/
 
-saas source hostname --node=prod1 --root
+saas source ./hostname.op --node=prod1 --root
 ```
 
 The environment variable `$OPSLIB` can include a list of folders separated by `:`. 
@@ -171,29 +161,14 @@ E.g.:
 ```
 export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
 
-saas source hostname --node=prod1 --root
+saas source ./hostname.op --node=prod1 --root
 ```
 
 **Note:** If the file `BlackOpsFile` file is present into more than one path, then the `saas source` command will show an error message: `Configuration file is present in more than one path: <list of paths.>`.
 
-## 5. Remote `.op` Files
+## 5. Repositories
 
-You can refer to `.op` files hosted in the web.
-
-E.g.:
-
-```
-saas source https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op --node=prod1 --root
-```
-
-## 6. Repositories
-
-In your configuration file, you can define the locations where to find the `.op` files.
-
-Such locations must be either:
-
-1. folders in your local computer, or
-2. URLs in the web.
+In your configuration file, you can define the folders where to find the `.op` files.
 
 **BlackOpsFile**
 
@@ -201,10 +176,8 @@ Such locations must be either:
 ...
 BlackOps.set(
     repositories: [
-        # private operations defined in my local computer.
-        '/home/leandro/code1/blackops/ops',
-        # public operations defined in blackops repository.
-        'https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops',
+        '/home/leandro/ops',
+        '/home/leandro/more-ops',
     ],
 )
 ...
@@ -213,12 +186,12 @@ BlackOps.set(
 Any call to the `saas` command gets simplified, because you don't need to write the full path to the `.op` file.
 
 ```
-saas source hostname --node=prod1 --name=prod1
+saas source hostname --node=prod1 --root
 ```
 
 **Note:** If the file `hostname.op` is present into more than one repository, then the `ops` command with show an error message: `Operation hostname.op is present in more than one repository: <list of repositories.>`.
 
-## 7. Custom Parameters
+## 6. Custom Parameters
 
 The argument `--name` was not necessary in the command line below, 
 
@@ -271,7 +244,7 @@ The `--rubylib` argument in the command line is not longer needed:
 saas source set-rubylib --node=prod1
 ```
 
-## 8. Connecting
+## 7. Connecting
 
 You can access any node via SSH using the `saas ssh` command and the credentials defined in `BlackOpsFile`.
 
@@ -291,7 +264,7 @@ E.g.:
 saas ssh prod1 --root
 ```
 
-## 9. Installing
+## 8. Installing
 
 The `saas install` command one or more `.op` scripts, like `saas source` does.
 
@@ -344,9 +317,9 @@ There are some pre-built install operations that you can use.
 - [Install Nginx on Ubuntu 22.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_22_04.nginx.op).
 - [Install AdsPower on Ubuntu 22.04](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mysaas.install.ubuntu_22_04.adspower.op).
 
-## 10. Migrations
+## 9. Migrations
 
-The `saas migrations` command connects to the database into a node and executes a series of SQL files.
+The `saas migrations` command connects to a PostgreSQL database into a node and executes a series of SQL files.
 
 ```
 saas migrations --node=prod1
@@ -369,14 +342,14 @@ BlackOps.add_node({
 
 - The list of folders are not referencing to paths in your local computer, but paths into the node.
 
-- The ist of migrations folders will be processed ony by one, in the same order they are listed. 
+- The list of migrations folders will be processed ony by one, in the same order they are listed. 
 
 - The files into each folder will be processed one by one too, sorted by name.
 
 - Each `.sql` file, will be executed sentence by sentence. Each sentence must to finish whith a semicolon (`;`).
 
 
-## 11. Deploying
+## 10. Deploying
 
 The `saas deploy` is for updating source code, installing or updating libraries, and setup configuration files. 
 
@@ -425,7 +398,7 @@ There are some pre-built deploy operations that you can use:
 - [Deploy source code of slave node of MassProspsecting](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.slave.deploy.op).
 - [Deploy source code of MassProspsecting SDK](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.sdk.deploy.op).
 
-## 12. Starting and Stopping Nodes
+## 11. Starting and Stopping Nodes
 
 You can define a list of operations for:
 
@@ -485,9 +458,9 @@ There are some pre-built operations for starting or stopping your software:
 - [Start processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op).
 - [Stop processes on MassProspecting Worker Nodes](https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/mass.worker.start.op)
 
-## 13. Configuration Templates
+## 12. Configuration Templates
 
-Use tempaltes to avoid code duplication in your configuration file.
+Use templates to avoid code duplication in your configuration file.
 
 **BlackOpsFile**
 
@@ -540,309 +513,3 @@ BlackOps.add_node({
 
 ```
 
-## 14. Monitoring
-
-Your can list your nodes and monitor the usage of CPU, RAM and disk space.
-
-```
-ruby list.rb
-```
-
-![blackops list of nodes](/assets/list01.png)
-
-The `list.rb` script will:
-
-1. show all the nodes defined in your configuration file;
-
-2. connect the nodes one by one via SSH and bring **RAM usage**, **CPU usage**, **disk usage** and **custom alerts** (custom alerts will be introduced further).
-
-**Notes:**
-
-- Once connected to a node, the values shown in the row of the node will be aupdated every 5 seconds by default.
-
-![blackops list of nodes](/assets/list02.png)
-
-- You can define a custom number of seconds to update each row:
-
-```
-ruby list.rb --interval=15
-```
-
-- The SSH connection to a node may fail.
-
-![blackops list of nodes](/assets/list03.png)
-
-- By default; the usage of RAM, CPU or disk must be under 50% or it will be shown in red.
-
-![blackops list of nodes](/assets/list04.png)
-
-- You can define the thresholds of each node in your configuration file, so you don't need write them in the command line:
-
-```ruby
-...
-BlackOps.add_node({
-    :name => 'prod1',
-    :ip => '55.55.55.55',
-    :cpu_threshold => 75, # <=====
-    :ram_threshold => 80, # <=====
-    :disk_threshold => 40, # <=====
-    ...
-})
-...
-```
-
-- The number of **custom alerts** must be 0, or it will be shown in red. This treshold is always `0` and cannot be modified.
-
-![blackops list of nodes](/assets/list05.png)
-
-- You can use wildcard to choose the list of nodes you want to see.
-
-```
-ruby list.rb --node=worker*
-```
-
-- If you press `CTRL+C`, the `saas list` command will terminate.
-
-## 15. Infrastructure Managing
-
-You can connect BlackOps with [Contabo](https://contabo.com) using our [Contabo Client library](https://github.com/leandrosardi/contabo-client).
-
-**BlackOpsFile**
-
-```ruby
-...
-BlackOps.set(
-    contabo: ContaboClient.new(
-        client_id: 'INT-11833581',
-        client_secret: '******',
-        api_user: 'leandro@massprospecting.com',
-        api_password: '********'
-    ),
-)
-...
-```
-
-The `list.rb` script will **merge** the nodes defined in your configuration file with the list of instances in your Contabo account.
-
-Such a merging is performed using the public IPv4 addess of **Contabo instances** and **nodes** defined in the configuration file.
-
-```
-ruby list.rb
-```
-
-![blackops infrastructure management](/assets/contabo01.png)
-
-**Notes:**
-
-- The rows with no value in the **Contabo ID** column are nodes defined into the configuration file, but not existing in the list of Contabo instances.
-
-E.g.: in the picture above, the no `slave01`.
-
-- The rows with `unknown` in the **status** column are Contabo instances that are not defined in your configuration file.
-
-The `unknown` situation happens when you have a software that creates instances on Contabo dynamically, using [Contabo Client's `create` feature](https://github.com/leandrosardi/contabo-client?tab=readme-ov-file#creating-an-instance).
-
-E.g.: You developed a scalable SAAS that creates a dedicated instance on Contabo for each user signed up.
-
-To avoid the `unknown` situation, your software should store instances created dynamically into its database, and add them to BlackOps dynamically too, by editing your `BlackOpsFile`
-
-## 16. Custom Alerts
-
-You can write code snipets of monitoring of your nodes:
-
-**BlackOpsFile**
-
-```ruby
-BlackOps.add_node({
-    :name => 's01',
-    :ip => '195.179.229.20',
-    ...
-    :alerts => { # <=== 
-
-        # this function calls the REST-API of a MassProspecting Slave Node, 
-        # and returns true if there are no `job` records with failed status  
-        #
-        # Arguments:
-        # - node: Instance of a node object.
-        # 
-        :massprospecting_failed_jobs => lambda do |node, *args|
-            # ...
-            # source code to call the REST-API of the slave node
-            # ...
-            return true
-        end,
-        ...
-    },
-    ...
-    # to call the REST-API of the slave node, you will need an API key for sure.
-    :api_key => 'foo-api-key',
-})
-```
-
-Using the `alerts.rb` script, you can get a report of the alerts raised by each node.
-
-```
-ruby alerts.rb --node=worker*
-```
-
-## 17. Processes Watching
-
-When you define a node, you can specify what are the processes that will be running there.
-
-**BlackOpsFile**
-
-```ruby
-BlackOps.add_node({
-    :name => 'worker06',
-    :ip => '195.179.229.21',
-    ...
-    :procs => [
-        '/home/blackstack/code1/master/ipn.rb',
-        '/home/blackstack/code1/master/dispatch.rb',
-        '/home/blackstack/code1/master/allocate.rb',
-    ]
-})
-```
-
-Then, call the `proc.rb` script to watch 
-
-1. if they are running or not,
-2. the RAM consumed by each one of the processes; and 
-3. the CPU consumed by each one of the processes.
-
-```
-ruby proc.rb
-```
-
-_picture pending_
-
-You can also use wildcards with specify the nodes you want to watch:
-
-```
-ruby proc.rb --node=worker*
-```
-
-**Notes:**
-
-- The `proc` command simply connect the nodes via SSH and performa a `grep` command to find the processes you specified.
-
-- If one processes listed into the `procs` array is not found when running the `grep`, then such a process is shown as `offline` in the list.
-
-## 18. Command `saas`
-
-If you are working on a fresh OS with not Ruby installed, you can use the `saas` command.
-The `saas` command is the same script series packed into an executable file.
-
-**Step 1:** Install the `saas` command.
-
-```
-wget https://github.com/leandrosardi/blackops/raw/refs/heads/main/releases/saas-1.2-ubuntu-20.04
-
-sudo mv saas-1.2-ubuntu-20.04 /usr/local/bin/saas
-
-sudo chmod 777 /usr/local/bin/saas
-```
-
-If you have not Ubuntu 20.04 but another version, find all available versions [here](https://github.com/leandrosardi/blackops/tree/main/releases).
-
-
-**Step 2:** Check if `saas` is working.
-
-```
-saas version
-```
-
-**Step 3:** Install your Ruby environment.
-
-```
-wget https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/ops/hostname.op
-
-saas source ./hostname.op --local --name=dev1
-```
-
-
-## 19. Releasing
-
-_pending_
-
-## 20. Further Work
-
-### a. Logs Watching and Alerts
-
-Log watching & error keywords monitoring. 
-
-https://github.com/leandrosardi/blackops/issues/48
-
-### b. Email Notifications
-
-You can define an SMTP relay and a list of email address to notify when any value in the table above goes red.
-
-```ruby
-...
-BlackOps.set({
-    :alerts => {
-        'smtp_ip' => '...', 
-        'smtp_port' => '...', 
-        'smtp_username' => '...', 
-        'smtp_password' => '...', 
-        'smtp_sending_name' => 'BlackOps',
-        'smtp_sending_email' => 'blackops@massprospecting.com',
-        'receivers' => [
-            'leandro@massprospecting.com',
-            ...
-            'cto@massprospecting.com',
-        ]
-    }
-    ...
-})
-...
-```
-
-**Notes:**
-
-- You can run the `saas list` command in background, keep it monitoring 24/7, and get notified when an error happens.
-
-```
-saas list --background
-```
-
-- When CPU or RAM usage run over their threshold, no email will be delivered. This is because CPU and RAM usage may be very flutuating.
-
-- An email notification will be delivered when the disk usage raises over its threshold at a first time after has been under it.
-
-- An email notifications will be delivered when the number of alerts raises over `0` at a first time after has been `0`.
-
-- Log error keywords
-
-- Processes not running
-
-- Any email notification includes the name and public IP of the node, the value of CPU usage, RAM usage, disk usage and alerts, and the threshold of each one.
-
-### c. Scalability
-
-- Scalable Monitoring
-- Scalable Processes Watching
-- Scalable Log Watching
-- Scalable Deployment
-
-### d. Directives
-
-E.g.:
-
-**mysaas.ubuntu_20_04.full.op**
-
-```ruby
-# This directive validates you are connecting the node as root.
-#!root
-```
-
-### e. Requires
-
-E.g.:
-
-**mysaas.ubuntu_20_04.full.op**
-
-```ruby
-# This requires execute another op at this point.
-require mysaas.ubuntu_20_04.base.op
-```
