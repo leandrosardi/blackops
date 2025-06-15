@@ -20,7 +20,7 @@ saas deploy --node=n01 --version=1.2
 6. [Custom Parameters](#6-custom-parameters)
 7. [Connecting](#7-connecting)
 8. [Installing](#8-installing)
-9. [Migrations](#9-migration)
+9. [Migrations](#9-migrations)
 10. [Deploying](#10-deploying)
 11. [Starting and Stopping Nodes](#11-starting-and-stopping-nodes)
 12. [Configuration Templates](#12-configuration-templates)
