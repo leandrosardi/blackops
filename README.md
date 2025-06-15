@@ -1,6 +1,6 @@
-![BlackOps Logo](./assets/blackops-logo-1.png)
-
 # BlackOps
+
+![BlackOps Logo](./assets/blackops-logo-1.png)
 
 The **BlackOps** tool makes it easy to manage your DevOps.
 
