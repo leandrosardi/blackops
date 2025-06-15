@@ -10,17 +10,6 @@ E.g.:
 saas deploy --node=n01 --version=1.2
 ```
 
-BlackOps provides the following features: 
-
-1. **Continious Deployment**.
-2. **Processes Monitoring**.
-3. **Infrastructure Monitoring**.
-
-**Note:** BlackOps has been tested on:
-
-- Ubuntu 20.04,
-- Ubuntu 22.04.
-
 **Table of Contents**
 
 1. [Getting Started](#1-getting-started)
@@ -48,12 +37,14 @@ BlackOps provides the following features:
 
 Follow the steps below for running your first operation.
 
-### 1.1. Download the `saas` command:
+### 1.1. Install the `saas` command
 
 BlackOps works on 
 
 1. Ubuntu 20.04,
 2. Ubuntu 22.04.
+
+Follow the steps below to download and install the `saas` command:
 
 **Ubuntu 20.04**
 
