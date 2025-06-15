@@ -1,3 +1,5 @@
+![BlackOps Logo](./assets/blackops-logo-1.png)
+
 # BlackOps
 
 The **BlackOps** tool makes it easy to manage your DevOps.
@@ -513,3 +515,6 @@ BlackOps.add_node({
 
 ```
 
+## Discplaimer
+
+Logo has been taken from [here](https://www.flaticon.com/free-icon/command-line_9969711?related_id=9969486&origin=search).
