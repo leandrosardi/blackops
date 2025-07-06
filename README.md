@@ -215,6 +215,10 @@ saas install --node=worker* --root
 BlackOps.add_node({
     :name => 'prod1',         
     ...
+    :postgres_username => '<your postgres username>',
+    :postgres_password => '<your postgres password>',
+    :postgres_database => '<your postgres database>',
+    ...
     :migration_folders => [
         '/home/blackstack/code1/master/sql',
         ...

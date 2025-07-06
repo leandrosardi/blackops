@@ -335,6 +335,10 @@ You have to define the list of folders here to find such SQL files.
 BlackOps.add_node({
     :name => 'prod1',         
     ...
+    :postgres_username => '<your postgres username>',
+    :postgres_password => '<your postgres password>',
+    :postgres_database => '<your postgres database>',
+    ...
     :migration_folders => [
         '/home/blackstack/code1/master/sql',
         ...
