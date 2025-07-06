@@ -11,10 +11,6 @@
 
 The **BlackOps** tool makes it easy to perform your deployments from the comfort of your command line.
 
-BlackOps gives you a command series to perform your deployments.
-
-E.g.:
-
 ```
 saas deploy --node=n01 --version=1.2
 ```
