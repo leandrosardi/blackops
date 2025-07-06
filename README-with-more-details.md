@@ -1,5 +1,12 @@
 # BlackOps
 
+[![GitHub Stars](https://img.shields.io/github/stars/leandrosardi/blackops?style=flat-square)](https://github.com/leandrosardi/blackops/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/leandrosardi/blackops?style=flat-square)](https://github.com/leandrosardi/blackops/network)
+[![GitHub Issues](https://img.shields.io/github/issues/leandrosardi/blackops?style=flat-square)](https://github.com/leandrosardi/blackops/issues)
+[![GitHub Tag](https://img.shields.io/github/v/tag/leandrosardi/blackops?style=flat-square)](https://github.com/leandrosardi/blackops/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/leandrosardi/blackops?style=flat-square)](https://github.com/leandrosardi/blackops/commits/main)
+[![Repo Size](https://img.shields.io/github/repo-size/leandrosardi/blackops?style=flat-square)](https://github.com/leandrosardi/blackops)
+
 ![BlackOps Logo](./assets/blackops-logo-1.png)
 
 The **BlackOps** tool makes it easy to perform your deployments from the comfort of your command line.
