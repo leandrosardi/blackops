@@ -201,7 +201,7 @@ BlackOps.add_node({
 })
 ```
 
-Run all the operations defined for installation:
+Run all the operations defined for node installation:
 
 ```
 saas install --node=worker* --root
@@ -222,7 +222,7 @@ BlackOps.add_node({
 })
 ```
 
-Connect to a PostgreSQL database into a node and executes the series of SQL files.
+Into the node, connect to a PostgreSQL database and execute a series of SQL scripts.
 
 ```
 saas migrations --node=prod1
