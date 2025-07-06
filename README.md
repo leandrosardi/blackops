@@ -33,7 +33,7 @@ For a more detailed documentation, refere to [README with more details](./README
 
 Follow the steps below for running your first operation.
 
-### 1.1. Install the `saas` command
+### Install the `saas` command
 
 BlackOps works on 
 
@@ -56,7 +56,7 @@ sudo mv ./saas--ubuntu-22.04 /usr/bin/saas
 sudo chmod 777 /usr/bin/saas
 ```
 
-### 1.2. Run an operation.
+### Run an operation.
 
 The code below will download and execute a very simple `.op` script that sets the hostname of your computer. 
 
