@@ -2,7 +2,7 @@
 
 ![BlackOps Logo](./assets/blackops-logo-1.png)
 
-The **BlackOps** tool makes it easy to manage your DevOps.
+The **BlackOps** tool makes it easy to perform your deployments from the comfort of your command line.
 
 BlackOps gives you a command series to perform your deployments.
 
