@@ -225,6 +225,12 @@ RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username
 # massprospecting client credentials
 RUN sed -i "s/!!mass_api_key/$$mass_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!mass_subaccount/$$mass_subaccount/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# contabo client credentials
+RUN sed -i "s/!!contabo_client_id/$$contabo_client_id/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!contabo_client_secret/$$contabo_client_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!contabo_api_user/$$contabo_api_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!contabo_api_password/$$contabo_api_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
 
 # PayPal
 #
