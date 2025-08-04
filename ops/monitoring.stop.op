@@ -1,0 +1,1 @@
+RUN sudo systemctl stop monitoring_merge.service
