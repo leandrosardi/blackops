@@ -1,0 +1,18 @@
+# Download service files
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/monitoring-client.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/monitoring-client.sh
+
+# Service configuration file.
+RUN cp -f "/tmp/monitoring-client.service" "/etc/systemd/system/monitoring-client.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/monitoring-client.service"
+
+# Service starting wrapper
+RUN cp -f "/tmp/monitoring-client.sh" "/home/$$ssh_username/monitoring-client.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/monitoring-client.sh"
+
+# Grant the $$ssh_username user to run 
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/monitoring-client.sh
+RUN sudo chmod +x /home/$$ssh_username/monitoring-client.sh
+
+# Reload daemons
+RUN sudo systemctl daemon-reload

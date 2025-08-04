@@ -1,0 +1,15 @@
+[Unit]
+Description=Monitoring Client Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=!!ssh_username
+# Environment variable is now set in the wrapper script
+# Environment=RUBYLIB=/home/!!ssh_username/code1/monitoring-client
+ExecStart=/home/!!ssh_username/monitoring-client.sh
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
