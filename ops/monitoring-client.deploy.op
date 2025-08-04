@@ -1,0 +1,36 @@
+# Description:
+# - This script is used to install the monitoring-client on any node.
+# 
+
+# Dedicated code folder for MassProspecting code.
+#
+RUN mkdir -p /home/$$ssh_username/code1
+
+# Cloning and updating code of my.saas in the ~/code/master folder.
+#
+RUN if [ ! -d /home/$$ssh_username/code1/monitoring-client ]; then
+    git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/monitoring-client
+fi
+
+RUN cd /home/$$ssh_username/code1/monitoring-client && git fetch --all
+RUN cd /home/$$ssh_username/code1/monitoring-client && git reset --hard origin/main
+RUN cd /home/$$ssh_username/code1/monitoring-client && git switch main
+RUN cd /home/$$ssh_username/code1/monitoring-client && git origin main
+
+# Bundler
+# Glitch: https://github.com/MassProspecting/deployment/issues/38
+#
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundler update
+
+# Configuration
+# 
+
+# 1. Copy MySaaSFile to config.rb
+RUN cp "/home/$$ssh_username/code1/monitoring-client/extensions/mass.account/config.template.rb" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+
+# 2. Replace merge-tags
+RUN sed -i "s/!!monitoring_saas_url/$$monitoring_saas_url/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+RUN sed -i "s/!!monitoring_saas_port/$$monitoring_saas_port/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+RUN sed -i "s/!!monitoring_logfiles/$$monitoring_logfiles/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+RUN sed -i "s/!!monitoring_services/$$monitoring_services/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
