@@ -231,12 +231,17 @@ RUN sed -i "s/!!contabo_client_secret/$$contabo_client_secret/g" "/home/$$ssh_us
 RUN sed -i "s/!!contabo_api_user/$$contabo_api_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!contabo_api_password/$$contabo_api_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-
 # PayPal
 #
 RUN sed -i "s/!!paypal_ipn_listener/$$paypal_ipn_listener/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!paypal_business_email/$$paypal_business_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!paypal_orders_url/$$paypal_orders_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# Monitoring service
+#
+RUN sed -i "s/!!monitoring_saas_url/$$monitoring_saas_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_port/$$monitoring_saas_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # Ruby’s tmpdir library is refusing to pick any temporary directory because it sees that both /tmp and 
 # the current directory `.` are world-writable and not fully secured with the “sticky bit.”. 

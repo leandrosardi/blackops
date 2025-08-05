@@ -131,6 +131,12 @@ RUN sed -i "s/!!aws_s3_bucket_name/$$aws_s3_bucket_name/g" "/home/$$ssh_username
 # 18. Replace openai api key
 RUN sed -i "s/!!session_secret/$$session_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
+# 19. Replace monitoring server parameters
+RUN sed -i "s/!!monitoring_saas_url/$$monitoring_saas_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_port/$$monitoring_saas_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+
 # Transactional emails
 # 
 # postmark_api_key

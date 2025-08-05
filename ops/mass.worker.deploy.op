@@ -49,6 +49,10 @@ RUN sed -i "s/!!aws_s3_region/$$aws_s3_region/g" "/home/$$ssh_username/code1/$$c
 RUN sed -i "s/!!aws_s3_access_key_id/$$aws_s3_access_key_id/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!aws_s3_secret_access_key/$$aws_s3_secret_access_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!aws_s3_bucket_name/$$aws_s3_bucket_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_url/$$monitoring_saas_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_port/$$monitoring_saas_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
 
 # Ruby’s tmpdir library is refusing to pick any temporary directory because it sees that both /tmp and 
 # the current directory `.` are world-writable and not fully secured with the “sticky bit.”. 
