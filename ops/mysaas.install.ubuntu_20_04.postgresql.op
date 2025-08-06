@@ -64,3 +64,5 @@ RUN systemctl restart postgresql
 RUN cd /tmp && sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$$postgres_database'" | grep -q 1 || sudo -u postgres createdb -O $$postgres_username $$postgres_database
 #              sudo -u postgres createdb -O $$postgres_username $$postgres_database
 
+# Allow the `blackstack` user to restart postgres from Ruby code.
+echo 'blackstack ALL=(root) NOPASSWD: /bin/systemctl restart postgresql' | sudo tee /etc/sudoers.d/postgresql-restart > /dev/null
