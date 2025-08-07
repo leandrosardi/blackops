@@ -83,4 +83,5 @@ fi
 #RUN chown $$ssh_username:$$ssh_username /home/$$ssh_username/.pampa
 
 # let blackstack read the system log
-RUN sudo setfacl -m u:blackstack:r /var/log/syslog
+RUN apt install -y acl
+RUN setfacl -m u:blackstack:r /var/log/syslog

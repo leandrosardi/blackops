@@ -68,7 +68,8 @@ RUN cd /tmp && sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datnam
 RUN echo 'blackstack ALL=(root) NOPASSWD: /bin/systemctl restart postgresql' | sudo tee /etc/sudoers.d/postgresql-restart > /dev/null
 
 # let blackstack read all PostgreSQL logs
+RUN apt install -y acl
 # allow traversal + read of the directory
-RUN sudo setfacl -m u:blackstack:x /var/log/postgresql
+RUN setfacl -m u:blackstack:x /var/log/postgresql
 # allow read of every file inside
-RUN sudo setfacl -R -m u:blackstack:rx /var/log/postgresql
+RUN setfacl -R -m u:blackstack:rx /var/log/postgresql

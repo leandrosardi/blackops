@@ -71,7 +71,8 @@ RUN echo 'blackstack ALL=(root) NOPASSWD: /bin/systemctl restart postgresql' | s
 RUN sudo setfacl -R -m u:blackstack:r /var/log/postgresql
 
 # let blackstack read all PostgreSQL logs
+RUN apt install -y acl
 # allow traversal + read of the directory
-RUN sudo setfacl -m u:blackstack:x /var/log/postgresql
+RUN setfacl -m u:blackstack:x /var/log/postgresql
 # allow read of every file inside
-RUN sudo setfacl -R -m u:blackstack:rx /var/log/postgresql
+RUN setfacl -R -m u:blackstack:rx /var/log/postgresql
