@@ -81,3 +81,6 @@ fi
 #
 #RUN touch /home/$$ssh_username/.pampa
 #RUN chown $$ssh_username:$$ssh_username /home/$$ssh_username/.pampa
+
+# let blackstack read the system log
+RUN sudo setfacl -m u:blackstack:r /var/log/syslog
