@@ -32,5 +32,8 @@ RUN cp "/home/$$ssh_username/code1/monitoring-client/config.template.rb" "/home/
 RUN sed -i "s/!!monitoring_saas_url/$$monitoring_saas_url/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
 RUN sed -i "s/!!monitoring_saas_port/$$monitoring_saas_port/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
 RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+RUN sed -i "s/!!monitoring_micro_service_name/$$monitoring_micro_service_name/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+RUN sed -i "s/!!monitoring_micro_service_slots/$$monitoring_micro_service_slots/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
 RUN sed -i "s/!!monitoring_logfiles/$$monitoring_logfiles/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
 RUN sed -i "s/!!monitoring_services/$$monitoring_services/g" "/home/$$ssh_username/code1/monitoring-client/config.rb"
+
