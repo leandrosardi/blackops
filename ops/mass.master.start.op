@@ -11,3 +11,4 @@ RUN sudo systemctl start mass_master_app.service
 RUN sudo systemctl start mass_master_allocate.service
 RUN sudo systemctl start mass_master_orders.service
 RUN sudo systemctl start mysaas_notifier.service
+RUN sudo systemctl start monitoring_merge.service
