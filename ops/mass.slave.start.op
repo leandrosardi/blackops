@@ -17,4 +17,4 @@ RUN sudo systemctl start mass_slave_timeline.service
 RUN sudo systemctl start mass_slave_bulk.service
 RUN sudo systemctl start mass_slave_cancel.service
 RUN sudo systemctl start mysaas_notifier.service
-RUN sudo systemctl start monitoring_merge.service
+#RUN sudo systemctl start monitoring_merge.service

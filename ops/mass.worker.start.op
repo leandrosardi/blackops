@@ -3,4 +3,4 @@
 # 
 
 RUN sudo systemctl start mass_worker_launch2.service
-RUN sudo systemctl start monitoring_merge.service
+#RUN sudo systemctl start monitoring_merge.service
