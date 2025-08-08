@@ -1,1 +1,1 @@
-RUN sudo systemctl start monitoring-client.service
+RUN sudo systemctl stop monitoring-client.service
