@@ -85,3 +85,8 @@ fi
 # let blackstack read the system log
 RUN apt install -y acl
 RUN setfacl -m u:blackstack:r /var/log/syslog
+
+# required by psotpilot
+RUN sudo apt update -y
+RUN sudo apt install -y ffmpeg
+#ffmpeg -version
