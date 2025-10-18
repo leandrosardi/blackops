@@ -157,6 +157,14 @@ RUN sed -i "s/!!postgres_username/$$postgres_username/g" "/home/$$ssh_username/c
 # 6. Replace !!postgres_password with $$postgres_password
 RUN sed -i "s/!!postgres_password/$$postgres_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
+# 7. Replace aws credentials
+RUN sed -i "s/!!aws_s3_region/$$aws_s3_region/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!aws_s3_access_key_id/$$aws_s3_access_key_id/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!aws_s3_secret_access_key/$$aws_s3_secret_access_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!aws_s3_bucket_name/$$aws_s3_bucket_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 8. Replace elevenlabs credentials
+RUN sed -i "s/!!elevenlabs_api_key/$$elevenlabs_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 9. Replace !!su_api_key with $$su_api_key
 RUN sed -i "s/!!su_api_key/$$su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
