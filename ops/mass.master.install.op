@@ -1,3 +1,7 @@
+# PostPilot
+RUN apt install ubuntu-restricted-extras
+RUN apt install ffmpeg
+
 # Download service files
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.sh
