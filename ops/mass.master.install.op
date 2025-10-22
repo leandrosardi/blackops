@@ -12,6 +12,12 @@ RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/r
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_orders.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_orders.sh
 
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_thumbnails.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_thumbnails.sh
+
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_youtube_shorts.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_youtube_shorts.sh
+
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_notifier.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_notifier.sh
 
@@ -27,6 +33,14 @@ RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_al
 RUN cp -f "/tmp/mass_master_orders.service" "/etc/systemd/system/mass_master_orders.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_orders.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_orders.service"
+
+RUN cp -f "/tmp/mass_master_thumbnails.service" "/etc/systemd/system/mass_master_thumbnails.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_thumbnails.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_thumbnails.service"
+
+RUN cp -f "/tmp/mass_master_youtube_shorts.service" "/etc/systemd/system/mass_master_youtube_shorts.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_youtube_shorts.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_youtube_shorts.service"
 
 RUN cp -f "/tmp/mysaas_notifier.service" "/etc/systemd/system/mysaas_notifier.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mysaas_notifier.service"
@@ -46,6 +60,14 @@ RUN cp -f "/tmp/mass_master_orders.sh" "/home/$$ssh_username/mass_master_orders.
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_orders.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_orders.sh"
 
+RUN cp -f "/tmp/mass_master_thumbnails.sh" "/home/$$ssh_username/mass_master_thumbnails.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_thumbnails.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_thumbnails.sh"
+
+RUN cp -f "/tmp/mass_master_youtube_shorts.sh" "/home/$$ssh_username/mass_master_youtube_shorts.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_youtube_shorts.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_youtube_shorts.sh"
+
 RUN cp -f "/tmp/mysaas_notifier.sh" "/home/$$ssh_username/mysaas_notifier.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_notifier.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_notifier.sh"
@@ -59,6 +81,12 @@ RUN sudo chmod +x /home/$$ssh_username/mass_master_allocate.sh
 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_orders.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_master_orders.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_thumbnails.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_master_thumbnails.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_youtube_shorts.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_master_youtube_shorts.sh
 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mysaas_notifier.sh
 RUN sudo chmod +x /home/$$ssh_username/mysaas_notifier.sh
