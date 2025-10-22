@@ -1,6 +1,8 @@
 # PostPilot
-RUN apt install -y ubuntu-restricted-extras
-RUN apt install -y ffmpeg
+RUN sudo pkill -9 -f 'apt|dpkg'
+RUN sudo dpkg --configure -a
+RUN sudo DEBIAN_FRONTEND=noninteractive apt install -y ubuntu-restricted-extras
+RUN sudo apt install -y ffmpeg
 
 # Download service files
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.service
