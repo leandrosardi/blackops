@@ -38,10 +38,10 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
-# Bundler
-# Glitch: https://github.com/MassProspecting/deployment/issues/38
+# Changed to use bundle install with the lockfile to avoid upgrading/adding gems
+# Glitch: https://github.com/MassProspecting/docs/issues/755
 #
-RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
 # 1. Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$code_folder/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"

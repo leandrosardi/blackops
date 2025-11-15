@@ -23,7 +23,8 @@ RUN cd /home/$$ssh_username/code1/monitoring-client && git origin main
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundler update
 
 # Changed to use bundle install with the lockfile to avoid upgrading/adding gems
-# https://github.com/MassProspecting/docs/issues/755
+# Glitch: https://github.com/MassProspecting/docs/issues/755
+#
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
 # Configuration
