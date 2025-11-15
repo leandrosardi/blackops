@@ -96,6 +96,11 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.account rese
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
+# Bundler
+# Glitch: https://github.com/MassProspecting/deployment/issues/38
+#
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
+
 # Configuration
 # 1. Copy /home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile to /home/$$ssh_username/code1/$$code_folder/config.rb
 # 2. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!ip by $$ip

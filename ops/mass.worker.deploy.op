@@ -38,6 +38,11 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
+# Bundler
+# Glitch: https://github.com/MassProspecting/deployment/issues/38
+#
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
+
 # 1. Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$code_folder/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"

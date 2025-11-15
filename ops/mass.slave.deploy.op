@@ -56,6 +56,10 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount r
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
+# Changed to use bundle install with the lockfile to avoid upgrading/adding gems
+# https://github.com/MassProspecting/docs/issues/755
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
+
 # Configuration
 # 1. Copy /home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile to /home/$$ssh_username/code1/$$code_folder/config.rb
 # 2. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!ip by $$ip
