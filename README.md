@@ -184,7 +184,7 @@ Run the `saas ssh` command to easily connect your node.
 saas ssh prod1
 ```
 
-Use the `--root` argument to connect as the root user.
+Use the `--root` argument to connect as the `root` user.
 
 ```
 saas ssh prod1 --root
