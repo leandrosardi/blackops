@@ -88,9 +88,9 @@ You can define nodes into a **configuration file** called **BlackOpsFile**.
 BlackOps.add_node({
     :name => 'prod1',         
     :ip => '55.55.55.55',
-    :ssh_username => 'blackstack',
+    :ssh_username => 'your-name',
     :ssh_port => 22,
-    :ssh_password => 'blackstack-password',
+    :ssh_password => 'your-password',
     :ssh_root_password => 'root-password',
 })
 ```
@@ -143,7 +143,7 @@ You can define any custom parameter into the hash descriptor of your node.
 ...
 BlackOps.add_node({
     :name => 'prod1', 
-    :rubylib => '/home/blackstack/code', # <=====
+    :rubylib => '/home/your-name/code', # <=====
     ...
 })
 ...
@@ -165,9 +165,9 @@ BlackOps.add_node({
     :name => 'prod1', 
     ...
     :ip => '55.55.55.55',
-    :ssh_username => 'blackstack',
+    :ssh_username => 'your-name',
     :ssh_port => 22,
-    :ssh_password => 'blackops-password',
+    :ssh_password => 'your-password',
     :ssh_root_password => 'root-password',
 })
 ...
@@ -223,7 +223,7 @@ BlackOps.add_node({
     :postgres_database => '<your postgres database>',
     ...
     :migration_folders => [
-        '/home/blackstack/code1/master/sql',
+        '/home/your-name/code1/master/sql',
         ...
     ],
 })
@@ -302,13 +302,13 @@ Use templates to avoid code duplication in your configuration file.
 @t = {
     # SSH common parameters
     :ssh => {
-        :ssh_username => 'blackstack',
+        :ssh_username => 'your-name',
         :ssh_port => 22,
     },
     # PostgreSQL commons parameters.
     :postgres => {
         :postgres_port => 5432,
-        :postgres_username => 'blackstack',
+        :postgres_username => 'your-name',
     },
     # git credentials
     :git => {
