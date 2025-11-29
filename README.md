@@ -15,8 +15,6 @@ The **BlackOps** tool makes it easy to perform your deployments from the comfort
 saas deploy --node=n01 --version=1.2
 ```
 
-For a more detailed documentation, refere to [README with more details](./README-with-more-details.md).
-
 **Table of Contents**
 
 1. [Getting Started](#1-getting-started)
