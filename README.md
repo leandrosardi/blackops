@@ -107,6 +107,11 @@ You can store one or more paths to the **BlackOpsFile** into the environment var
 
 ```
 export OPSLIB=~/:/home/leandro/code1:/home/leandro/code2
+```
+
+Now, you don't have to write the `--config` argument anymore.
+
+```
 saas source ./hostname.op --node=prod1 --root
 ```
 
