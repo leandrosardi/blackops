@@ -7,3 +7,9 @@ fi
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/i2p fetch --all
 
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/i2p reset --hard origin/master
+
+# PayPal
+#
+RUN sed -i "s/!!paypal_ipn_listener/$$paypal_ipn_listener/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!paypal_business_email/$$paypal_business_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!paypal_orders_url/$$paypal_orders_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"

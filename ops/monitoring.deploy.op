@@ -7,3 +7,9 @@ fi
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/monitoring fetch --all
 
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/monitoring reset --hard origin/$$git_branch
+
+# Monitoring service
+#
+RUN sed -i "s/!!monitoring_saas_url/$$monitoring_saas_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_port/$$monitoring_saas_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"

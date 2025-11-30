@@ -27,114 +27,36 @@ RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder 
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
-# Configuration
-# 1. Copy /home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile to /home/$$ssh_username/code1/$$code_folder/config.rb
-# 2. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!ip by $$ip
-# 3. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_port by $$postgres_port
-# 4. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_database by $$postgres_database
-# 5. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_username by $$postgres_username
-# 6. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!postgres_password by $$postgres_password
-
-# 9. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!su_api_key by $$su_api_key
-# 10. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!tinymce_api_key by $$tinymce_api_key
-# 11. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!vymeco_api_key by $$vymeco_api_key
-# 12. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!dropbox_refresh_token by $$dropbox_refresh_token
-
-# 14. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!adspower_api_key by $$adspower_api_key
-# 15. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!domain by $$domain
-
-# 17. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!slaves with $$slaves
-# 18. Into /home/$$ssh_username/code1/$$code_folder/config.rb, replace !!workers with $$workers
-
-# Transactional emails
-# 
-# postmark_api_key
-# smtp_user
-# smtp_password
-# sender_email
-# from_email
-# from_name
-# smtp_url
-# smtp_port
-# tracking_domain_protocol
-# tracking_domain_tld
-# tracking_domain_port
-# logo_url
-# signature_picture_url
-# signature_name
-# signature_position
-
-# PayPal
-#
-# paypal_ipn_listener
-# paypal_business_email
-# paypal_orders_url
-
-# 1. Copy MySaaSFile to config.rb
+# Copy MySaaSFile to config.rb
 RUN cp "/home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 2. Replace !!ip with $$ip
+# Replace !!ip with $$ip
 RUN sed -i "s/!!ip/$$ip/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 3. Replace !!postgres_port with $$postgres_port
+# Replace !!postgres_port with $$postgres_port
 RUN sed -i "s/!!postgres_port/$$postgres_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 4. Replace !!postgres_database with $$postgres_database
+# Replace !!postgres_database with $$postgres_database
 RUN sed -i "s/!!postgres_database/$$postgres_database/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 5. Replace !!postgres_username with $$postgres_username
+# Replace !!postgres_username with $$postgres_username
 RUN sed -i "s/!!postgres_username/$$postgres_username/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 6. Replace !!postgres_password with $$postgres_password
+# Replace !!postgres_password with $$postgres_password
 RUN sed -i "s/!!postgres_password/$$postgres_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 7. Replace aws credentials
-RUN sed -i "s/!!aws_s3_region/$$aws_s3_region/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!aws_s3_access_key_id/$$aws_s3_access_key_id/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!aws_s3_secret_access_key/$$aws_s3_secret_access_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!aws_s3_bucket_name/$$aws_s3_bucket_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 8. Replace elevenlabs credentials
-RUN sed -i "s/!!elevenlabs_api_key/$$elevenlabs_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!postpilot_openai_apikey/$$postpilot_openai_apikey/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!postpilot_openai_model/$$postpilot_openai_model/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 9. Replace !!su_api_key with $$su_api_key
+# Replace !!su_api_key with $$su_api_key
 RUN sed -i "s/!!su_api_key/$$su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 10. Replace !!tinymce_api_key with $$tinymce_api_key
-RUN sed -i "s/!!tinymce_api_key/$$tinymce_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 11. Replace !!vymeco_api_key with $$vymeco_api_key
-RUN sed -i "s/!!vymeco_api_key/$$vymeco_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 12. Replace !!dropbox_refresh_token with $$dropbox_refresh_token
-RUN sed -i "s/!!dropbox_refresh_token/$$dropbox_refresh_token/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-
-# 14. Replace !!adspower_api_key with $$adspower_api_key
-RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 15. Replace !!domain with $$domain
+# Replace !!domain with $$domain
 RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-
-# 17. Replace !!slaves with $$slaves
-RUN sed -i "s/!!slaves/$$slaves/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 18. Replace !!workers with $$workers
-RUN sed -i "s/!!workers/$$workers/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 19. Replace openai api key
-RUN sed -i "s/!!linkedin_feed_signals__openai_apikey/$$linkedin_feed_signals__openai_apikey/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# 20. Replace openai api key
-RUN sed -i "s/!!session_secret/$$session_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # Transactional emails
 # 
-# postmark_api_key
-RUN sed -i "s/!!postmark_api_key/$$postmark_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# smtp_url
+RUN sed -i "s/!!smtp_url/$$smtp_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+# smtp_port
+RUN sed -i "s/!!smtp_port/$$smtp_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # smtp_user
 RUN sed -i "s/!!smtp_user/$$smtp_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # smtp_password
@@ -145,16 +67,7 @@ RUN sed -i "s/!!sender_email/$$sender_email/g" "/home/$$ssh_username/code1/$$cod
 RUN sed -i "s/!!from_email/$$from_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # from_name
 RUN sed -i "s/!!from_name/$$from_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# smtp_url
-RUN sed -i "s/!!smtp_url/$$smtp_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# smtp_port
-RUN sed -i "s/!!smtp_port/$$smtp_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# tracking_domain_protocol
-RUN sed -i "s/!!tracking_domain_protocol/$$tracking_domain_protocol/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# tracking_domain_tld
-RUN sed -i "s/!!tracking_domain_tld/$$tracking_domain_tld/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# tracking_domain_port
-RUN sed -i "s/!!tracking_domain_port/$$tracking_domain_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
 # logo_url
 RUN sed -i "s/!!logo_url/$$logo_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # signature_picture_url
@@ -163,26 +76,6 @@ RUN sed -i "s/!!signature_picture_url/$$signature_picture_url/g" "/home/$$ssh_us
 RUN sed -i "s/!!signature_name/$$signature_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # signature_position
 RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# massprospecting client credentials
-RUN sed -i "s/!!mass_api_key/$$mass_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!mass_subaccount/$$mass_subaccount/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# contabo client credentials
-RUN sed -i "s/!!contabo_client_id/$$contabo_client_id/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!contabo_client_secret/$$contabo_client_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!contabo_api_user/$$contabo_api_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!contabo_api_password/$$contabo_api_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# PayPal
-#
-RUN sed -i "s/!!paypal_ipn_listener/$$paypal_ipn_listener/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!paypal_business_email/$$paypal_business_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!paypal_orders_url/$$paypal_orders_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# Monitoring service
-#
-RUN sed -i "s/!!monitoring_saas_url/$$monitoring_saas_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!monitoring_saas_port/$$monitoring_saas_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # Ruby’s tmpdir library is refusing to pick any temporary directory because it sees that both /tmp and 
 # the current directory `.` are world-writable and not fully secured with the “sticky bit.”. 
