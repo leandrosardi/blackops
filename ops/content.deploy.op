@@ -1,0 +1,9 @@
+# Cloning and updating code of content extension.
+#
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/content ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/content /home/$$ssh_username/code1/$$code_folder/extensions/content
+fi
+
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/content fetch --all
+
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/content reset --hard origin/$$git_branch

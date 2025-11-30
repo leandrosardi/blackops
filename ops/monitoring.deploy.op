@@ -1,0 +1,9 @@
+# Cloning and updating code of monitoring extension.
+#
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/monitoring ]; then
+    git clone https://$$git_username:$$git_password@github.com/leandrosardi/monitoring /home/$$ssh_username/code1/$$code_folder/extensions/monitoring
+fi
+
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/monitoring fetch --all
+
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/monitoring reset --hard origin/$$git_branch
