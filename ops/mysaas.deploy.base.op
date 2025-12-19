@@ -9,7 +9,7 @@ RUN mkdir -p /home/$$ssh_username/code1
 # Cloning and updating code of my.saas in the ~/code/master folder.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then
-    git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder
+    git clone https://github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder
 fi
 
 RUN cd /home/$$ssh_username/code1/$$code_folder && git fetch --all
@@ -28,7 +28,7 @@ RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder 
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
 # Copy MySaaSFile to config.rb
-RUN cp "/home/$$ssh_username/code1/$$code_folder/extensions/mass.account/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN cp "/home/$$ssh_username/code1/$$code_folder/MySaaSFile" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # Replace !!ip with $$ip
 RUN sed -i "s/!!ip/$$ip/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
@@ -57,46 +57,20 @@ RUN sed -i "s/!!su_api_key/$$su_api_key/g" "/home/$$ssh_username/code1/$$code_fo
 # Replace !!domain with $$domain
 RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# Transactional emails
-# 
-# smtp_url
-RUN sed -i "s/!!smtp_url/$$smtp_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# smtp_port
-RUN sed -i "s/!!smtp_port/$$smtp_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# smtp_user
-RUN sed -i "s/!!smtp_user/$$smtp_user/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# smtp_password
-RUN sed -i "s/!!smtp_password/$$smtp_password/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# sender_email
-RUN sed -i "s/!!sender_email/$$sender_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# from_email
-RUN sed -i "s/!!from_email/$$from_email/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# from_name
-RUN sed -i "s/!!from_name/$$from_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
-# logo_url
-RUN sed -i "s/!!logo_url/$$logo_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# signature_picture_url
-RUN sed -i "s/!!signature_picture_url/$$signature_picture_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# signature_name
-RUN sed -i "s/!!signature_name/$$signature_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# signature_position
-RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
 # Ruby’s tmpdir library is refusing to pick any temporary directory because it sees that both /tmp and 
 # the current directory `.` are world-writable and not fully secured with the “sticky bit.”. 
 #
 # By default, Ruby checks whether the system’s temp path is in a directory path that is world-writable 
 # without a sticky bit—if so, it bails out with:
 # - could not find a temporary directory (ArgumentError)
-# - `.` is world-writable: /home/blackstack/code1/sdk/p
+# - `.` is world-writable: /home/$$ssh_username/code1/sdk/p
 # means your current working directory is 0777 (or similar). This also triggers Ruby’s security check.
 #
 # This command will apply 755 permissions (owner read/write/execute, group and others read/execute) to 
 # every item—both directories and files—inside that path, including subdirectories and their contents.
 #
 # ```
-# chmod -R 755 /home/blackstack/code1
+# chmod -R 755 /home/$$ssh_username/code1
 # ```
 #
 # Also, this command avoid the `.git` folders because `blackops` doesn't has permission on them.
@@ -107,4 +81,4 @@ RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username
 # - https://github.com/MassProspecting/docs/issues/458
 # - https://github.com/MassProspecting/docs/issues/460
 #
-RUN find /home/blackstack/code1 -name .git -prune -o -exec chmod 755 {} +
+RUN find /home/$$ssh_username/code1 -name .git -prune -o -exec chmod 755 {} +
