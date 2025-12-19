@@ -33,6 +33,12 @@ RUN cp "/home/$$ssh_username/code1/$$code_folder/MySaaSFile" "/home/$$ssh_userna
 # Replace !!ip with $$ip
 RUN sed -i "s/!!ip/$$ip/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
+# Replace !!session_secret with $$session_secret
+RUN sed -i "s/!!session_secret/$$session_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# Replace !!postgres_url with $$postgres_url
+RUN sed -i "s/!!postgres_url/$$postgres_url/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
 # Replace !!postgres_port with $$postgres_port
 RUN sed -i "s/!!postgres_port/$$postgres_port/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
