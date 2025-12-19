@@ -11,6 +11,7 @@ RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mysaas_app.ser
 RUN cp -f "/tmp/mysaas_app.sh" "/home/$$ssh_username/mysaas_app.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_app.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_app.sh"
+RUN sed -i "s/!!port/$$port/g" "/home/$$ssh_username/mysaas_app.sh"
 
 # Grant the $$ssh_username user to run 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mysaas_app.sh
