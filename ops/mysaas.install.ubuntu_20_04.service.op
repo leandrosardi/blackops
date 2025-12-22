@@ -2,10 +2,24 @@
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_app.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_app.sh
 
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_notifier.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_notifier.sh
+
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_drainer.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mysaas_drainer.sh
+
 # Service configuration file.
 RUN cp -f "/tmp/mysaas_app.service" "/etc/systemd/system/mysaas_app.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mysaas_app.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mysaas_app.service"
+
+RUN cp -f "/tmp/mysaas_notifier.service" "/etc/systemd/system/mysaas_notifier.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mysaas_notifier.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mysaas_notifier.service"
+
+RUN cp -f "/tmp/mysaas_drainer.service" "/etc/systemd/system/mysaas_drainer.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mysaas_drainer.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mysaas_drainer.service"
 
 # Service starting wrapper
 RUN cp -f "/tmp/mysaas_app.sh" "/home/$$ssh_username/mysaas_app.sh"
@@ -13,9 +27,23 @@ RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_app.
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_app.sh"
 RUN sed -i "s/!!port/$$port/g" "/home/$$ssh_username/mysaas_app.sh"
 
+RUN cp -f "/tmp/mysaas_notifier.sh" "/home/$$ssh_username/mysaas_notifier.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_notifier.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_notifier.sh"
+
+RUN cp -f "/tmp/mysaas_drainer.sh" "/home/$$ssh_username/mysaas_drainer.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_drainer.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_drainer.sh"
+
 # Grant the $$ssh_username user to run 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mysaas_app.sh
 RUN sudo chmod +x /home/$$ssh_username/mysaas_app.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mysaas_notifier.sh
+RUN sudo chmod +x /home/$$ssh_username/mysaas_notifier.sh
+
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mysaas_drainer.sh
+RUN sudo chmod +x /home/$$ssh_username/mysaas_drainer.sh
 
 # Reload daemons
 RUN sudo systemctl daemon-reload
