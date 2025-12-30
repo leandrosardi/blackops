@@ -185,13 +185,15 @@ RUN sed -i "s/!!vymeco_api_key/$$vymeco_api_key/g" "/home/$$ssh_username/code1/$
 # 12. Replace !!dropbox_refresh_token with $$dropbox_refresh_token
 RUN sed -i "s/!!dropbox_refresh_token/$$dropbox_refresh_token/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
+# 13. Replace Proxy-Cheap API key
+RUN sed -i "s/!!proxycheap_api_key/$$proxycheap_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+RUN sed -i "s/!!proxycheap_secret/$$proxycheap_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 14. Replace !!adspower_api_key with $$adspower_api_key
 RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 15. Replace !!domain with $$domain
 RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-
 
 # 17. Replace !!slaves with $$slaves
 RUN sed -i "s/!!slaves/$$slaves/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
