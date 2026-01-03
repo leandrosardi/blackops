@@ -3,8 +3,8 @@
 # 
 
 RUN sudo systemctl stop mass_master_app.service
-RUN sudo systemctl stop mass_master_allocate.service
-RUN sudo systemctl stop mass_master_orders.service
+RUN sudo systemctl stop mass_master_allocate_with_db_access.service
+RUN sudo systemctl stop mass_master_allocate_with_api_access.service
 RUN sudo systemctl stop mass_master_thumbnails.service
 RUN sudo systemctl stop mass_master_youtube_shorts.service
 RUN sudo systemctl stop mysaas_notifier.service
