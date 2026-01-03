@@ -8,11 +8,11 @@ RUN sudo apt install -y ffmpeg
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_app.sh
 
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.service
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate_with_db_access.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate_with_db_access.sh
 
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_orders.service
-RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_orders.sh
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate_with_api_access.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_allocate_with_api_access.sh
 
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_thumbnails.service
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mass_master_thumbnails.sh
@@ -31,13 +31,13 @@ RUN cp -f "/tmp/mass_master_app.service" "/etc/systemd/system/mass_master_app.se
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_app.service"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_app.service"
 
-RUN cp -f "/tmp/mass_master_allocate.service" "/etc/systemd/system/mass_master_allocate.service"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_allocate.service"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_allocate.service"
+RUN cp -f "/tmp/mass_master_allocate_with_db_access.service" "/etc/systemd/system/mass_master_allocate_with_db_access.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_allocate_with_db_access.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_allocate_with_db_access.service"
 
-RUN cp -f "/tmp/mass_master_orders.service" "/etc/systemd/system/mass_master_orders.service"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_orders.service"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_orders.service"
+RUN cp -f "/tmp/mass_master_allocate_with_api_access.service" "/etc/systemd/system/mass_master_allocate_with_api_access.service"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_allocate_with_api_access.service"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/etc/systemd/system/mass_master_allocate_with_api_access.service"
 
 RUN cp -f "/tmp/mass_master_thumbnails.service" "/etc/systemd/system/mass_master_thumbnails.service"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/etc/systemd/system/mass_master_thumbnails.service"
@@ -61,13 +61,13 @@ RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_app.sh"
 RUN sed -i "s/!!port/$$port/g" "/home/$$ssh_username/mass_master_app.sh"
 
-RUN cp -f "/tmp/mass_master_allocate.sh" "/home/$$ssh_username/mass_master_allocate.sh"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_allocate.sh"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_allocate.sh"
+RUN cp -f "/tmp/mass_master_allocate_with_db_access.sh" "/home/$$ssh_username/mass_master_allocate_with_db_access.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_allocate_with_db_access.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_allocate_with_db_access.sh"
 
-RUN cp -f "/tmp/mass_master_orders.sh" "/home/$$ssh_username/mass_master_orders.sh"
-RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_orders.sh"
-RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_orders.sh"
+RUN cp -f "/tmp/mass_master_allocate_with_api_access.sh" "/home/$$ssh_username/mass_master_allocate_with_api_access.sh"
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_allocate_with_api_access.sh"
+RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mass_master_allocate_with_api_access.sh"
 
 RUN cp -f "/tmp/mass_master_thumbnails.sh" "/home/$$ssh_username/mass_master_thumbnails.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mass_master_thumbnails.sh"
@@ -89,11 +89,11 @@ RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_draine
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_app.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_master_app.sh
 
-RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_allocate.sh
-RUN sudo chmod +x /home/$$ssh_username/mass_master_allocate.sh
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_allocate_with_db_access.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_master_allocate_with_db_access.sh
 
-RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_orders.sh
-RUN sudo chmod +x /home/$$ssh_username/mass_master_orders.sh
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_allocate_with_api_access.sh
+RUN sudo chmod +x /home/$$ssh_username/mass_master_allocate_with_api_access.sh
 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_thumbnails.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_master_thumbnails.sh

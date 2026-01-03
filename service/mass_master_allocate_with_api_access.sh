@@ -13,4 +13,4 @@ export RUBYLIB=/home/!!ssh_username/code1/!!code_folder
 cd /home/!!ssh_username/code1/!!code_folder
 
 # Execute the Ruby application
-exec ruby ./extensions/mass.account/p/orders.rb
+exec ruby ./extensions/mass.account/p/allocate-with-api-access.rb
