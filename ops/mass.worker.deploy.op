@@ -19,6 +19,20 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git
 RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 
+# Extension: osint-3
+# 
+# Cloning and updating code of `https://github.com/MassProspecting/osint-3` 
+# in the `~/code/sdk/extensions/osint-3` folder,
+# using credentials `$$git_username` and `$$git_password`.
+#
+# Them, pull last version of source code.
+#
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/osint-3 ]; then
+    git clone https://$$git_username:$$git_password@github.com/MassProspecting/osint-3 /home/$$ssh_username/code1/$$code_folder/extensions/osint-3
+fi
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-3 fetch --all
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-3 reset --hard origin/$$git_branch
+
 ## DEPRECATED
 ##
 ## Configuration file
