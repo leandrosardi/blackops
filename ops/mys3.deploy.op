@@ -23,21 +23,6 @@ RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$
 RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle config set --local clean true'
 RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle install --jobs 4 --retry 3'
 
-# Render config.yml using the BlackOps-provided values
-RUN cp /home/$$ssh_username/code1/$$code_folder/config.example.yml /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_api_key|$$mys3_api_key|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_public_base_url|$$mys3_public_base_url|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_storage_root|$$mys3_storage_root|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_max_upload_size_mb|$$mys3_max_upload_size_mb|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_follow_symlinks|$$mys3_follow_symlinks|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_bind_host|$$mys3_bind_host|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_port|$$mys3_port|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_puma_threads_min|$$mys3_puma_threads_min|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_puma_threads_max|$$mys3_puma_threads_max|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_log_level|$$mys3_log_level|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_log_file|$$mys3_log_file|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!mys3_timezone|$$mys3_timezone|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-
 # Restart the service so the new code takes effect
 RUN echo "$$ssh_password" | sudo -S systemctl daemon-reload
 RUN echo "$$ssh_password" | sudo -S systemctl restart mys3_app.service
