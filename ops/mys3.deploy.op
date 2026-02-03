@@ -39,8 +39,6 @@ RUN sed -i "s|!!mys3_bind_host|$$mys3_bind_host|g" /home/$$ssh_username/code1/$$
 RUN sed -i "s|!!mys3_port|$$mys3_port|g" /home/$$ssh_username/code1/$$code_folder/config.yml
 RUN sed -i "s|!!mys3_puma_threads_min|$$mys3_puma_threads_min|g" /home/$$ssh_username/code1/$$code_folder/config.yml
 RUN sed -i "s|!!mys3_puma_threads_max|$$mys3_puma_threads_max|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!puma_threads_min|$$mys3_puma_threads_min|g" /home/$$ssh_username/code1/$$code_folder/config.yml
-RUN sed -i "s|!!puma_threads_max|$$mys3_puma_threads_max|g" /home/$$ssh_username/code1/$$code_folder/config.yml
 RUN sed -i "s|!!mys3_log_level|$$mys3_log_level|g" /home/$$ssh_username/code1/$$code_folder/config.yml
 RUN sed -i "s|!!mys3_log_file|$$mys3_log_file|g" /home/$$ssh_username/code1/$$code_folder/config.yml
 RUN sed -i "s|!!mys3_timezone|$$mys3_timezone|g" /home/$$ssh_username/code1/$$code_folder/config.yml
