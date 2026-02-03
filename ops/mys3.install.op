@@ -10,6 +10,7 @@ RUN sudo apt-get install -y git curl build-essential libssl-dev libpq-dev
 
 # Ensure the base code directory exists
 RUN mkdir -p /home/$$ssh_username/code1
+RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/code1
 
 # Clone repository if it is not already present
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then \
