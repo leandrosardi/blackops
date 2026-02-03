@@ -1,0 +1,57 @@
+# Description:
+# - Install the MyS3 object storage service on a remote node.
+# - Sets up dependencies, clones the repository, installs gems, and installs the systemd unit.
+
+# Ensure apt/dpkg are not locked and required multimedia libs exist for future extensions
+RUN sudo pkill -9 -f 'apt|dpkg' || true
+RUN sudo dpkg --configure -a
+RUN sudo apt-get update -y
+RUN sudo apt-get install -y git curl build-essential libssl-dev
+
+# Ensure the base code directory exists
+RUN mkdir -p /home/$$ssh_username/code1
+
+# Clone repository if it is not already present
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then \
+    git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder; \
+fi
+
+# Sync repository with the requested branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git fetch --all
+RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git_branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git pull origin $$git_branch
+
+# Install Ruby gems with Bundler
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle install --deployment --clean --jobs 4 --retry 3
+
+# Ensure a baseline configuration file exists (customize later as needed)
+RUN if [ ! -f /home/$$ssh_username/code1/$$code_folder/config.yml ]; then \
+    cp /home/$$ssh_username/code1/$$code_folder/config.example.yml /home/$$ssh_username/code1/$$code_folder/config.yml; \
+fi
+
+# Download the MyS3 service definitions
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mys3_app.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mys3_app.sh
+
+# Install the systemd unit file
+RUN sudo cp -f /tmp/mys3_app.service /etc/systemd/system/mys3_app.service
+RUN sudo sed -i "s/!!ssh_username/$$ssh_username/g" /etc/systemd/system/mys3_app.service
+RUN sudo sed -i "s/!!code_folder/$$code_folder/g" /etc/systemd/system/mys3_app.service
+
+# Install the wrapper script used by the unit file
+RUN cp -f /tmp/mys3_app.sh /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!code_folder/$$code_folder/g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!bind_host/$$bind_host/g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!port/$$port/g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!puma_threads_min/$$puma_threads_min/g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!puma_threads_max/$$puma_threads_max/g" /home/$$ssh_username/mys3_app.sh
+
+# Ownership and permissions for the wrapper script
+RUN sudo chown $$ssh_username:$$ssh_username /home/$$ssh_username/mys3_app.sh
+RUN sudo chmod +x /home/$$ssh_username/mys3_app.sh
+
+# Enable the service for automatic start and reload systemd units
+RUN sudo systemctl daemon-reload
+RUN sudo systemctl enable mys3_app.service

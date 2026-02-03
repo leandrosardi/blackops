@@ -1,0 +1,20 @@
+# Description:
+# - Deploy (or redeploy) the MyS3 application by syncing the repository and reinstalling gems.
+
+# Ensure repository exists
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then \
+    git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder; \
+fi
+
+# Sync repository with origin
+RUN cd /home/$$ssh_username/code1/$$code_folder && git fetch --all
+RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git_branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
+RUN cd /home/$$ssh_username/code1/$$code_folder && git pull origin $$git_branch
+
+# Install/update gems
+RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle install --deployment --clean --jobs 4 --retry 3
+
+# Restart the service so the new code takes effect
+RUN sudo systemctl daemon-reload
+RUN sudo systemctl restart mys3_app.service

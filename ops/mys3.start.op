@@ -1,0 +1,4 @@
+# Description:
+# - Start the MyS3 systemd unit that runs the Puma web server.
+
+RUN sudo systemctl start mys3_app.service

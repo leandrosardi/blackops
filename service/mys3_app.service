@@ -1,0 +1,14 @@
+[Unit]
+Description=MyS3 Object Storage API
+After=network.target
+
+[Service]
+Type=simple
+User=!!ssh_username
+WorkingDirectory=/home/!!ssh_username/code1/!!code_folder
+ExecStart=/home/!!ssh_username/mys3_app.sh
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

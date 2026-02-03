@@ -1,0 +1,4 @@
+# Description:
+# - Stop the MyS3 systemd unit that runs the Puma web server.
+
+RUN sudo systemctl stop mys3_app.service
