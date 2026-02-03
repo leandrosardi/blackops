@@ -6,7 +6,7 @@
 RUN sudo pkill -9 -f 'apt|dpkg' || true
 RUN sudo dpkg --configure -a
 RUN sudo apt-get update -y
-RUN sudo apt-get install -y git curl build-essential libssl-dev
+RUN sudo apt-get install -y git curl build-essential libssl-dev libpq-dev
 
 # Ensure the base code directory exists
 RUN mkdir -p /home/$$ssh_username/code1
@@ -15,15 +15,26 @@ RUN mkdir -p /home/$$ssh_username/code1
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then \
     git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder; \
 fi
+RUN git config --global --add safe.directory /home/$$ssh_username/code1/$$code_folder || true
+RUN sudo -u $$ssh_username git config --global --add safe.directory /home/$$ssh_username/code1/$$code_folder || true
 
 # Sync repository with the requested branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git fetch --all
 RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git_branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git pull origin $$git_branch
+RUN sudo -u $$ssh_username git config --global --add safe.directory /home/$$ssh_username/code1/$$code_folder || true
 
-# Install Ruby gems with Bundler
-RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle install --deployment --clean --jobs 4 --retry 3
+# Install Ruby gems with Bundler (run as the deployment user to avoid root-owned artifacts)
+RUN chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/code1/$$code_folder
+RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && gem install bundler -v 2.3.7 --no-document'
+RUN if [ ! -f /home/$$ssh_username/code1/$$code_folder/Gemfile.lock ]; then \
+    sudo -u $$ssh_username bash -lc "source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle lock"; \
+fi
+RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle config set --local deployment true'
+RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle config set --local clean true'
+RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle install --jobs 4 --retry 3'
+RUN chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/code1/$$code_folder
 
 # Ensure a baseline configuration file exists (customize later as needed)
 RUN if [ ! -f /home/$$ssh_username/code1/$$code_folder/config.yml ]; then \
@@ -43,10 +54,6 @@ RUN sudo sed -i "s/!!code_folder/$$code_folder/g" /etc/systemd/system/mys3_app.s
 RUN cp -f /tmp/mys3_app.sh /home/$$ssh_username/mys3_app.sh
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" /home/$$ssh_username/mys3_app.sh
 RUN sed -i "s/!!code_folder/$$code_folder/g" /home/$$ssh_username/mys3_app.sh
-RUN sed -i "s/!!bind_host/$$bind_host/g" /home/$$ssh_username/mys3_app.sh
-RUN sed -i "s/!!port/$$port/g" /home/$$ssh_username/mys3_app.sh
-RUN sed -i "s/!!puma_threads_min/$$puma_threads_min/g" /home/$$ssh_username/mys3_app.sh
-RUN sed -i "s/!!puma_threads_max/$$puma_threads_max/g" /home/$$ssh_username/mys3_app.sh
 
 # Ownership and permissions for the wrapper script
 RUN sudo chown $$ssh_username:$$ssh_username /home/$$ssh_username/mys3_app.sh

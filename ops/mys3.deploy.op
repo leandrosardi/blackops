@@ -6,6 +6,9 @@ RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder ]; then \
     git clone https://$$git_username:$$git_password@github.com/$$git_repository /home/$$ssh_username/code1/$$code_folder; \
 fi
 
+RUN git config --global --add safe.directory /home/$$ssh_username/code1/$$code_folder || true
+RUN sudo -u $$ssh_username git config --global --add safe.directory /home/$$ssh_username/code1/$$code_folder || true
+
 # Sync repository with origin
 RUN cd /home/$$ssh_username/code1/$$code_folder && git fetch --all
 RUN cd /home/$$ssh_username/code1/$$code_folder && git reset --hard origin/$$git_branch
@@ -13,8 +16,13 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git pull origin $$git_branch
 
 # Install/update gems
-RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle install --deployment --clean --jobs 4 --retry 3
+RUN if [ ! -f /home/$$ssh_username/code1/$$code_folder/Gemfile.lock ]; then \
+    sudo -u $$ssh_username bash -lc "source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle lock"; \
+fi
+RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle config set --local deployment true'
+RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle config set --local clean true'
+RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundle install --jobs 4 --retry 3'
 
 # Restart the service so the new code takes effect
-RUN sudo systemctl daemon-reload
-RUN sudo systemctl restart mys3_app.service
+RUN echo "$$ssh_password" | sudo -S systemctl daemon-reload
+RUN echo "$$ssh_password" | sudo -S systemctl restart mys3_app.service
