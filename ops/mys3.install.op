@@ -38,9 +38,9 @@ RUN sudo -u $$ssh_username bash -lc 'source /etc/profile.d/rvm.sh && cd /home/$$
 RUN chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/code1/$$code_folder
 
 # Ensure a baseline configuration file exists (customize later as needed)
-RUN if [ ! -f /home/$$ssh_username/code1/$$code_folder/config.yml ]; then \
-    cp /home/$$ssh_username/code1/$$code_folder/config.example.yml /home/$$ssh_username/code1/$$code_folder/config.yml; \
-fi
+#RUN if [ ! -f /home/$$ssh_username/code1/$$code_folder/config.yml ]; then \
+#    cp /home/$$ssh_username/code1/$$code_folder/config.example.yml /home/$$ssh_username/code1/$$code_folder/config.yml; \
+#fi
 
 # Download the MyS3 service definitions
 RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mys3_app.service
