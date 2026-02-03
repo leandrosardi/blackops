@@ -127,11 +127,14 @@ RUN sed -i "s/!!adspower_api_key/$$adspower_api_key/g" "/home/$$ssh_username/cod
 # 16. Replace !!domain with $$domain
 RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
-# 17. Replace aws credentials
+# 17. Replace aws S3 credentials - DEPRECATED
 RUN sed -i "s/!!aws_s3_region/$$aws_s3_region/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!aws_s3_access_key_id/$$aws_s3_access_key_id/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!aws_s3_secret_access_key/$$aws_s3_secret_access_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!aws_s3_bucket_name/$$aws_s3_bucket_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
+
+# 17. Replace My.S3 credentials
+RUN sed -i "s/!!my_s3_api_key/$$my_s3_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 
 # 18. Replace openai api key
 RUN sed -i "s/!!session_secret/$$session_secret/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
