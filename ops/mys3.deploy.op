@@ -43,6 +43,26 @@ RUN sed -i "s|!!mys3_log_level|$$mys3_log_level|g" /home/$$ssh_username/code1/$$
 RUN sed -i "s|!!mys3_log_file|$$mys3_log_file|g" /home/$$ssh_username/code1/$$code_folder/config.yml
 RUN sed -i "s|!!mys3_timezone|$$mys3_timezone|g" /home/$$ssh_username/code1/$$code_folder/config.yml
 
+# Refresh the systemd unit and wrapper script so template updates apply on deploys
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mys3_app.service
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/leandrosardi/blackops/refs/heads/main/service/mys3_app.sh
+RUN sudo cp -f /tmp/mys3_app.service /etc/systemd/system/mys3_app.service
+RUN sudo sed -i "s/!!ssh_username/$$ssh_username/g" /etc/systemd/system/mys3_app.service
+RUN sudo sed -i "s/!!code_folder/$$code_folder/g" /etc/systemd/system/mys3_app.service
+RUN cp -f /tmp/mys3_app.sh /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!ssh_username/$$ssh_username/g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s/!!code_folder/$$code_folder/g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!puma_threads_min|$$mys3_puma_threads_min|g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!mys3_puma_threads_min|$$mys3_puma_threads_min|g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!puma_threads_max|$$mys3_puma_threads_max|g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!mys3_puma_threads_max|$$mys3_puma_threads_max|g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!bind_host|$$mys3_bind_host|g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!mys3_bind_host|$$mys3_bind_host|g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!port|$$mys3_port|g" /home/$$ssh_username/mys3_app.sh
+RUN sed -i "s|!!mys3_port|$$mys3_port|g" /home/$$ssh_username/mys3_app.sh
+RUN sudo chown $$ssh_username:$$ssh_username /home/$$ssh_username/mys3_app.sh
+RUN sudo chmod +x /home/$$ssh_username/mys3_app.sh
+
 # Restart the service so the new code takes effect
 RUN echo "$$ssh_password" | sudo -S systemctl daemon-reload
 RUN echo "$$ssh_password" | sudo -S systemctl restart mys3_app.service
