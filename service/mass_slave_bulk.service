@@ -1,5 +1,5 @@
 [Unit]
-Description=MassProspecting Slave Bulk Actions Daemon
+Description=ConnectionSphere Slave Bulk Actions Daemon
 After=network.target
 
 [Service]

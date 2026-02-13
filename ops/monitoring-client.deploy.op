@@ -2,7 +2,7 @@
 # - This script is used to install the monitoring-client on any node.
 # 
 
-# Dedicated code folder for MassProspecting code.
+# Dedicated code folder for ConnectionSphere code.
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
@@ -18,12 +18,12 @@ RUN cd /home/$$ssh_username/code1/monitoring-client && git switch main
 RUN cd /home/$$ssh_username/code1/monitoring-client && git origin main
 
 # Bundler
-# Glitch: https://github.com/MassProspecting/deployment/issues/38
+# Glitch: https://github.com/connection-sphere/deployment/issues/38
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundler update
 
 # Changed to use bundle install with the lockfile to avoid upgrading/adding gems
-# Glitch: https://github.com/MassProspecting/docs/issues/755
+# Glitch: https://github.com/connection-sphere/docs/issues/755
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 

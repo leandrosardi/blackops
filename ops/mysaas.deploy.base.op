@@ -1,8 +1,8 @@
 # Description:
-# - This script is used to install the required source code for running massprospecting master nodes.
+# - This script is used to install the required source code for running connectionsphere master nodes.
 #
 
-# Dedicated code folder for MassProspecting code.
+# Dedicated code folder for ConnectionSphere code.
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
@@ -18,12 +18,12 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git switch $$git_branch
 RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 
 # Bundler
-# Glitch: https://github.com/MassProspecting/deployment/issues/38
+# Glitch: https://github.com/connection-sphere/deployment/issues/38
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
 # Changed to use bundle install with the lockfile to avoid upgrading/adding gems
-# Glitch: https://github.com/MassProspecting/docs/issues/755
+# Glitch: https://github.com/connection-sphere/docs/issues/755
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
@@ -78,7 +78,7 @@ RUN sed -i "s/!!domain/$$domain/g" "/home/$$ssh_username/code1/$$code_folder/con
 #
 #
 # References: 
-# - https://github.com/MassProspecting/docs/issues/458
-# - https://github.com/MassProspecting/docs/issues/460
+# - https://github.com/connection-sphere/docs/issues/458
+# - https://github.com/connection-sphere/docs/issues/460
 #
 RUN find /home/$$ssh_username/code1 -name .git -prune -o -exec chmod 755 {} +

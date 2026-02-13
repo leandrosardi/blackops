@@ -1,5 +1,5 @@
 [Unit]
-Description=MassProspecting Master Orders Daemon
+Description=ConnectionSphere Master Orders Daemon
 After=network.target
 
 [Service]

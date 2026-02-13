@@ -1,5 +1,5 @@
 [Unit]
-Description=MassProspecting Worker Launch2 Daemon
+Description=ConnectionSphere Worker Launch2 Daemon
 After=network.target
 
 [Service]

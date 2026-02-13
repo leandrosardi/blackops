@@ -1,8 +1,8 @@
 # Description:
-# - This script is used to install the required source code for running massprospecting sdk nodes.
+# - This script is used to install the required source code for running connectionsphere sdk nodes.
 #
 
-# Dedicated code folder for MassProspecting code.
+# Dedicated code folder for ConnectionSphere code.
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
@@ -21,28 +21,28 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 
 # Extension: osint-3
 # 
-# Cloning and updating code of `https://github.com/MassProspecting/osint-3` 
+# Cloning and updating code of `https://github.com/connection-sphere/osint-3` 
 # in the `~/code/sdk/extensions/osint-3` folder,
 # using credentials `$$git_username` and `$$git_password`.
 #
 # Them, pull last version of source code.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/osint-3 ]; then
-    git clone https://$$git_username:$$git_password@github.com/MassProspecting/osint-3 /home/$$ssh_username/code1/$$code_folder/extensions/osint-3
+    git clone https://$$git_username:$$git_password@github.com/connection-sphere/osint-3 /home/$$ssh_username/code1/$$code_folder/extensions/osint-3
 fi
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-3 fetch --all
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-3 reset --hard origin/$$git_branch
 
 # Extension: osint-4
 # 
-# Cloning and updating code of `https://github.com/MassProspecting/osint-4` 
+# Cloning and updating code of `https://github.com/connection-sphere/osint-4` 
 # in the `~/code/sdk/extensions/osint-4` folder,
 # using credentials `$$git_username` and `$$git_password`.
 #
 # Them, pull last version of source code.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/osint-4 ]; then
-    git clone https://$$git_username:$$git_password@github.com/MassProspecting/osint-4 /home/$$ssh_username/code1/$$code_folder/extensions/osint-4
+    git clone https://$$git_username:$$git_password@github.com/connection-sphere/osint-4 /home/$$ssh_username/code1/$$code_folder/extensions/osint-4
 fi
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-4 fetch --all
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-4 reset --hard origin/$$git_branch
@@ -53,21 +53,21 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-4 reset --h
 ##
 ## 1. Delete existing file /home/$$ssh_username/code1/$$code_folder/conf.rb
 ## 2. Delete existing folder /home/$$ssh_username/code1/secret
-## 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+## 3. Clone the repository https://github.com/connection-sphere/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
 ## 4. Copy the file /home/$$ssh_username/code1/secret/config-sdk.rb into folder /home/$$ssh_username/code1/$$code_folder/config.rb
 ##
 #RUN rm -f /home/$$ssh_username/code1/$$code_folder/conf.rb
 #RUN rm -rf /home/$$ssh_username/code1/secret
-#RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
+#RUN git clone https://$$git_username:$$git_password@github.com/connection-sphere/secret /home/$$ssh_username/code1/secret
 #RUN cp /home/$$ssh_username/code1/secret/config-sdk.rb /home/$$ssh_username/code1/$$code_folder/config.rb
 
 # Bundler
-# Glitch: https://github.com/MassProspecting/deployment/issues/38
+# Glitch: https://github.com/connection-sphere/deployment/issues/38
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
 # Changed to use bundle install with the lockfile to avoid upgrading/adding gems
-# Glitch: https://github.com/MassProspecting/docs/issues/755
+# Glitch: https://github.com/connection-sphere/docs/issues/755
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
@@ -109,7 +109,7 @@ RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/hom
 #
 #
 # References: 
-# - https://github.com/MassProspecting/docs/issues/458
-# - https://github.com/MassProspecting/docs/issues/460
+# - https://github.com/connection-sphere/docs/issues/458
+# - https://github.com/connection-sphere/docs/issues/460
 #
 RUN find /home/blackstack/code1 -name .git -prune -o -exec chmod 755 {} +

@@ -1,5 +1,5 @@
 [Unit]
-Description=MassProspecting Slave Import Daemon
+Description=ConnectionSphere Slave Import Daemon
 After=network.target
 
 [Service]

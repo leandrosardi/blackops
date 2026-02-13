@@ -1,8 +1,8 @@
 # Description:
-# - This script is used to install the required source code for running massprospecting master nodes.
+# - This script is used to install the required source code for running connectionsphere master nodes.
 #
 
-# Dedicated code folder for MassProspecting code.
+# Dedicated code folder for ConnectionSphere code.
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
@@ -23,12 +23,12 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 ##
 ## 1. Delete existing file /home/$$ssh_username/code1/$$code_folder/conf.rb
 ## 2. Delete existing folder /home/$$ssh_username/code1/secret
-## 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+## 3. Clone the repository https://github.com/connection-sphere/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
 ## 4. Copy the file /home/$$ssh_username/code1/secret/config-master.rb into folder /home/$$ssh_username/code1/$$code_folder/config.rb
 ##
 #RUN rm -f /home/$$ssh_username/code1/$$code_folder/conf.rb
 #RUN rm -rf /home/$$ssh_username/code1/secret
-#RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
+#RUN git clone https://$$git_username:$$git_password@github.com/connection-sphere/secret /home/$$ssh_username/code1/secret
 #RUN cp /home/$$ssh_username/code1/secret/config-master.rb /home/$$ssh_username/code1/$$code_folder/config.rb
 
 # Cloning and updating code of monitoring extension.
@@ -74,7 +74,7 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/content reset --h
 # Cloning and updating code of mass.commons extension.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.commons /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons
+    git clone https://$$git_username:$$git_password@github.com/connection-sphere/mass.commons /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons
 fi
 
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons fetch --all
@@ -84,7 +84,7 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons rese
 # Cloning and updating code of mass.account extension.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/mass.account ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.account /home/$$ssh_username/code1/$$code_folder/extensions/mass.account
+    git clone https://$$git_username:$$git_password@github.com/connection-sphere/mass.account /home/$$ssh_username/code1/$$code_folder/extensions/mass.account
 fi
 
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.account fetch --all
@@ -92,12 +92,12 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.account fetc
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.account reset --hard origin/$$git_branch
 
 # Bundler
-# Glitch: https://github.com/MassProspecting/deployment/issues/38
+# Glitch: https://github.com/connection-sphere/deployment/issues/38
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
 # Changed to use bundle install with the lockfile to avoid upgrading/adding gems
-# Glitch: https://github.com/MassProspecting/docs/issues/755
+# Glitch: https://github.com/connection-sphere/docs/issues/755
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
@@ -242,7 +242,7 @@ RUN sed -i "s/!!signature_picture_url/$$signature_picture_url/g" "/home/$$ssh_us
 RUN sed -i "s/!!signature_name/$$signature_name/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # signature_position
 RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
-# massprospecting client credentials
+# connectionsphere client credentials
 RUN sed -i "s/!!mass_api_key/$$mass_api_key/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 RUN sed -i "s/!!mass_subaccount/$$mass_subaccount/g" "/home/$$ssh_username/code1/$$code_folder/config.rb"
 # contabo client credentials
@@ -284,7 +284,7 @@ RUN sed -i "s/!!monitoring_saas_su_api_key/$$monitoring_saas_su_api_key/g" "/hom
 #
 #
 # References: 
-# - https://github.com/MassProspecting/docs/issues/458
-# - https://github.com/MassProspecting/docs/issues/460
+# - https://github.com/connection-sphere/docs/issues/458
+# - https://github.com/connection-sphere/docs/issues/460
 #
 RUN find /home/blackstack/code1 -name .git -prune -o -exec chmod 755 {} +

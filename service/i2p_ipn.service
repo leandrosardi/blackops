@@ -1,5 +1,5 @@
 [Unit]
-Description=MassProspecting Master Allocate Daemon
+Description=ConnectionSphere Master Allocate Daemon
 After=network.target
 
 [Service]

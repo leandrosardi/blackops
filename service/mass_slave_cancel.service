@@ -1,5 +1,5 @@
 [Unit]
-Description=MassProspecting Slave Cancel Jobs Daemon
+Description=ConnectionSphere Slave Cancel Jobs Daemon
 After=network.target
 
 [Service]

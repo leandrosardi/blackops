@@ -12,6 +12,6 @@ RUN sudo systemctl stop mysaas_drainer.service
 #RUN sudo systemctl stop monitoring_merge.service
 
 # restart postgres in order to refresh performance
-# reference: https://github.com/MassProspecting/docs/issues/468
+# reference: https://github.com/connection-sphere/docs/issues/468
 # 
 RUN sudo systemctl stop postgresql

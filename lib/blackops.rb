@@ -413,7 +413,7 @@ require 'contabo-client'
         # {:name=>"master",
         # :ip=>"91.230.110.43",
         # :db=>"master",
-        # :domain=>"massprospecting.com",
+        # :domain=>"connectionsphere.com",
         # :ssh_username=>"blackstack",
         # :ssh_port=>22,
         # :ssh_password=>"SanCristobal943",

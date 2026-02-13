@@ -1,5 +1,5 @@
 [Unit]
-Description=MassProspecting Master Thumbnails Daemon
+Description=ConnectionSphere Master Thumbnails Daemon
 After=network.target
 
 [Service]

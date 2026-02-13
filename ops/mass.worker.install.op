@@ -1,5 +1,5 @@
 # Install imagemagick required to compress pictures before upload to AWS/S3.
-# Reference: https://github.com/MassProspecting/docs/issues/368
+# Reference: https://github.com/connection-sphere/docs/issues/368
 RUN apt-get install -y imagemagick
 
 # Download service files
@@ -27,5 +27,5 @@ RUN sudo chmod +x /home/$$ssh_username/mass_worker_launch2.sh
 RUN sudo systemctl daemon-reload
 
 # Workers don't require PostgreSQL, but I have to install it in order to run bundler.
-# Reference: https://github.com/MassProspecting/docs/issues/458
+# Reference: https://github.com/connection-sphere/docs/issues/458
 RUN sudo apt-get install libpq-dev -y

@@ -1,8 +1,8 @@
 # Description:
-# - This script is used to install the required source code for running massprospecting slave nodes.
+# - This script is used to install the required source code for running connectionsphere slave nodes.
 #
 
-# Dedicated code folder for MassProspecting code.
+# Dedicated code folder for ConnectionSphere code.
 #
 RUN mkdir -p /home/$$ssh_username/code1
 
@@ -23,18 +23,18 @@ RUN cd /home/$$ssh_username/code1/$$code_folder && git origin $$git_branch
 ##
 ## 1. Delete existing file /home/$$ssh_username/code1/$$code_folder/conf.rb
 ## 2. Delete existing folder /home/$$ssh_username/code1/secret
-## 3. Clone the repository https://github.com/massprospecting/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
+## 3. Clone the repository https://github.com/connection-sphere/secret into the folder /home/$$ssh_username/code1/secret  (requires $$git_username and $$git_password).
 ## 4. Copy the file /home/$$ssh_username/code1/secret/config-slave.rb into folder /home/$$ssh_username/code1/$$code_folder/config.rb
 ##
 #RUN rm -f /home/$$ssh_username/code1/$$code_folder/conf.rb
 #RUN rm -rf /home/$$ssh_username/code1/secret
-#RUN git clone https://$$git_username:$$git_password@github.com/massprospecting/secret /home/$$ssh_username/code1/secret
+#RUN git clone https://$$git_username:$$git_password@github.com/connection-sphere/secret /home/$$ssh_username/code1/secret
 #RUN cp /home/$$ssh_username/code1/secret/config-slave.rb /home/$$ssh_username/code1/$$code_folder/config.rb
 
 # Cloning and updating code of mass.commons extension.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.commons /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons
+    git clone https://$$git_username:$$git_password@github.com/connection-sphere/mass.commons /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons
 fi
 
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons fetch --all
@@ -44,7 +44,7 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.commons rese
 # Cloning and updating code of mass.subaccount extension.
 #
 RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount ]; then
-    git clone https://$$git_username:$$git_password@github.com/massprospecting/mass.subaccount /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount
+    git clone https://$$git_username:$$git_password@github.com/connection-sphere/mass.subaccount /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount
 fi
 
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount fetch --all
@@ -52,12 +52,12 @@ RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount f
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/mass.subaccount reset --hard origin/$$git_branch
 
 # Bundler
-# Glitch: https://github.com/MassProspecting/deployment/issues/38
+# Glitch: https://github.com/connection-sphere/deployment/issues/38
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/$$code_folder && bundler update
 
 # Changed to use bundle install with the lockfile to avoid upgrading/adding gems
-# Glitch: https://github.com/MassProspecting/docs/issues/755
+# Glitch: https://github.com/connection-sphere/docs/issues/755
 #
 RUN source /etc/profile.d/rvm.sh && cd /home/$$ssh_username/code1/monitoring-client && bundle install --deployment --clean --jobs 4 --retry 3 --without development test
 
@@ -198,7 +198,7 @@ RUN sed -i "s/!!signature_position/$$signature_position/g" "/home/$$ssh_username
 #
 #
 # References: 
-# - https://github.com/MassProspecting/docs/issues/458
-# - https://github.com/MassProspecting/docs/issues/460
+# - https://github.com/connection-sphere/docs/issues/458
+# - https://github.com/connection-sphere/docs/issues/460
 #
 RUN find /home/blackstack/code1 -name .git -prune -o -exec chmod 755 {} +

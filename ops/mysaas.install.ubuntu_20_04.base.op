@@ -89,7 +89,7 @@ fi
 # 2. You (or your hosting setup) have an environment variable (TMPDIR, TMP, or TEMP) pointing to some other folder that is simply 0777 and not sticky, or
 # 3. Your current working directory is also world-writable, which sometimes confuses Ruby/bundler if it tries to fall back there.
 # 
-# Reference: https://github.com/MassProspecting/docs/issues/458
+# Reference: https://github.com/connection-sphere/docs/issues/458
 #
 RUN sudo chmod 1777 /tmp
 
