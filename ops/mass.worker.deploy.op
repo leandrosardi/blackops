@@ -47,6 +47,20 @@ fi
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-4 fetch --all
 RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/osint-4 reset --hard origin/$$git_branch
 
+# Extension: inmail
+# 
+# Cloning and updating code of `https://github.com/connection-sphere/inmail` 
+# in the `~/code/sdk/extensions/inmail` folder,
+# using credentials `$$git_username` and `$$git_password`.
+#
+# Them, pull last version of source code.
+#
+RUN if [ ! -d /home/$$ssh_username/code1/$$code_folder/extensions/inmail ]; then
+    git clone https://$$git_username:$$git_password@github.com/connection-sphere/inmail /home/$$ssh_username/code1/$$code_folder/extensions/inmail
+fi
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/inmail fetch --all
+RUN git -C /home/$$ssh_username/code1/$$code_folder/extensions/inmail reset --hard origin/$$git_branch
+
 ## DEPRECATED
 ##
 ## Configuration file
