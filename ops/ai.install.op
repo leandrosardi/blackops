@@ -11,7 +11,7 @@ fi
 #echo "AI SERVER INSTALLER"
 #echo "=============================="
 
-RUN AI_API_KEY="!!ai_api_key"
+RUN AI_API_KEY="$$ai_api_key"
 
 RUN THREADS=$(nproc)
 
@@ -94,7 +94,7 @@ RUN printf '%s\n' \
 '' \
 '    location /ollama/ {' \
 '' \
-'        if ($http_authorization != "Bearer !!ai_api_key") {' \
+'        if ($http_authorization != "Bearer $$ai_api_key") {' \
 '            return 401;' \
 '        }' \
 '' \
@@ -135,11 +135,11 @@ RUN IP=$(curl -s ifconfig.me)
 #echo "http://$IP/ollama/api/generate"
 #echo ""
 #echo "API KEY:"
-#echo "!!ai_api_key"
+#echo "$$ai_api_key"
 #echo ""
 #echo "Example request:"
 #echo ""
 #echo "curl http://$IP/ollama/api/generate \\"
-#echo "-H \"Authorization: Bearer !!ai_api_key\" \\"
+#echo "-H \"Authorization: Bearer $$ai_api_key\" \\"
 #echo "-d '{\"model\":\"phi3:mini\",\"prompt\":\"Write a cold email\"}'"
 #echo ""
