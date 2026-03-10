@@ -11,8 +11,6 @@ fi
 #echo "AI SERVER INSTALLER"
 #echo "=============================="
 
-RUN API_KEY="$$ai_api_key"
-
 RUN THREADS=$(nproc)
 
 #echo "Detected CPU threads: $THREADS"
@@ -51,12 +49,7 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 
 RUN mkdir -p /etc/systemd/system/ollama.service.d
 
-RUN cat > /etc/systemd/system/ollama.service.d/override.conf <<EOF
-[Service]
-Environment="OLLAMA_NUM_THREADS=$THREADS"
-Environment="OLLAMA_KEEP_ALIVE=5m"
-Environment="OLLAMA_MAX_LOADED_MODELS=1"
-EOF
+RUN printf "[Service]\nEnvironment=\"OLLAMA_NUM_THREADS=$(nproc)\"\nEnvironment=\"OLLAMA_KEEP_ALIVE=5m\"\nEnvironment=\"OLLAMA_MAX_LOADED_MODELS=1\"\n" | tee /etc/systemd/system/ollama.service.d/override.conf >/dev/null
 
 RUN systemctl daemon-reload
 RUN systemctl restart ollama
@@ -88,24 +81,8 @@ ghcr.io/open-webui/open-webui:main
 #echo "Configuring Nginx API gateway"
 #echo "=============================="
 
-RUN cat > /etc/nginx/sites-available/ollama <<EOF
-server {
-    listen 80;
-
-    location /ollama/ {
-
-        if (\$http_authorization != "Bearer $API_KEY") {
-            return 401;
-        }
-
-        proxy_pass http://127.0.0.1:11434/;
-        proxy_http_version 1.1;
-
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-    }
-}
-EOF
+RUN printf "server {\n    listen 80;\n\n    location /ollama/ {\n\n        if (DOLLARhttp_authorization != \"Bearer $$ai_api_key\") {\n            return 401;\n        }\n\n        proxy_pass http://127.0.0.1:11434/;\n        proxy_http_version 1.1;\n\n        proxy_set_header Host 127.0.0.1:11434;\n        proxy_set_header X-Real-IP DOLLARremote_addr;\n    }\n}\n" | tee /etc/nginx/sites-available/ollama >/dev/null
+RUN sed -i "s/DOLLAR/\\$/g" /etc/nginx/sites-available/ollama
 
 RUN ln -s /etc/nginx/sites-available/ollama /etc/nginx/sites-enabled/ollama || true
 RUN rm -f /etc/nginx/sites-enabled/default
@@ -135,11 +112,11 @@ RUN IP=$(curl -s ifconfig.me)
 #echo "http://$IP/ollama/api/generate"
 #echo ""
 #echo "API KEY:"
-#echo "$API_KEY"
+#echo "$$ai_api_key"
 #echo ""
 #echo "Example request:"
 #echo ""
 #echo "curl http://$IP/ollama/api/generate \\"
-#echo "-H \"Authorization: Bearer $API_KEY\" \\"
+#echo "-H \"Authorization: Bearer $$ai_api_key\" \\"
 #echo "-d '{\"model\":\"phi3:mini\",\"prompt\":\"Write a cold email\"}'"
 #echo ""
