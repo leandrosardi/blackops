@@ -15,13 +15,15 @@ RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 RUN useradd -m -s /bin/bash $$ssh_username
 
 # Set password for '$$ssh_username' user
-RUN echo "$$ssh_username:$$ssh_password" | chpasswd
+# DEPRECATED: Use `hostname.op`
+#RUN echo "$$ssh_username:$$ssh_password" | chpasswd
 
 # Add '$$ssh_username' to sudoers
 RUN usermod -aG sudo $$ssh_username
 
 # Change hostname
-RUN hostnamectl set-hostname "$$name"
+# DEPRECATED - Moved to `hostname.op`
+#RUN hostnamectl set-hostname "$$name"
 
 # Enable PasswordAuthentication in SSH config
 RUN sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
