@@ -93,6 +93,6 @@ fi
 #
 RUN sudo chmod 1777 /tmp
 
-# let blackstack read the system log
+# let $$ssh_username read the system log
 RUN apt install -y acl
-RUN setfacl -m u:blackstack:r /var/log/syslog
+RUN setfacl -m u:$$ssh_username:r /var/log/syslog

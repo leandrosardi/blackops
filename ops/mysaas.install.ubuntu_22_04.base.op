@@ -82,9 +82,9 @@ fi
 #RUN touch /home/$$ssh_username/.pampa
 #RUN chown $$ssh_username:$$ssh_username /home/$$ssh_username/.pampa
 
-# let blackstack read the system log
+# let $$ssh_username read the system log
 RUN apt install -y acl
-RUN setfacl -m u:blackstack:r /var/log/syslog
+RUN setfacl -m u:$$ssh_username:r /var/log/syslog
 
 # required by psotpilot
 RUN sudo apt update -y
