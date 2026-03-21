@@ -31,8 +31,12 @@ RUN apt-get install -y libpq-dev postgresql postgresql-contrib
 # Install psql for running migrations.
 RUN apt-get install -y postgresql-client
 
-# Start PostgreSQL service
-RUN systemctl start postgresql
+# Ensure cluster autostart behavior and start the real cluster unit.
+RUN echo auto > /etc/postgresql/12/main/start.conf
+RUN systemctl daemon-reload
+RUN systemctl enable postgresql postgresql@12-main || true
+RUN systemctl start postgresql@12-main || pg_ctlcluster 12 main start
+
 
 # Configure PostgreSQL to listen on all addresses
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/12/main/postgresql.conf
@@ -41,14 +45,28 @@ RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/pos
 RUN sudo -u postgres createuser -s $$postgres_username
 
 # Set password for PostgreSQL user '$$postgres_username'
-RUN cd /tmp && sudo -u postgres psql -c "ALTER USER $$postgres_username WITH PASSWORD '$$postgres_password';"
+RUN cd /tmp && sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER ROLE $$postgres_username LOGIN SUPERUSER PASSWORD '$$postgres_password';"
 
 # Allow connections with no SSL certificates from any location
+RUN sudo grep -Fxq "local   all             all                                     trust" /etc/postgresql/12/main/pg_hba.conf || sudo sed -i '1ilocal   all             all                                     trust' /etc/postgresql/12/main/pg_hba.conf
+RUN sudo grep -Fxq "host    all             all             127.0.0.1/32            trust" /etc/postgresql/12/main/pg_hba.conf || sudo sed -i '1ihost    all             all             127.0.0.1/32            trust' /etc/postgresql/12/main/pg_hba.conf
+RUN sudo grep -Fxq "host    all             all             ::1/128                 trust" /etc/postgresql/12/main/pg_hba.conf || sudo sed -i '1ihost    all             all             ::1/128                 trust' /etc/postgresql/12/main/pg_hba.conf
 RUN sudo grep -Fxq "host    all             all             0.0.0.0/0               md5" /etc/postgresql/12/main/pg_hba.conf || echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
 RUN sudo sed -i 's/^\s*ssl\s*=\s*on/ssl = off/' /etc/postgresql/12/main/postgresql.conf
 
-# Restart PostgreSQL service
-RUN systemctl restart postgresql
+# Restart PostgreSQL cluster explicitly.
+RUN systemctl restart postgresql@12-main || pg_ctlcluster 12 main restart
+
+# Normalize runtime and log permissions required by postgres.
+RUN mkdir -p /run/postgresql /var/log/postgresql
+RUN chown postgres:postgres /run/postgresql && chmod 2775 /run/postgresql
+RUN chown root:postgres /var/log/postgresql && chmod 2775 /var/log/postgresql
+RUN find /var/log/postgresql -maxdepth 1 -type f -name '*.log' -exec chown postgres:adm {} \; -exec chmod 640 {} \;
+RUN systemctl restart postgresql@12-main || pg_ctlcluster 12 main restart
+
+# Verify cluster is online and local socket is available for psql migrations.
+RUN pg_lsclusters | grep -E '^\s*12\s+main\s+5432\s+online\b' || (systemctl status postgresql@12-main --no-pager || true; pg_lsclusters || true; exit 1)
+RUN test -S /var/run/postgresql/.s.PGSQL.5432 || (systemctl status postgresql@12-main --no-pager || true; pg_lsclusters || true; exit 1)
 
 # Check if a database '$$postgres_database' exists.
 # If it doesn't, create new database '$$postgres_database' owned by user 
@@ -73,7 +91,8 @@ RUN apt-get install -y acl
 # Let $$ssh_username read PostgreSQL logs when ACLs are supported.
 RUN if [ -d /var/log/postgresql ] && command -v setfacl >/dev/null 2>&1; then \
     setfacl -m u:$$ssh_username:x /var/log/postgresql && \
-    setfacl -R -m u:$$ssh_username:rx /var/log/postgresql || \
+    setfacl -m u:$$ssh_username:rx /var/log/postgresql && \
+    setfacl -m d:u:$$ssh_username:rx /var/log/postgresql || \
     echo "Warning: could not set ACLs on /var/log/postgresql (filesystem may not support ACL)."; \
 else \
     echo "Warning: skipping ACL setup for /var/log/postgresql (directory or setfacl unavailable)."; \
