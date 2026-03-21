@@ -67,12 +67,14 @@ RUN cd /tmp && sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datnam
 # Allow the `$$ssh_username` user to restart postgres from Ruby code.
 RUN echo '$$ssh_username ALL=(root) NOPASSWD: /bin/systemctl restart postgresql' | sudo tee /etc/sudoers.d/postgresql-restart > /dev/null
 
-# let $$ssh_username read all PostgreSQL logs
-RUN sudo setfacl -R -m u:$$ssh_username:r /var/log/postgresql
+# Install ACL utilities before attempting to set ACLs.
+RUN apt-get install -y acl
 
-# let $$ssh_username read all PostgreSQL logs
-RUN apt install -y acl
-# allow traversal + read of the directory
-RUN setfacl -m u:$$ssh_username:x /var/log/postgresql
-# allow read of every file inside
-RUN setfacl -R -m u:$$ssh_username:rx /var/log/postgresql
+# Let $$ssh_username read PostgreSQL logs when ACLs are supported.
+RUN if [ -d /var/log/postgresql ] && command -v setfacl >/dev/null 2>&1; then \
+    setfacl -m u:$$ssh_username:x /var/log/postgresql && \
+    setfacl -R -m u:$$ssh_username:rx /var/log/postgresql || \
+    echo "Warning: could not set ACLs on /var/log/postgresql (filesystem may not support ACL)."; \
+else \
+    echo "Warning: skipping ACL setup for /var/log/postgresql (directory or setfacl unavailable)."; \
+fi
