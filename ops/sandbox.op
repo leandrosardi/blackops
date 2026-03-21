@@ -2,4 +2,5 @@
 # Creates a sandbox marker file for the specified SSH user and code folder.
 # 
 
-touch /home/$$ssh_username/code1/$$code_folder/.sandbox
+RUN mkdir -p /home/$$ssh_username/code1/$$code_folder
+RUN touch /home/$$ssh_username/code1/$$code_folder/.sandbox
