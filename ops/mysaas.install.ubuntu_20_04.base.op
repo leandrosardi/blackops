@@ -10,15 +10,6 @@
 # Set timezone to America/Argentina/Buenos_Aires
 RUN timedatectl set-timezone "America/Argentina/Buenos_Aires"
 
-# Add user '$$ssh_username' with home directory and bash shell
-RUN useradd -m -s /bin/bash $$ssh_username
-
-# Set password for '$$ssh_username' user
-RUN echo "$$ssh_username:$$ssh_password" | chpasswd
-
-# Add '$$ssh_username' to sudoers
-RUN usermod -aG sudo $$ssh_username
-
 # Change hostname
 # DEPRECATED - Moved to `hostname.op`
 #RUN hostnamectl set-hostname "$$name"
