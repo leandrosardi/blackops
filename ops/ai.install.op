@@ -81,7 +81,7 @@ ghcr.io/open-webui/open-webui:main
 #echo "Configuring Nginx API gateway"
 #echo "=============================="
 
-RUN printf "server {\n    listen 80;\n\n    location /ollama/ {\n\n        if (DOLLARhttp_authorization != \"Bearer $$ai_api_key\") {\n            return 401;\n        }\n\n        proxy_pass http://127.0.0.1:11434/;\n        proxy_http_version 1.1;\n\n        proxy_set_header Host 127.0.0.1:11434;\n        proxy_set_header X-Real-IP DOLLARremote_addr;\n    }\n}\n" | tee /etc/nginx/sites-available/ollama >/dev/null
+RUN printf "server {\n    listen 80;\n\n    location /ollama/ {\n\n        if (DOLLARhttp_authorization != \"Bearer $$ai_api_key\") {\n            return 401;\n        }\n\n        proxy_connect_timeout 10s;\n        proxy_send_timeout 300s;\n        proxy_read_timeout 300s;\n        send_timeout 300s;\n        client_max_body_size 10m;\n\n        proxy_pass http://127.0.0.1:11434/;\n        proxy_http_version 1.1;\n\n        proxy_set_header Host 127.0.0.1:11434;\n        proxy_set_header X-Real-IP DOLLARremote_addr;\n    }\n}\n" | tee /etc/nginx/sites-available/ollama >/dev/null
 RUN sed -i "s/DOLLAR/\\$/g" /etc/nginx/sites-available/ollama
 
 RUN ln -s /etc/nginx/sites-available/ollama /etc/nginx/sites-enabled/ollama || true
