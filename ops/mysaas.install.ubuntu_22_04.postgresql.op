@@ -64,8 +64,9 @@ RUN find /var/log/postgresql -maxdepth 1 -type f -name '*.log' -exec chown postg
 RUN systemctl restart postgresql@14-main || pg_ctlcluster 14 main restart
 
 # Verify cluster is online and local socket is available for psql migrations.
-RUN pg_lsclusters | grep -E '^\s*14\s+main\s+5432\s+online\b' || (systemctl status postgresql@14-main --no-pager || true; pg_lsclusters || true; exit 1)
-RUN test -S /var/run/postgresql/.s.PGSQL.5432 || (systemctl status postgresql@14-main --no-pager || true; pg_lsclusters || true; exit 1)
+# Use column matching instead of a brittle regex because pg_lsclusters spacing can vary.
+RUN pg_lsclusters --no-header | awk '$1=="14" && $2=="main" && $4=="online" { ok=1 } END { exit(ok?0:1) }' || (systemctl status postgresql@14-main --no-pager || true; pg_lsclusters || true; exit 1)
+RUN PG_CLUSTER_PORT=$(pg_lsclusters --no-header | awk '$1=="14" && $2=="main" { print $3; exit }') && [ -n "$PG_CLUSTER_PORT" ] && test -S "/var/run/postgresql/.s.PGSQL.$PG_CLUSTER_PORT" || (systemctl status postgresql@14-main --no-pager || true; pg_lsclusters || true; exit 1)
 
 # Check if a database '$$postgres_database' exists.
 # If it doesn't, create new database '$$postgres_database' owned by user 
