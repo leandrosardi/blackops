@@ -85,6 +85,9 @@ RUN cp -f "/tmp/mysaas_drainer.sh" "/home/$$ssh_username/mysaas_drainer.sh"
 RUN sed -i "s/!!ssh_username/$$ssh_username/g" "/home/$$ssh_username/mysaas_drainer.sh"
 RUN sed -i "s/!!code_folder/$$code_folder/g" "/home/$$ssh_username/mysaas_drainer.sh"
 
+# AdsPower-Client requires access to the tmp folder
+RUN sudo chmod 777 /tmp
+
 # Grant the $$ssh_username user to run 
 RUN sudo chown -R $$ssh_username:$$ssh_username /home/$$ssh_username/mass_master_app.sh
 RUN sudo chmod +x /home/$$ssh_username/mass_master_app.sh
