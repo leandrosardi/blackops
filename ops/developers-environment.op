@@ -1,6 +1,6 @@
 # Description:
 # - Sync all developer repositories in ~/code1/extras and ~/code1/documentation.
-# - Mirror Grimmer local VS Code and environment templates into ~/code1/grimmer.
+# - Mirror Grimmer local VS Code and environment templates into ~/code1.
 # - Render AdsPower API key in ~/code1/.env.
 
 RUN mkdir -p /home/$$ssh_username/code1/extras
@@ -39,14 +39,13 @@ RUN for entry in \
     fi; \
 done
 
-# Copy Grimmer templates to the root-level grimmer workspace.
-RUN mkdir -p /home/$$ssh_username/code1/grimmer
+# Copy Grimmer templates to the ~/code1 root workspace.
 RUN if [ -d /home/$$ssh_username/code1/extras/grimmer/.vscode ]; then \
-    rm -rf /home/$$ssh_username/code1/grimmer/.vscode && \
-    cp -r /home/$$ssh_username/code1/extras/grimmer/.vscode /home/$$ssh_username/code1/grimmer/.vscode; \
+    rm -rf /home/$$ssh_username/code1/.vscode && \
+    cp -r /home/$$ssh_username/code1/extras/grimmer/.vscode /home/$$ssh_username/code1/.vscode; \
 fi
 RUN if [ -f /home/$$ssh_username/code1/extras/grimmer/.env.template ]; then \
-    cp -f /home/$$ssh_username/code1/extras/grimmer/.env.template /home/$$ssh_username/code1/grimmer/.env; \
+    cp -f /home/$$ssh_username/code1/extras/grimmer/.env.template /home/$$ssh_username/code1/.env; \
 fi
 
 # Replace placeholder with node parameter value.
