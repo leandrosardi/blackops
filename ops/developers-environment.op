@@ -1,0 +1,55 @@
+# Description:
+# - Sync all developer repositories in ~/code1/extras and ~/code1/documentation.
+# - Mirror Grimmer local VS Code and environment templates into ~/code1/grimmer.
+# - Render AdsPower API key in ~/code1/.env.
+
+RUN mkdir -p /home/$$ssh_username/code1/extras
+RUN mkdir -p /home/$$ssh_username/code1/documentation
+
+# Fail-proof clone + source update for every current repository in extras/documentation.
+RUN for entry in \
+"documentation/developer-documentation|connection-sphere/developer-documentation" \
+"documentation/github|massprospecting/.github" \
+"documentation/hub|massprospecting/hub" \
+"documentation/user-documentation|connection-sphere/user-documentation" \
+"extras/adspower-client|connection-sphere/adspower-client" \
+"extras/grimmer|connection-sphere/grimmer" \
+"extras/mass-client|connection-sphere/mass-client" \
+"extras/my.saas|leandrosardi/my.saas" \
+"extras/ruby-adspower-mcp|connection-sphere/ruby-adspower-mcp"; do \
+    rel="${entry%%|*}"; \
+    repo="${entry##*|}"; \
+    target="/home/$$ssh_username/code1/${rel}"; \
+    repo_url="https://$$git_username:$$git_password@github.com/${repo}"; \
+    mkdir -p "$(dirname "$target")"; \
+    if [ ! -d "$target/.git" ] && [ ! -d "$target" ]; then \
+        git clone "$repo_url" "$target" || true; \
+    fi; \
+    if [ -d "$target/.git" ]; then \
+        git config --global --add safe.directory "$target" || true; \
+        sudo -u $$ssh_username git config --global --add safe.directory "$target" || true; \
+        git -C "$target" remote set-url origin "$repo_url" || true; \
+        git -C "$target" remote set-head origin -a || true; \
+        branch="$(git -C "$target" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"; \
+        if [ -z "$branch" ]; then branch="main"; fi; \
+        git -C "$target" fetch --all || true; \
+        git -C "$target" reset --hard "origin/$branch" || true; \
+        git -C "$target" switch "$branch" || git -C "$target" checkout -B "$branch" "origin/$branch" || true; \
+        git -C "$target" pull origin "$branch" || true; \
+    fi; \
+done
+
+# Copy Grimmer templates to the root-level grimmer workspace.
+RUN mkdir -p /home/$$ssh_username/code1/grimmer
+RUN if [ -d /home/$$ssh_username/code1/extras/grimmer/.vscode ]; then \
+    rm -rf /home/$$ssh_username/code1/grimmer/.vscode && \
+    cp -r /home/$$ssh_username/code1/extras/grimmer/.vscode /home/$$ssh_username/code1/grimmer/.vscode; \
+fi
+RUN if [ -f /home/$$ssh_username/code1/extras/grimmer/.env.template ]; then \
+    cp -f /home/$$ssh_username/code1/extras/grimmer/.env.template /home/$$ssh_username/code1/grimmer/.env; \
+fi
+
+# Replace placeholder with node parameter value.
+RUN if [ -f /home/$$ssh_username/code1/.env ]; then \
+    sed -i "s|!!adspower_api_key|$$adspower_api_key|g" /home/$$ssh_username/code1/.env; \
+fi
