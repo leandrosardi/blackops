@@ -1,0 +1,31 @@
+# Description:
+# - Install ngrok v3 on Ubuntu 22.04 using the official binary package.
+# - Detects server architecture (amd64/arm64) and installs into /usr/local/bin.
+# - Optionally configures auth token if $$ngrok_authtoken is provided.
+
+# Install minimal dependencies required to download and extract ngrok.
+RUN sudo apt-get update -y
+RUN sudo apt-get install -y curl tar ca-certificates
+
+# Pick the correct ngrok package for this CPU architecture.
+RUN ARCH=$(dpkg --print-architecture); \
+		if [ "$ARCH" = "amd64" ]; then \
+			NGROK_URL="https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz"; \
+		elif [ "$ARCH" = "arm64" ]; then \
+			NGROK_URL="https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz"; \
+		else \
+			echo "Unsupported architecture: $ARCH"; \
+			exit 1; \
+		fi; \
+		cd /tmp && rm -f ngrok-v3.tgz ngrok && curl -fsSL "$NGROK_URL" -o ngrok-v3.tgz && tar -xzf ngrok-v3.tgz
+
+# Install ngrok globally.
+RUN sudo install -m 0755 /tmp/ngrok /usr/local/bin/ngrok
+
+# Configure ngrok token for the deployment user when provided.
+RUN if [ -n "$$ngrok_authtoken" ]; then \
+			sudo -u $$ssh_username /usr/local/bin/ngrok config add-authtoken "$$ngrok_authtoken"; \
+		fi
+
+# Print version for validation in deployment logs.
+RUN /usr/local/bin/ngrok version
