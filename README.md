@@ -30,9 +30,10 @@ saas deploy --node=n01 --version=1.2
 11. [Starting and Stopping Nodes](#11-starting-and-stopping-nodes)
 12. [Configuration Templates](#12-configuration-templates)
 
-**Operations**
+**Standard Installers**
 
 - [Ngrok](./doc/ngrok.md)
+- [Ollama](./doc/ollama.md)
 
 ## 1. Getting Started
 
@@ -351,4 +352,12 @@ BlackOps.add_node({
 ...
 
 ```
+
+## Disclaimer
+
+BlackOps is provided “as is,” without warranty of any kind, express or implied. In no event shall the authors or contributors be liable for any claim, damages, or other liability arising from—whether in an action of contract, tort, or otherwise—your use of BlackOps or any operations performed with it. You assume full responsibility for verifying that any deployment or configuration change executed with BlackOps is safe and appropriate for your environment.
+
+All third-party trademarks, service marks, and logos used in this README or in the tool itself remain the property of their respective owners, and no endorsement is implied. Use of BlackOps is at your own risk.
+
+Logo has been taken from [here](https://www.flaticon.com/free-icon/command-line_9969711?related_id=9969486&origin=search).
 
