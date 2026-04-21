@@ -34,6 +34,7 @@ saas deploy --node=n01 --version=1.2
 
 - [Ngrok](./doc/ngrok.md)
 - [Ollama](./doc/ollama.md)
+- [Cloudflared](./doc/cloudflared.md)
 
 ## 1. Getting Started
 

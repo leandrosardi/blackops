@@ -1,0 +1,70 @@
+# Description:
+# - Install cloudflared on Ubuntu 22.04 using the official binary release.
+# - Configure a named tunnel using token authentication.
+# - Expose SSH, HTTP and HTTPS through ingress rules.
+#
+# Required node/custom params (or CLI --param=value):
+# - cloudflared_tunnel_token
+# - cloudflared_ssh_hostname
+# - cloudflared_http_hostname
+# - cloudflared_https_hostname
+
+RUN set -e
+
+RUN if [ -z "$$cloudflared_tunnel_token" ] || [ -z "$$cloudflared_ssh_hostname" ] || [ -z "$$cloudflared_http_hostname" ] || [ -z "$$cloudflared_https_hostname" ]; then \
+		echo "Missing required params. Required: cloudflared_tunnel_token, cloudflared_ssh_hostname, cloudflared_http_hostname, cloudflared_https_hostname"; \
+		exit 1; \
+	fi
+
+RUN if echo "$$cloudflared_tunnel_token" | grep -Eq '^[0-9a-fA-F-]{36}$'; then \
+		echo "cloudflared_tunnel_token looks like a Tunnel ID (UUID), not a token."; \
+		echo "Use the token from Cloudflare Zero Trust > Networks > Tunnels > <your-tunnel> > Connectors > Run the tunnel > token."; \
+		exit 1; \
+	fi
+
+# Install cloudflared from official releases to avoid apt repository issues.
+RUN if ! command -v /usr/local/bin/cloudflared >/dev/null 2>&1 && ! command -v /usr/bin/cloudflared >/dev/null 2>&1; then \
+		ARCH=$(dpkg --print-architecture 2>/dev/null || uname -m); \
+		if [ "$ARCH" = "amd64" ] || [ "$ARCH" = "x86_64" ]; then \
+			CF_URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64"; \
+		elif [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then \
+			CF_URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64"; \
+		else \
+			echo "Unsupported architecture: $ARCH"; \
+			exit 1; \
+		fi; \
+		if command -v curl >/dev/null 2>&1; then \
+			curl -fsSL "$CF_URL" -o /tmp/cloudflared; \
+		elif command -v wget >/dev/null 2>&1; then \
+			wget -qO /tmp/cloudflared "$CF_URL"; \
+		else \
+			echo "Neither curl nor wget is available to download cloudflared"; \
+			exit 1; \
+		fi; \
+		sudo install -m 0755 /tmp/cloudflared /usr/local/bin/cloudflared; \
+	fi
+
+# Persist tunnel token and write cloudflared ingress config.
+RUN TUNNEL_TOKEN="$$cloudflared_tunnel_token"; \
+		SSH_HOSTNAME="$$cloudflared_ssh_hostname"; \
+		HTTP_HOSTNAME="$$cloudflared_http_hostname"; \
+		HTTPS_HOSTNAME="$$cloudflared_https_hostname"; \
+		sudo mkdir -p /etc/cloudflared; \
+		echo "$TUNNEL_TOKEN" | sudo tee /etc/cloudflared/tunnel-token >/dev/null; \
+		sudo chmod 600 /etc/cloudflared/tunnel-token; \
+		sudo printf "metrics: 127.0.0.1:60123\nloglevel: info\ningress:\n  - hostname: %s\n    service: ssh://localhost:22\n  - hostname: %s\n    service: http://localhost:80\n  - hostname: %s\n    service: https://localhost:443\n    originRequest:\n      noTLSVerify: true\n  - service: http_status:404\n" "$SSH_HOSTNAME" "$HTTP_HOSTNAME" "$HTTPS_HOSTNAME" | sudo tee /etc/cloudflared/config.yml >/dev/null
+
+# Configure and start a resilient systemd service.
+RUN sudo printf "[Unit]\nDescription=Cloudflare Tunnel\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=simple\nUser=root\nRestart=always\nRestartSec=5s\nExecStart=/bin/bash -lc '/usr/local/bin/cloudflared --config /etc/cloudflared/config.yml tunnel run --token \"\$(cat /etc/cloudflared/tunnel-token)\"'\n\n[Install]\nWantedBy=multi-user.target\n" | sudo tee /etc/systemd/system/cloudflared.service >/dev/null
+
+RUN sudo systemctl daemon-reload
+RUN sudo systemctl enable cloudflared
+RUN sudo systemctl restart cloudflared
+
+# Runtime validation in deployment logs.
+RUN sleep 5
+RUN sudo systemctl --no-pager --full status cloudflared | head -n 40
+RUN sudo systemctl is-active cloudflared || true
+RUN sudo journalctl -u cloudflared -n 80 --no-pager
+RUN sudo ss -ltn '( sport = :22 or sport = :80 or sport = :443 )' || true
+RUN if command -v /usr/local/bin/cloudflared >/dev/null 2>&1; then /usr/local/bin/cloudflared --version; else /usr/bin/cloudflared --version; fi

@@ -1,0 +1,2 @@
+RUN sudo systemctl stop cloudflared
+RUN sudo systemctl is-active cloudflared || true

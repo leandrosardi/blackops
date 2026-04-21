@@ -1,0 +1,3 @@
+RUN sudo systemctl start cloudflared
+RUN sudo systemctl --no-pager --full status cloudflared | head -n 40
+RUN sudo systemctl is-active cloudflared || true
