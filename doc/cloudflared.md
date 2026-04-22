@@ -4,6 +4,19 @@ This document explains the operations `cloudflared.install.op`, `cloudflared.sta
 
 The installer provisions Cloudflare Tunnel on Ubuntu, creates a `cloudflared` systemd service, and configures ingress routes for SSH, HTTP, and HTTPS.
 
+## Prerequisite: you need a domain in your Cloudflare account
+
+Before creating Published application routes, Cloudflare must have at least one DNS zone in your account.
+
+Important notes:
+
+1. You cannot publish hostnames under `*.cloudflare.com` (for example, `ssh.connection-sphere.cloudflare.com`) unless you own/manage that zone in your account.
+2. In most setups, you must use your own domain (example: `mycompany.com`) and then publish hostnames like:
+	- `ssh.mycompany.com`
+	- `app.mycompany.com`
+	- `secure.mycompany.com`
+3. If the Domain dropdown shows `No valid options`, it usually means there is no domain zone available in the current Cloudflare account, or your user lacks permissions for DNS/tunnels in that zone.
+
 ## What `cloudflared.install.op` does
 
 When executed successfully, it performs the following tasks:
@@ -66,6 +79,19 @@ saas source ./cloudflared.install.op \
 
 If token is exposed or old, use "Refresh token" in the same screen and re-run installer.
 
+## How to configure Published application routes
+
+After the connector is running, configure routes in Cloudflare Zero Trust:
+
+1. Open Networks -> Tunnels -> your tunnel.
+2. Open Published application routes.
+3. Add routes using a domain you manage in the current account:
+	- `ssh.<your-domain>` -> `ssh://localhost:22`
+	- `app.<your-domain>` -> `http://localhost:80`
+	- `secure.<your-domain>` -> `https://localhost:443`
+
+For SSH route, leave Path empty.
+
 ## Start and stop operations
 
 Start service:
@@ -111,5 +137,11 @@ Registered tunnel connection ... protocol=quic
 	- Confirm public hostnames are mapped in Cloudflare tunnel routes.
 	- Confirm local services are listening on ports 22, 80, and 443.
 
-4. Installer cannot use apt repositories:
+4. Domain dropdown shows `No valid options`:
+	- Verify you are using the correct Cloudflare account/organization.
+	- Add or delegate a domain zone to that account (DNS -> Add site).
+	- Ensure your user has permissions to manage DNS and Tunnels.
+	- Do not use `*.cloudflare.com` unless that zone belongs to your account.
+
+5. Installer cannot use apt repositories:
 	- Current operation uses direct binary download, so apt mirror issues should not block installation.
