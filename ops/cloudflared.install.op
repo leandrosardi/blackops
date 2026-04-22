@@ -1,18 +1,16 @@
 # Description:
 # - Install cloudflared on Ubuntu 22.04 using the official binary release.
 # - Configure a named tunnel using token authentication.
-# - Expose SSH, HTTP and HTTPS through ingress rules.
+# - Expose only SSH through ingress rules.
 #
 # Required node/custom params (or CLI --param=value):
 # - cloudflared_tunnel_token
 # - cloudflared_ssh_hostname
-# - cloudflared_http_hostname
-# - cloudflared_https_hostname
 
 RUN set -e
 
-RUN if [ -z "$$cloudflared_tunnel_token" ] || [ -z "$$cloudflared_ssh_hostname" ] || [ -z "$$cloudflared_http_hostname" ] || [ -z "$$cloudflared_https_hostname" ]; then \
-		echo "Missing required params. Required: cloudflared_tunnel_token, cloudflared_ssh_hostname, cloudflared_http_hostname, cloudflared_https_hostname"; \
+RUN if [ -z "$$cloudflared_tunnel_token" ] || [ -z "$$cloudflared_ssh_hostname" ]; then \
+		echo "Missing required params. Required: cloudflared_tunnel_token, cloudflared_ssh_hostname"; \
 		exit 1; \
 	fi
 
@@ -47,12 +45,10 @@ RUN if ! command -v /usr/local/bin/cloudflared >/dev/null 2>&1 && ! command -v /
 # Persist tunnel token and write cloudflared ingress config.
 RUN TUNNEL_TOKEN="$$cloudflared_tunnel_token"; \
 		SSH_HOSTNAME="$$cloudflared_ssh_hostname"; \
-		HTTP_HOSTNAME="$$cloudflared_http_hostname"; \
-		HTTPS_HOSTNAME="$$cloudflared_https_hostname"; \
 		sudo mkdir -p /etc/cloudflared; \
 		echo "$TUNNEL_TOKEN" | sudo tee /etc/cloudflared/tunnel-token >/dev/null; \
 		sudo chmod 600 /etc/cloudflared/tunnel-token; \
-		sudo printf "metrics: 127.0.0.1:60123\nloglevel: info\ningress:\n  - hostname: %s\n    service: ssh://localhost:22\n  - hostname: %s\n    service: http://localhost:80\n  - hostname: %s\n    service: https://localhost:443\n    originRequest:\n      noTLSVerify: true\n  - service: http_status:404\n" "$SSH_HOSTNAME" "$HTTP_HOSTNAME" "$HTTPS_HOSTNAME" | sudo tee /etc/cloudflared/config.yml >/dev/null
+		sudo printf "metrics: 127.0.0.1:60123\nloglevel: info\ningress:\n  - hostname: %s\n    service: ssh://localhost:22\n  - service: http_status:404\n" "$SSH_HOSTNAME" | sudo tee /etc/cloudflared/config.yml >/dev/null
 
 # Configure and start a resilient systemd service.
 RUN sudo printf "[Unit]\nDescription=Cloudflare Tunnel\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=simple\nUser=root\nRestart=always\nRestartSec=5s\nExecStart=/bin/bash -lc '/usr/local/bin/cloudflared --config /etc/cloudflared/config.yml tunnel run --token \"\$(cat /etc/cloudflared/tunnel-token)\"'\n\n[Install]\nWantedBy=multi-user.target\n" | sudo tee /etc/systemd/system/cloudflared.service >/dev/null
@@ -66,5 +62,5 @@ RUN sleep 5
 RUN sudo systemctl --no-pager --full status cloudflared | head -n 40
 RUN sudo systemctl is-active cloudflared || true
 RUN sudo journalctl -u cloudflared -n 80 --no-pager
-RUN sudo ss -ltn '( sport = :22 or sport = :80 or sport = :443 )' || true
+RUN sudo ss -ltn '( sport = :22 )' || true
 RUN if command -v /usr/local/bin/cloudflared >/dev/null 2>&1; then /usr/local/bin/cloudflared --version; else /usr/bin/cloudflared --version; fi

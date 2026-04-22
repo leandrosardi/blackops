@@ -2,7 +2,7 @@
 
 This document explains the operations `cloudflared.install.op`, `cloudflared.start.op`, and `cloudflared.stop.op`.
 
-The installer provisions Cloudflare Tunnel on Ubuntu, creates a `cloudflared` systemd service, and configures ingress routes for SSH, HTTP, and HTTPS.
+The installer provisions Cloudflare Tunnel on Ubuntu, creates a `cloudflared` systemd service, and configures ingress routes for SSH only.
 
 ## Prerequisite: you need a domain in your Cloudflare account
 
@@ -12,9 +12,7 @@ Important notes:
 
 1. You cannot publish hostnames under `*.cloudflare.com` (for example, `ssh.connection-sphere.cloudflare.com`) unless you own/manage that zone in your account.
 2. In most setups, you must use your own domain (example: `mycompany.com`) and then publish hostnames like:
-	- `ssh.mycompany.com`
-	- `app.mycompany.com`
-	- `secure.mycompany.com`
+	- `ssh-dev1.mycompany.com` (SSH)
 3. If the Domain dropdown shows `No valid options`, it usually means there is no domain zone available in the current Cloudflare account, or your user lacks permissions for DNS/tunnels in that zone.
 
 ## What `cloudflared.install.op` does
@@ -25,9 +23,7 @@ When executed successfully, it performs the following tasks:
 2. Installs `cloudflared` binary from official Cloudflare releases.
 3. Stores tunnel token at `/etc/cloudflared/tunnel-token`.
 4. Writes `/etc/cloudflared/config.yml` with ingress rules:
-	- `ssh://localhost:22`
-	- `http://localhost:80`
-	- `https://localhost:443` (with `noTLSVerify: true`)
+	- `ssh://localhost:22` for a dedicated SSH hostname.
 5. Creates/updates `/etc/systemd/system/cloudflared.service`.
 6. Enables and restarts the `cloudflared` service.
 7. Prints status and logs for runtime validation.
@@ -38,8 +34,6 @@ The operation references these variables, so they must be available from node co
 
 1. `cloudflared_tunnel_token`
 2. `cloudflared_ssh_hostname`
-3. `cloudflared_http_hostname`
-4. `cloudflared_https_hostname`
 
 If any of them is missing, `saas` will fail before or during execution.
 
@@ -64,9 +58,7 @@ saas source ./cloudflared.install.op \
   --node=localmaster \
   --root \
   --cloudflared_tunnel_token=YOUR_CONNECTOR_TOKEN \
-  --cloudflared_ssh_hostname=ssh.example.com \
-  --cloudflared_http_hostname=app.example.com \
-  --cloudflared_https_hostname=secure.example.com
+	--cloudflared_ssh_hostname=ssh-dev1.example.com
 ```
 
 ## How to get `cloudflared_tunnel_token`
@@ -86,9 +78,7 @@ After the connector is running, configure routes in Cloudflare Zero Trust:
 1. Open Networks -> Tunnels -> your tunnel.
 2. Open Published application routes.
 3. Add routes using a domain you manage in the current account:
-	- `ssh.<your-domain>` -> `ssh://localhost:22`
-	- `app.<your-domain>` -> `http://localhost:80`
-	- `secure.<your-domain>` -> `https://localhost:443`
+	- `ssh-dev1.<your-domain>` -> `ssh://localhost:22`
 
 For SSH route, leave Path empty.
 
@@ -135,7 +125,7 @@ Registered tunnel connection ... protocol=quic
 
 3. Hostnames not reachable:
 	- Confirm public hostnames are mapped in Cloudflare tunnel routes.
-	- Confirm local services are listening on ports 22, 80, and 443.
+	- Confirm SSH service is listening on port 22.
 
 4. Domain dropdown shows `No valid options`:
 	- Verify you are using the correct Cloudflare account/organization.
