@@ -10,12 +10,8 @@ Run the following command to install and configure `cloudflared` on your machine
 
 ```bash
 export CLOUDFLARE_TOKEN=eyJhIjoiYzQ5ZW... && \
-export OPSLIB=~/code1/secret/local-ubuntu-22.04 && \
-export MYSAAS_PASSWORD=2404 && \
-export MYSAAS_ROOT_PASSWORD=2404 && \
 saas source ./cloudflared.install.op \
-  --node=localmaster \
-  --root \
+  --local \
   --cloudflared_tunnel_token=$CLOUDFLARE_TOKEN
 ```
 
@@ -38,9 +34,7 @@ ssh -o ProxyCommand="cloudflared access ssh --hostname %h" leandro@dev2.connecti
 Stop the `cloudflared` service:
 
 ```bash
-saas source ./cloudflared.stop.op \
-  --node=localmaster \
-  --root
+saas source ./cloudflared.stop.op --local
 ```
 
 ## Start Service
@@ -48,7 +42,5 @@ saas source ./cloudflared.stop.op \
 Start the `cloudflared` service:
 
 ```bash
-saas source ./cloudflared.start.op \
-  --node=localmaster \
-  --root
+saas source ./cloudflared.start.op --local
 ```
