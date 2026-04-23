@@ -1,88 +1,101 @@
 # Cloudflared
 
-This document explains the operations `cloudflared.install.op`, `cloudflared.start.op`, and `cloudflared.stop.op`.
+This guide documents `cloudflared.install.op`, `cloudflared.start.op`, and `cloudflared.stop.op` to run a Cloudflare Tunnel connector on a local machine using `saas source`.
 
-The installer provisions Cloudflare Tunnel on Ubuntu, creates a `cloudflared` systemd service, and configures ingress routes for SSH only.
+The workflow is aligned with the Zero Trust dashboard flow shown in your screenshots:
 
-## Prerequisite: you need a domain in your Cloudflare account
+1. Create a tunnel (`Cloudflared`) in Cloudflare.
+2. Copy the token from **Install and run connectors**.
+3. Run `cloudflared.install.op` on the local node.
+4. Configure SSH routes in **Published application routes**.
 
-Before creating Published application routes, Cloudflare must have at least one DNS zone in your account.
+## Prerequisites
+
+1. You must have at least one DNS zone (domain) in your Cloudflare account.
+2. You need Zero Trust access with Tunnel and DNS permissions.
+3. The local server must have SSH listening on port 22.
 
 Important notes:
 
-1. You cannot publish hostnames under `*.cloudflare.com` (for example, `ssh.connection-sphere.cloudflare.com`) unless you own/manage that zone in your account.
-2. In most setups, you must use your own domain (example: `mycompany.com`) and then publish hostnames like:
-	- `ssh-dev1.mycompany.com` (SSH)
-3. If the Domain dropdown shows `No valid options`, it usually means there is no domain zone available in the current Cloudflare account, or your user lacks permissions for DNS/tunnels in that zone.
+1. You cannot publish hostnames under `*.cloudflare.com` unless that zone belongs to your account.
+2. Typical setup: use your own domain (example: `connectionsphere.com`) and hostnames like `dev2.connectionsphere.com`.
+3. If the Domain selector shows `No valid options`, your current account has no available DNS zone or your user permissions are insufficient.
 
 ## What `cloudflared.install.op` does
 
-When executed successfully, it performs the following tasks:
+When it runs successfully:
 
-1. Validates required parameters exist.
-2. Installs `cloudflared` binary from official Cloudflare releases.
-3. Stores tunnel token at `/etc/cloudflared/tunnel-token`.
-4. Writes `/etc/cloudflared/config.yml` with ingress rules:
-	- `ssh://localhost:22` for a dedicated SSH hostname.
-5. Creates/updates `/etc/systemd/system/cloudflared.service`.
-6. Enables and restarts the `cloudflared` service.
-7. Prints status and logs for runtime validation.
+1. Validates `cloudflared_tunnel_token` is present.
+2. Prevents accidental use of Tunnel ID (UUID) instead of token.
+3. Installs `cloudflared` from the official binary release (without apt repository dependency).
+4. Reinstalls the systemd service using the official command:
+	- `cloudflared service install <TOKEN>`
+5. Enables and starts `cloudflared.service`.
+6. Prints status and logs for quick runtime validation.
 
-## Required parameters
+## Required parameter
 
-The operation references these variables, so they must be available from node config or CLI parameters:
+Only one parameter is required:
 
 1. `cloudflared_tunnel_token`
-2. `cloudflared_ssh_hostname`
-
-If any of them is missing, `saas` will fail before or during execution.
 
 ## Important: Tunnel Token vs Tunnel ID
 
 `cloudflared_tunnel_token` must be the connector token (usually starts with `eyJ...`).
 
-Do not use the tunnel UUID shown as Tunnel ID (example: `0cfd1079-c6b7-410e-9f81-7fa6eece936f`).
+Do not use the tunnel UUID (Tunnel ID), for example:
 
-If you use Tunnel ID instead of token, the service will fail with:
-
+```text
+0cfd1079-c6b7-410e-9f81-7fa6eece936f
 ```
+
+If you use Tunnel ID instead of token, the service fails with errors like:
+
+```text
 Provided Tunnel token is not valid.
 ```
 
-## Example command
+## Installation command (local machine)
 
 From the `ops` folder:
 
 ```bash
+export CLOUDFLARE_TOKEN= eyJhIjoiYzQ5ZW... && \
+export OPSLIB=~/code1/secret/local-ubuntu-22.04 && \
+export MYSAAS_PASSWORD=2404 && \
+export MYSAAS_ROOT_PASSWORD=2404 && \
 saas source ./cloudflared.install.op \
   --node=localmaster \
   --root \
-  --cloudflared_tunnel_token=YOUR_CONNECTOR_TOKEN \
-	--cloudflared_ssh_hostname=ssh-dev1.example.com
+  --cloudflared_tunnel_token=CLOUDFLARE_TOKEN
 ```
+
+If the token was exposed in chat, logs, or screenshots, rotate it in Cloudflare and rerun the installer with the new token.
 
 ## How to get `cloudflared_tunnel_token`
 
-1. Open Cloudflare Zero Trust dashboard.
+1. Open Cloudflare Zero Trust.
 2. Go to Networks -> Tunnels.
 3. Open your tunnel.
-4. Open Connectors.
-5. Copy the token shown in "Install and run a connector" (`cloudflared tunnel run --token ...`).
+4. Open **Install and run connectors**.
+5. Copy the token from the command shown by Cloudflare.
 
-If token is exposed or old, use "Refresh token" in the same screen and re-run installer.
+## SSH route setup in Cloudflare (dashboard)
 
-## How to configure Published application routes
+After the connector is active:
 
-After the connector is running, configure routes in Cloudflare Zero Trust:
+1. Go to Networks -> Tunnels -> your tunnel.
+2. Open **Published application routes**.
+3. Create a route:
+	- Subdomain: `dev2` (or any name you want)
+	- Domain: your zone (example: `connectionsphere.com`)
+	- Type: `SSH`
+	- URL: `localhost:22`
+4. Leave Path empty for SSH.
 
-1. Open Networks -> Tunnels -> your tunnel.
-2. Open Published application routes.
-3. Add routes using a domain you manage in the current account:
-	- `ssh-dev1.<your-domain>` -> `ssh://localhost:22`
+Expected result: a public hostname such as `dev2.connectionsphere.com`, routed through the tunnel to `ssh://localhost:22`.
 
-For SSH route, leave Path empty.
-
-## Start and stop operations
+## Service control operations
 
 Start service:
 
@@ -96,9 +109,9 @@ Stop service:
 saas source ./cloudflared.stop.op --node=localmaster --root
 ```
 
-## Validation checklist
+## Validation
 
-Run these checks on the target server:
+Useful checks on the local server:
 
 ```bash
 systemctl is-active cloudflared
@@ -106,32 +119,29 @@ systemctl --no-pager --full status cloudflared
 journalctl -u cloudflared -n 120 --no-pager
 ```
 
-Expected healthy logs include messages like:
+Healthy logs usually include messages like:
 
-```
+```text
 Registered tunnel connection ... protocol=quic
 ```
 
 ## Troubleshooting
 
-1. `Provided Tunnel token is not valid`:
-	- Re-copy token from Connectors page.
-	- Ensure value is token (`eyJ...`), not tunnel UUID.
-	- Re-run `cloudflared.install.op` with new token.
+1. `Provided Tunnel token is not valid`
+	- Recopy the token from **Install and run connectors**.
+	- Verify it is a token (`eyJ...`) and not a Tunnel ID (UUID).
+	- Reinstall with `cloudflared.install.op`.
 
-2. Service keeps restarting:
+2. Service keeps restarting
 	- Check logs: `journalctl -u cloudflared -n 120 --no-pager`.
-	- Verify token file: `sudo cat /etc/cloudflared/tunnel-token`.
+	- Run `cloudflared.install.op` again to reinstall the service with a valid token.
 
-3. Hostnames not reachable:
-	- Confirm public hostnames are mapped in Cloudflare tunnel routes.
-	- Confirm SSH service is listening on port 22.
+3. Hostname is not reachable
+	- Confirm the route exists in **Published application routes**.
+	- Confirm route type is `SSH` and target is `localhost:22`.
+	- Confirm local SSH is listening on port 22.
 
-4. Domain dropdown shows `No valid options`:
-	- Verify you are using the correct Cloudflare account/organization.
-	- Add or delegate a domain zone to that account (DNS -> Add site).
-	- Ensure your user has permissions to manage DNS and Tunnels.
-	- Do not use `*.cloudflare.com` unless that zone belongs to your account.
-
-5. Installer cannot use apt repositories:
-	- Current operation uses direct binary download, so apt mirror issues should not block installation.
+4. Domain dropdown shows `No valid options`
+	- Make sure you are in the correct Cloudflare account.
+	- Add or delegate a DNS zone to that account.
+	- Confirm your user has DNS and Tunnel permissions.

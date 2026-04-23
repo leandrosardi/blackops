@@ -1,22 +1,28 @@
 # Description:
-# - Install cloudflared on Ubuntu 22.04 using the official binary release.
-# - Configure a named tunnel using token authentication.
-# - Expose only SSH through ingress rules.
+# - Install cloudflared on Ubuntu using the official binary release.
+# - Register this machine as a Cloudflare Tunnel connector using token auth.
+# - Keep tunnel routes managed in Cloudflare dashboard (Published application routes).
 #
 # Required node/custom params (or CLI --param=value):
 # - cloudflared_tunnel_token
-# - cloudflared_ssh_hostname
 
 RUN set -e
 
-RUN if [ -z "$$cloudflared_tunnel_token" ] || [ -z "$$cloudflared_ssh_hostname" ]; then \
-		echo "Missing required params. Required: cloudflared_tunnel_token, cloudflared_ssh_hostname"; \
+RUN if [ -z "$$cloudflared_tunnel_token" ]; then \
+		echo "Missing required param: cloudflared_tunnel_token"; \
 		exit 1; \
 	fi
 
 RUN if echo "$$cloudflared_tunnel_token" | grep -Eq '^[0-9a-fA-F-]{36}$'; then \
 		echo "cloudflared_tunnel_token looks like a Tunnel ID (UUID), not a token."; \
 		echo "Use the token from Cloudflare Zero Trust > Networks > Tunnels > <your-tunnel> > Connectors > Run the tunnel > token."; \
+		exit 1; \
+	fi
+
+# Basic validation for connector token copied from Cloudflare dashboard.
+RUN if ! echo "$$cloudflared_tunnel_token" | grep -Eq '^eyJ[A-Za-z0-9_-]{80,}$'; then \
+		echo "cloudflared_tunnel_token format looks unexpected."; \
+		echo "Expected a connector token similar to: eyJ..."; \
 		exit 1; \
 	fi
 
@@ -42,16 +48,21 @@ RUN if ! command -v /usr/local/bin/cloudflared >/dev/null 2>&1 && ! command -v /
 		sudo install -m 0755 /tmp/cloudflared /usr/local/bin/cloudflared; \
 	fi
 
-# Persist tunnel token and write cloudflared ingress config.
-RUN TUNNEL_TOKEN="$$cloudflared_tunnel_token"; \
-		SSH_HOSTNAME="$$cloudflared_ssh_hostname"; \
+# Resolve cloudflared executable path.
+RUN CF_BIN=$(command -v cloudflared || true); \
+		if [ -z "$CF_BIN" ] && [ -x /usr/local/bin/cloudflared ]; then CF_BIN=/usr/local/bin/cloudflared; fi; \
+		if [ -z "$CF_BIN" ] && [ -x /usr/bin/cloudflared ]; then CF_BIN=/usr/bin/cloudflared; fi; \
+		if [ -z "$CF_BIN" ]; then \
+			echo "cloudflared binary not found after installation"; \
+			exit 1; \
+		fi; \
 		sudo mkdir -p /etc/cloudflared; \
-		echo "$TUNNEL_TOKEN" | sudo tee /etc/cloudflared/tunnel-token >/dev/null; \
-		sudo chmod 600 /etc/cloudflared/tunnel-token; \
-		sudo printf "metrics: 127.0.0.1:60123\nloglevel: info\ningress:\n  - hostname: %s\n    service: ssh://localhost:22\n  - service: http_status:404\n" "$SSH_HOSTNAME" | sudo tee /etc/cloudflared/config.yml >/dev/null
+		echo "$CF_BIN" | sudo tee /etc/cloudflared/.cloudflared-bin >/dev/null
 
-# Configure and start a resilient systemd service.
-RUN sudo printf "[Unit]\nDescription=Cloudflare Tunnel\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=simple\nUser=root\nRestart=always\nRestartSec=5s\nExecStart=/bin/bash -lc '/usr/local/bin/cloudflared --config /etc/cloudflared/config.yml tunnel run --token \"\$(cat /etc/cloudflared/tunnel-token)\"'\n\n[Install]\nWantedBy=multi-user.target\n" | sudo tee /etc/systemd/system/cloudflared.service >/dev/null
+# Reinstall service with current token (same flow shown in Cloudflare dashboard).
+RUN CF_BIN=$(sudo cat /etc/cloudflared/.cloudflared-bin); \
+		sudo "$CF_BIN" service uninstall >/dev/null 2>&1 || true; \
+		sudo "$CF_BIN" service install "$$cloudflared_tunnel_token"
 
 RUN sudo systemctl daemon-reload
 RUN sudo systemctl enable cloudflared
@@ -63,4 +74,4 @@ RUN sudo systemctl --no-pager --full status cloudflared | head -n 40
 RUN sudo systemctl is-active cloudflared || true
 RUN sudo journalctl -u cloudflared -n 80 --no-pager
 RUN sudo ss -ltn '( sport = :22 )' || true
-RUN if command -v /usr/local/bin/cloudflared >/dev/null 2>&1; then /usr/local/bin/cloudflared --version; else /usr/bin/cloudflared --version; fi
+RUN CF_BIN=$(sudo cat /etc/cloudflared/.cloudflared-bin); "$CF_BIN" --version
