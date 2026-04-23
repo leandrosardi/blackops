@@ -60,14 +60,23 @@ Provided Tunnel token is not valid.
 From the `ops` folder:
 
 ```bash
-export CLOUDFLARE_TOKEN= eyJhIjoiYzQ5ZW... && \
+export CLOUDFLARE_TOKEN=eyJhIjoiYzQ5ZW... && \
 export OPSLIB=~/code1/secret/local-ubuntu-22.04 && \
 export MYSAAS_PASSWORD=2404 && \
 export MYSAAS_ROOT_PASSWORD=2404 && \
 saas source ./cloudflared.install.op \
   --node=localmaster \
   --root \
-  --cloudflared_tunnel_token=CLOUDFLARE_TOKEN
+	--cloudflared_tunnel_token=$CLOUDFLARE_TOKEN
+```
+
+Alternative also supported by the installer:
+
+```bash
+saas source ./cloudflared.install.op \
+	--node=localmaster \
+	--root \
+	--cloudflared_tunnel_token=CLOUDFLARE_TOKEN
 ```
 
 If the token was exposed in chat, logs, or screenshots, rotate it in Cloudflare and rerun the installer with the new token.

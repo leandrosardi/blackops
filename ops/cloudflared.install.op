@@ -13,18 +13,32 @@ RUN if [ -z "$$cloudflared_tunnel_token" ]; then \
 		exit 1; \
 	fi
 
-RUN if echo "$$cloudflared_tunnel_token" | grep -Eq '^[0-9a-fA-F-]{36}$'; then \
-		echo "cloudflared_tunnel_token looks like a Tunnel ID (UUID), not a token."; \
-		echo "Use the token from Cloudflare Zero Trust > Networks > Tunnels > <your-tunnel> > Connectors > Run the tunnel > token."; \
-		exit 1; \
-	fi
-
-# Basic validation for connector token copied from Cloudflare dashboard.
-RUN if ! echo "$$cloudflared_tunnel_token" | grep -Eq '^eyJ[A-Za-z0-9_-]{80,}$'; then \
-		echo "cloudflared_tunnel_token format looks unexpected."; \
-		echo "Expected a connector token similar to: eyJ..."; \
-		exit 1; \
-	fi
+# Resolve token from parameter value or from environment variable name.
+RUN RAW_TOKEN="$$cloudflared_tunnel_token"; \
+		RESOLVED_TOKEN="$RAW_TOKEN"; \
+		if echo "$RAW_TOKEN" | grep -Eq '^[A-Z_][A-Z0-9_]*$'; then \
+			ENV_TOKEN=$(printenv "$RAW_TOKEN" || true); \
+			if [ -n "$ENV_TOKEN" ]; then \
+				RESOLVED_TOKEN="$ENV_TOKEN"; \
+			fi; \
+		fi; \
+		if [ -z "$RESOLVED_TOKEN" ]; then \
+			echo "cloudflared_tunnel_token resolved to empty value."; \
+			exit 1; \
+		fi; \
+		if echo "$RESOLVED_TOKEN" | grep -Eq '^[0-9a-fA-F-]{36}$'; then \
+			echo "cloudflared_tunnel_token looks like a Tunnel ID (UUID), not a token."; \
+			echo "Use the token from Cloudflare Zero Trust > Networks > Tunnels > <your-tunnel> > Connectors > Run the tunnel > token."; \
+			exit 1; \
+		fi; \
+		if ! echo "$RESOLVED_TOKEN" | grep -Eq '^eyJ[A-Za-z0-9_-]{80,}$'; then \
+			echo "cloudflared_tunnel_token format looks unexpected."; \
+			echo "Expected a connector token similar to: eyJ..."; \
+			exit 1; \
+		fi; \
+		sudo mkdir -p /etc/cloudflared; \
+		echo "$RESOLVED_TOKEN" | sudo tee /etc/cloudflared/tunnel-token >/dev/null; \
+		sudo chmod 600 /etc/cloudflared/tunnel-token
 
 # Install cloudflared from official releases to avoid apt repository issues.
 RUN if ! command -v /usr/local/bin/cloudflared >/dev/null 2>&1 && ! command -v /usr/bin/cloudflared >/dev/null 2>&1; then \
@@ -62,7 +76,17 @@ RUN CF_BIN=$(command -v cloudflared || true); \
 # Reinstall service with current token (same flow shown in Cloudflare dashboard).
 RUN CF_BIN=$(sudo cat /etc/cloudflared/.cloudflared-bin); \
 		sudo "$CF_BIN" service uninstall >/dev/null 2>&1 || true; \
-		sudo "$CF_BIN" service install "$$cloudflared_tunnel_token"
+		sudo systemctl stop cloudflared >/dev/null 2>&1 || true; \
+		sudo systemctl disable cloudflared >/dev/null 2>&1 || true; \
+		sudo rm -f /etc/systemd/system/cloudflared.service; \
+		sudo rm -f /etc/systemd/system/cloudflared-update.service; \
+		sudo systemctl daemon-reload; \
+		TOKEN=$(sudo cat /etc/cloudflared/tunnel-token); \
+		sudo "$CF_BIN" service install "$TOKEN" >/tmp/cloudflared-service-install.log 2>&1 || true; \
+		if [ ! -f /etc/systemd/system/cloudflared.service ]; then \
+			echo "cloudflared service install did not create systemd unit. Applying fallback unit."; \
+			sudo printf "[Unit]\nDescription=Cloudflare Tunnel\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=simple\nUser=root\nRestart=always\nRestartSec=5s\nExecStart=/bin/bash -lc '%s tunnel run --token \"\\$(cat /etc/cloudflared/tunnel-token)\"'\n\n[Install]\nWantedBy=multi-user.target\n" "$CF_BIN" | sudo tee /etc/systemd/system/cloudflared.service >/dev/null; \
+		fi
 
 RUN sudo systemctl daemon-reload
 RUN sudo systemctl enable cloudflared
