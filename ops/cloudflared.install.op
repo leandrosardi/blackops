@@ -85,7 +85,7 @@ RUN CF_BIN=$(sudo cat /etc/cloudflared/.cloudflared-bin); \
 		sudo "$CF_BIN" service install "$TOKEN" >/tmp/cloudflared-service-install.log 2>&1 || true; \
 		if [ ! -f /etc/systemd/system/cloudflared.service ]; then \
 			echo "cloudflared service install did not create systemd unit. Applying fallback unit."; \
-			sudo printf "[Unit]\nDescription=Cloudflare Tunnel\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=simple\nUser=root\nRestart=always\nRestartSec=5s\nExecStart=/bin/bash -lc '%s tunnel run --token \"\\$(cat /etc/cloudflared/tunnel-token)\"'\n\n[Install]\nWantedBy=multi-user.target\n" "$CF_BIN" | sudo tee /etc/systemd/system/cloudflared.service >/dev/null; \
+			sudo printf "[Unit]\nDescription=Cloudflare Tunnel\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=simple\nUser=root\nRestart=always\nRestartSec=5s\nExecStart=/bin/bash -lc '%s tunnel run --token \"\$(cat /etc/cloudflared/tunnel-token)\"'\n\n[Install]\nWantedBy=multi-user.target\n" "$CF_BIN" | sudo tee /etc/systemd/system/cloudflared.service >/dev/null; \
 		fi
 
 RUN sudo systemctl daemon-reload
@@ -95,7 +95,12 @@ RUN sudo systemctl restart cloudflared
 # Runtime validation in deployment logs.
 RUN sleep 5
 RUN sudo systemctl --no-pager --full status cloudflared | head -n 40
-RUN sudo systemctl is-active cloudflared || true
+RUN if ! sudo systemctl is-active --quiet cloudflared; then \
+		echo "cloudflared service is not active after restart."; \
+		sudo systemctl --no-pager --full status cloudflared || true; \
+		sudo journalctl -u cloudflared -n 120 --no-pager || true; \
+		exit 1; \
+	fi
 RUN sudo journalctl -u cloudflared -n 80 --no-pager
 RUN sudo ss -ltn '( sport = :22 )' || true
 RUN CF_BIN=$(sudo cat /etc/cloudflared/.cloudflared-bin); "$CF_BIN" --version
