@@ -44,3 +44,42 @@ Start the `cloudflared` service:
 ```bash
 saas source ./cloudflared.start.op --local
 ```
+
+## Removing Cloudflared
+
+```bash
+#!/bin/bash
+
+set -e
+
+echo "Stopping and disabling cloudflared service (if exists)..."
+sudo systemctl stop cloudflared 2>/dev/null || true
+sudo systemctl disable cloudflared 2>/dev/null || true
+
+echo "Removing systemd service file..."
+sudo rm -f /etc/systemd/system/cloudflared.service
+sudo systemctl daemon-reload
+
+echo "Removing cloudflared binary (common locations)..."
+sudo rm -f /usr/local/bin/cloudflared
+sudo rm -f /usr/bin/cloudflared
+
+echo "Removing package (if installed via apt)..."
+sudo apt remove -y cloudflared 2>/dev/null || true
+
+echo "Removing config directories..."
+rm -rf ~/.cloudflared
+sudo rm -rf /etc/cloudflared
+
+echo "Done. Verifying..."
+
+if command -v cloudflared >/dev/null 2>&1; then
+  echo "cloudflared עדיין exists in PATH"
+else
+  echo "cloudflared successfully removed"
+fi
+
+systemctl status cloudflared 2>/dev/null || echo "Service not found"
+
+echo "Cleanup complete."
+```
